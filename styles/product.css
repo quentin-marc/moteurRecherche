@@ -1,0 +1,38 @@
+#productImage{
+    width: 500px;
+    display: block;
+    margin: auto;
+    border-radius: 20px;
+}
+
+#productName{
+    text-align: center;
+}
+
+#releaseDate{
+    text-align: center;
+}
+
+#description{
+    line-height: 1.25em;
+    height: 10em;
+    text-align: justify;
+    overflow: hidden;
+    text-indent: 30px;
+}
+
+.listAttributs{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.attribut{
+    flex-basis: 45%;
+    margin: 20px 5% 20px 0;
+}
+
+.attributName{
+    font-weight: bold;
+    width: 120px;
+    display: inline-block;
+}
