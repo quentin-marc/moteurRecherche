@@ -1,4 +1,23 @@
-SELECT ?name ?abstract WHERE {
-?company a dbo:Company; dbp:name ?name ;dbo:abstract ?abstract.
-FILTER(regex(str(?name), "Google") && langMatches(lang(?abstract), "EN") ).
+SELECT DISTINCT ?company ?name ?DBP_industry ?DBO_industry ?DBP_revenue ?DBO_revenue ?DBP_netIncome ?DBO_netIncome ?DBO_product ?logo ?abstract ?DBO_developperOf WHERE {
+?company a dbo:Company; dbp:name ?name; dbo:abstract ?abstract.
+FILTER(regex(str(?name), "Auchan") && langMatches(lang(?abstract), "EN") )
+
+OPTIONAL { ?company dbp:industry ?DBP_industry. }
+OPTIONAL { ?company dbo:industry ?DBO_industry. }
+
+OPTIONAL { ?company dbp:revenue ?DBP_revenue. FILTER( datatype(?DBP_revenue) = <http://dbpedia.org/datatype/usDollar>)}
+OPTIONAL { ?company dbo:revenue ?DBO_revenue. FILTER( datatype(?DBO_revenue) = <http://dbpedia.org/datatype/usDollar>)}
+OPTIONAL { ?company dbp:netIncome ?DBP_netIncome. FILTER( datatype(?DBP_netIncome) = <http://dbpedia.org/datatype/usDollar>)}
+OPTIONAL { ?company dbo:netIncome ?DBO_netIncome. FILTER( datatype(?DBO_netIncome) = <http://dbpedia.org/datatype/usDollar>)}
+
+OPTIONAL { ?company dbo:product ?DBO_product. }
+OPTIONAL { ?company dbp:products ?DBP_product. }
+OPTIONAL { ?company dbo:developer ?DBO_developperOf}
+
+OPTIONAL {?company dbp:logo ?logo.}
 }
+ORDER BY DESC(?DBP_revenue)
+
+
+
+OPTIONAL {?company foaf:homepage ?homepage}
