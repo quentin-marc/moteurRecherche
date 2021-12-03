@@ -4,11 +4,11 @@
     justify-content: center;
 }
 
-.nomMoteurRecherche{
+.browserName{
     text-align: center;
 }
 
-.barreRecherche{
+.search{
     font-size: 25px;
     width: 600px;
     border-radius: 50px;
@@ -17,7 +17,7 @@
     padding: 15px 30px;
 }
 
-.descriptionMoteur{
+.description{
     max-width: 1000px;
     text-align: center;
     margin: 50px auto;
