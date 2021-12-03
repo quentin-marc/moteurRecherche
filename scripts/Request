@@ -1,0 +1,4 @@
+SELECT ?name ?abstract WHERE {
+?company a dbo:Company; dbp:name ?name ;dbo:abstract ?abstract.
+FILTER(regex(str(?name), "Google") && langMatches(lang(?abstract), "EN") ).
+}
