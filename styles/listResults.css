@@ -1,0 +1,91 @@
+.content{
+    
+}
+
+.browserName{
+    font-size: 22px;
+    margin-left: 25px;
+}
+
+.search{
+    font-size: 18px;
+    width: 500px;
+    border-radius: 50px;
+    display: block;
+    padding: 7px 15px;
+    margin-left: 25px;
+}
+
+.results{
+    margin-top: 50px;
+    display: flex;
+}
+
+#listResults{
+    flex: 1;
+    padding-right: 20px;
+    margin-bottom: 200px;
+}
+
+.summaryResults{
+    border: solid 1px;
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 105px;
+    margin-top: 25px;
+}
+
+.summaryResults h2, .summaryResults p{
+    margin: 0;
+}
+
+#nbResults{
+    margin-bottom: 10px;
+}
+
+.result{
+    padding: 25px;
+}
+
+.result:hover{
+    background: rgb(220, 220, 220);
+    cursor: pointer;
+}
+
+.introResult{
+    display: flex;
+    align-items: center;
+}
+
+.textIntro{
+    flex: 1;
+}
+
+#logo{
+    width: 70px;
+    height: 70px;
+}
+
+.result > h2{
+    margin-top: 0;
+}
+
+.result #description{
+    line-height: 1.25em;
+    height: 2.5em;  
+    overflow: hidden;
+}
+
+.result .divIncome, .result .divIndustry, .result .divProducts{
+    line-height: 1.25em;
+    height: 1.25em;  
+    overflow: hidden;
+    margin: 5px 0;
+}
+
+.result .property {
+    font-weight: bold;
+    text-decoration: underline;
+    width: 100px;
+    display: inline-block;
+}
