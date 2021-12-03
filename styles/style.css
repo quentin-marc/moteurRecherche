@@ -10,8 +10,11 @@
 
     --line_height: 1.5em;
 
-    --text-secondaire: grey;
+    --text-secondaire: rgb(102, 102, 102);
+    --text-secondaire-size: 16px;
     --cta: #556ce3;
+
+    --bg-grey: #f3f3f3;
 }
 
 body{
@@ -23,7 +26,7 @@ body{
 .content{
     width: 1200px;
     margin: var(--espace-grand) auto;
-    min-height: calc(80vh - var(--espace-grand));
+    min-height: calc(75vh - var(--espace-grand));
 }
 
 .cardContent{
@@ -34,6 +37,7 @@ body{
     top: -180px;
     background: rgb(250, 250, 250);
     border-radius: var(--radius-grand);
+    /* box-shadow: 10px 10px 10px 10px rgba(0,0,0,0.2); */
 }
 
 .fondContrasteCard{
@@ -54,14 +58,20 @@ body{
 }
 
 footer{
-    background: rgb(220, 220, 220);
-    height: calc(20vh - var(--espace-grand));
+    background: var(--bg-grey);
+    height: calc(25vh - var(--espace-grand));
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    border-top: solid;
+    border-width: 0.5px;
+    border-color: rgb(210, 210, 210);
 }
 
 footer p{
     margin: 5px;
+    color: var(--text-secondaire);
+    font-weight: 300;
+    font-size: var(--text-secondaire-size);
 }
