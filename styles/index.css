@@ -1,0 +1,24 @@
+.content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nomMoteurRecherche{
+    text-align: center;
+}
+
+.barreRecherche{
+    font-size: 25px;
+    width: 600px;
+    border-radius: 50px;
+    margin: 20px auto 0;
+    display: block;
+    padding: 15px 30px;
+}
+
+.descriptionMoteur{
+    max-width: 1000px;
+    text-align: center;
+    margin: 50px auto;
+}

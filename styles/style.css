@@ -1,4 +1,22 @@
 body{
+    margin: 0;
+}
+
+.content{
     width: 1200px;
     margin: 50px auto;
+    min-height: calc(80vh - 50px);
+}
+
+footer{
+    background: rgb(220, 220, 220);
+    height: calc(20vh - 50px);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+footer p{
+    margin: 5px;
 }
