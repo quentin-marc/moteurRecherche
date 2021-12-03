@@ -1,21 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;700&family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+:root {
+    --espace-grand: 50px;
+    --espace-moyen: 25px;
+    --espace-petit: 15px;
+    --espace-min: 10px;
+
+    --radius-grand: 25px;
+
+    --line_height: 1.5em;
+
+    --text-secondaire: grey;
+    --cta: #556ce3;
+}
+
 body{
+    font-family: 'Roboto', sans-serif;
     margin: 0;
+    font-size: 20px;
 }
 
 .content{
     width: 1200px;
-    margin: 50px auto;
-    min-height: calc(80vh - 50px);
+    margin: var(--espace-grand) auto;
+    min-height: calc(80vh - var(--espace-grand));
 }
 
 .cardContent{
     width: 1100px;
     margin: auto;
-    padding: 50px;
+    padding: var(--espace-grand);
     position: relative;
     top: -180px;
     background: rgb(250, 250, 250);
-    border-radius: 25px;
+    border-radius: var(--radius-grand);
 }
 
 .fondContrasteCard{
@@ -25,8 +43,9 @@ body{
 }
 
 .seeMore{
-    color: blue;
+    color: var(--cta);
     display: inline-block;
+    margin-top: var(--espace-min);
 }
 
 .seeMore:hover{
@@ -36,7 +55,7 @@ body{
 
 footer{
     background: rgb(220, 220, 220);
-    height: calc(20vh - 50px);
+    height: calc(20vh - var(--espace-grand));
     text-align: center;
     display: flex;
     flex-direction: column;

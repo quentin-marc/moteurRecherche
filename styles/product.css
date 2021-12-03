@@ -2,23 +2,31 @@
     width: 500px;
     display: block;
     margin: auto;
-    border-radius: 20px;
+    border-radius: var(--radius-grand);
 }
 
 #productName{
     text-align: center;
+    margin-bottom: 0;
 }
 
 #releaseDate{
     text-align: center;
+    margin-top: var(--espace-petit);
+    color: var(--text-secondaire);
 }
 
 #description{
-    line-height: 1.25em;
-    height: 10em;
+    line-height: var(--line_height);
+    height: calc(7 * var(--line_height));
     text-align: justify;
     overflow: hidden;
-    text-indent: 30px;
+    text-indent: var(--espace-moyen);
+    margin-top: var(--espace-grand);
+}
+
+.titleCharacteristics{
+    margin-top: var(--espace-grand);
 }
 
 .listAttributs{
@@ -28,7 +36,7 @@
 
 .attribut{
     flex-basis: 45%;
-    margin: 20px 5% 20px 0;
+    margin: var(--espace-min) 5% var(--espace-min) 0;
 }
 
 .attributName{
