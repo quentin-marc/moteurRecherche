@@ -2,45 +2,104 @@ window.onload = actOnWindow;
 function actOnWindow(){
 	console.log("Apple_Watch")
     productRequest("Apple_Watch")
+    //document.getElementById("productName").innerHTML = "TOTO";
 }
 
 
 function productRequest(product){
 
-	doSparql(product,"rdfs:label",true)
-	doSparql(product,"dbp:name",true)
-	doSparql(product,"dbp:logo",false)
-	doSparql(product,"dbo:type",false)
-	doSparql(product,"dbo:developer",false)
-	doSparql(product,"dbo:releaseDate",false)
-	doSparql(product,"dbp:os",false)
-	doSparql(product,"dbp:operatingSystem",false)
-	doSparql(product,"dbo:abstract",true)
-	doSparql(product,"dbp:webSite",false)
-	doSparql(product,"dbp:successor",false)
-	doSparql(product,"dbp:license",false)
-	doSparql(product,"dbp:supportedPlatforms",false)
-	doSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
-	doSparql(product,"dct:subject",false)
-	doSparql(product,"rdfs:comment",false)
-	doSparql(product,"dbo:manufacturer",false)
-	doSparql(product,"dbp:connectivity",false)
-	doSparql(product,"dbp:input",false)
-	doSparql(product,"dbp:price",false)
-	doSparql(product,"foaf:homepage",false)
-	doSparql(product,"dbo:cpu",false)
-	doSparql(product,"dbp:display",false)
-	doSparql(product,"dbp:memory",false)
-	doSparql(product,"dbp:name",false)
-	doSparql(product,"dbp:power",false)
-	doSparql(product,"dbp:service",false)
-	doSparql(product,"dbp:sound",false)
-	doSparql(product,"dbp:storage",false)
-	doSparql(product,"dbp:weight",false)
-	doSparql(product,"dbp:dimensions",false)
-	doSparql(product,"dbp:display",false)
-	doSparql(product,"dbp:fuelSource",false)
-	doSparql(product,"dbp:inventor",false)
-	doSparql(product,"dbo:product",false)
+	doProductSparql(product,"rdfs:label",true)
+	doProductSparql(product,"dbp:name",true)
+	doProductSparql(product,"dbp:logo",false)
+	doProductSparql(product,"dbo:type",false)
+	doProductSparql(product,"dbo:developer",false)
+	doProductSparql(product,"dbo:releaseDate",false)
+	doProductSparql(product,"dbp:os",false)
+	doProductSparql(product,"dbp:operatingSystem",false)
+	doProductSparql(product,"dbo:abstract",true)
+	doProductSparql(product,"dbp:webSite",false)
+	doProductSparql(product,"dbp:successor",false)
+	doProductSparql(product,"dbp:license",false)
+	doProductSparql(product,"dbp:supportedPlatforms",false)
+	doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
+	doProductSparql(product,"dct:subject",false)
+	doProductSparql(product,"rdfs:comment",false)
+	doProductSparql(product,"dbo:manufacturer",false)
+	doProductSparql(product,"dbp:connectivity",false)
+	doProductSparql(product,"dbp:input",false)
+	doProductSparql(product,"dbp:price",false)
+	doProductSparql(product,"foaf:homepage",false)
+	doProductSparql(product,"dbo:cpu",false)
+	doProductSparql(product,"dbp:display",false)
+	doProductSparql(product,"dbp:memory",false)
+	doProductSparql(product,"dbp:power",false)
+	doProductSparql(product,"dbp:service",false)
+	doProductSparql(product,"dbp:sound",false)
+	doProductSparql(product,"dbp:storage",false)
+	doProductSparql(product,"dbp:weight",false)
+	doProductSparql(product,"dbp:dimensions",false)
+	doProductSparql(product,"dbp:display",false)
+	doProductSparql(product,"dbp:fuelSource",false)
+	doProductSparql(product,"dbp:inventor",false)
+	doProductSparql(product,"dbo:product",false)
+
+
 
 }
+
+function doProductSparql(product,predicat,filterOnLang){
+
+	singleSelect(product,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
+	if(predicat.split(":")[0] == "dbo"){
+		singleSelect(product,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
+	} else if(predicat.split(":")[0] == "dbp"){
+		singleSelect(product,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
+	}
+
+	var isCamelCase = false;
+	var i = predicat.length;
+	while (i--) {
+		if(predicat[i].match(/[a-z]/i) && predicat[i] == predicat[i].toUpperCase()){
+			isCamelCase = true;
+		} 
+	}
+	if(isCamelCase){
+		predicat = predicat.toLowerCase();
+		singleSelect(product,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
+		if(predicat.split(":")[0] == "dbo"){
+			singleSelect(product,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
+		} else if(predicat.split(":")[0] == "dbp"){
+			singleSelect(product,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
+		}
+	}
+}
+
+
+function singleSelect(ressource,predicat,varName,filterOnLang){
+	var contenu_requete;
+	if(filterOnLang){
+		contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
+	} else {
+		contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
+	}
+
+	//console.log("Request : \n"+contenu_requete);
+
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            console.log(results);
+            
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+
