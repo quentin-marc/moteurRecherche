@@ -1,0 +1,33 @@
+name : 
+    dbo:name
+    foaf:name
+    rdfs:label
+    dbp:name
+
+fondateur :
+    dbo:foundedBy > dbr
+    dbp:founders > text
+    dbp:founder > text
+
+ceo:
+    ceo > text
+
+localisation:
+    dbp:foundation > text
+    (dbp:location > dbr, text)
+    dbo:location > dbr
+    dbo:locationCity > dbr
+    dbo:headquarter > dbr
+    dbp:locationCountry > text
+
+année création:
+    dbo:foundingYear
+    dbo:foundingDate
+
+lien website:
+    dbp:homepage
+    dbp:website
+    (dbo:wikiPageExternalLink > dbr des fois)
+    foaf:homepage
+    dbo:url
+
