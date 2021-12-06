@@ -1,3 +1,68 @@
+abstract:
+    dbo:abstract
+
+nom : 
+    dbo:name
+    foaf:name
+    rdfs:label
+    dbp:name
+
+type d’industrie:
+    dbp:industry
+    dbo:industry
+
+chiffre d’affaire (souvent non fournis): toujours filtrer en dollard FILTER( datatype(?DBP_revenue) = <http://dbpedia.org/datatype/usDollar>) (sinon il n'ya pas que des chiffres)
+    dbp:revenue
+    dbo:revenue
+    dbp:netIncome
+    dbo:netIncome
+
+produits:
+    dbo:product   (retourne un lien vers le type de produit)
+    dbp:products  (retourne un lien vers le type de produit)
+    dbo:service
+    dbp:services
+
+    is dbo:developer of  (pour les entreprises de la tech)
+    is dbo:manufacturer of  (pour les prooduits fabriqués)
+    is dbo:service of
+    
+    is dbp:brand of
+    is dbp:branding of
+
+    is dbo:producer of
+    is dbo:publisher of
+    is dbo:productionCompany of	
+    is dbp:distributor of
+
+logo: (il faut ajouter cet URL avant la valeur retournée : https://en.wikipedia.org/wiki/File:)
+
+    dbp:logo
+    dbp:logoSize
+    dbp:image (tout type d'image en lien avec l'entreprise)
+    foaf:depiction (tout type d'image en lien avec l'entreprise)
+
+    dbp:imageCaption (le texte pour rempacer l'image)
+
+
+is dbp:currentowner of
+is dbp:company of  (utilisé à la fois pour les produits les produits et les osu companies)
+is dbp:parent of
+is dbo:owner of
+is dbo:owningCompany of
+is dbo:parentCompany of
+is dbo:parentOrganisation of
+
+is dbo:distributor of
+is dbo:distributingLabel of
+is dbo:distributingCompany of
+is dbo:recordLabel of
+
+
+foaf:homepage
+
+
+
 SELECT DISTINCT ?company ?name ?DBP_industry ?DBO_industry ?DBP_revenue ?DBO_revenue ?DBP_netIncome ?DBO_netIncome ?DBO_product ?logo ?abstract ?DBO_developperOf WHERE {
 ?company a dbo:Company; dbp:name ?name; dbo:abstract ?abstract.
 FILTER(regex(str(?name), "Auchan") && langMatches(lang(?abstract), "EN") )
