@@ -8,3 +8,5 @@ function actOnWindow(){
     console.log('Lister dans cette fonction toute les fonctions qui peuvent agir sur la page HTML');
 }
 
+
+
