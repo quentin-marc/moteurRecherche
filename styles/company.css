@@ -16,7 +16,9 @@
     margin-top: 10px;
     line-height: 1.25em;
     height: 5em;
+    text-align: justify;
     overflow: hidden;
+    text-indent: var(--espace-moyen);
 }
 
 #mapHeadQuarters{

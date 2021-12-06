@@ -46,13 +46,13 @@ body{
     background: rgb(155, 213, 240);
 }
 
-.seeMore{
+#seeMore{
     color: var(--cta);
     display: inline-block;
     margin-top: var(--espace-min);
 }
 
-.seeMore:hover{
+#seeMore:hover{
     cursor: pointer;
     text-decoration: underline;
 }
