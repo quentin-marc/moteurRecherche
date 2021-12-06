@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;700&family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto:wght@100;300;400;500;700;900&display=swap');
 
 :root {
     --espace-grand: 50px;
@@ -46,13 +46,13 @@ body{
     background: rgb(155, 213, 240);
 }
 
-.seeMore{
+#seeMore{
     color: var(--cta);
     display: inline-block;
     margin-top: var(--espace-min);
 }
 
-.seeMore:hover{
+#seeMore:hover{
     cursor: pointer;
     text-decoration: underline;
 }
