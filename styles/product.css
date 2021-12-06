@@ -7,7 +7,7 @@
 
 #productName{
     text-align: center;
-    margin-bottom: 0;
+    margin: var(--espace-petit) 0 0;
 }
 
 #releaseDate{
