@@ -7,7 +7,7 @@ function actOnWindow(){
 
 
 function productRequest(product){
-predicatList = ["dbo:abstract", "dbp:industry", "dbo:industry", "dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
+predicatList = ["dbo:abstract", "dbp:industry", "dbo:industry", "dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome", "dbp:logo"]
 
 	doCompanySparql(product,predicatList,true)	
 }
@@ -24,7 +24,7 @@ function createFilterForRequest(predicat, varName) {
 	
 	switch(predicateName) {
 		case "revenue" || "netIncome":
-			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>)"
+			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
 			shouldApplyFilter = true
 			break
 		case "abstract":
@@ -41,7 +41,12 @@ function createFilterForRequest(predicat, varName) {
 }
 
 function doCompanySparql(companyName, predicatList, filterOnLang){
-	var contenu_requete = "SELECT DISTINCT * WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n";
+	var varNameList = ""
+	predicatList.forEach( predicate => {
+		varNameList += ", " + createFunctionName(predicate)
+	} )
+	
+	var contenu_requete = "SELECT DISTINCT ?company, ?name " + varNameList + " WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n";
 	
 	predicatList.forEach( predicate => {
 		console.log(predicate)
@@ -64,10 +69,35 @@ function doCompanySparql(companyName, predicatList, filterOnLang){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            console.log(results);
-            
+            //console.log(results);
+			resultList = results.results.bindings
+			var predicatList = results.head.vars
+			
+			//Loop on every result object
+			resultList.forEach( resultObject => {
+				//Get the values of all attributs inside the request
+				predicatList.forEach( attributs => {
+					if (resultObject[attributs] !== undefined) {
+						value = resultObject[attributs].value
+
+
+						console.log("reeeeeeeeeeeeeees "+ attributs + " = "+value)
+					}
+				} )
+			} )
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+function getImageProduct(url_wikipedia){
+
+	console.log("url : "+url_wikipedia)
+
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+    var url = url_base + url_wikipedia;
+
+    document.getElementById("productImage").src = url;
 }
