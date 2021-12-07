@@ -10,6 +10,7 @@
     padding: var(--espace-moyen);
     border-radius: var(--radius-grand);
     margin: var(--espace-moyen) 0;
+    position: relative;
 }
 
 .result:hover{
@@ -19,20 +20,16 @@
 
 .result h2{
     margin: 0;
-}
-
-.introResult{
-    display: flex;
-    align-items: center;
-}
-
-.textIntro{
-    flex: 1;
+    position: relative;
+    top: -5px;
+    left: 10px;
+    display: inline-block;
 }
 
 #logo{
-    width: 70px;
-    height: 70px;
+    width: 40px;
+    height: 40px;
+    display: inline-block;
 }
 
 .result > h2{
