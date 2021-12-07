@@ -71,12 +71,19 @@ function doCompanySparql(companyName, predicatList, filterOnLang){
             var results = JSON.parse(this.responseText);
             //console.log(results);
 			resultList = results.results.bindings
-
+			var predicatList = results.head.vars
+			
+			//Loop on every result object
 			resultList.forEach( resultObject => {
-				console.log(resultObject)
-				console.log(resultObject.name.value)
-				//var keys = Object.keys(resultObject);
-				//console.log(keys)
+				//Get the values of all attributs inside the request
+				predicatList.forEach( attributs => {
+					if (resultObject[attributs] !== undefined) {
+						value = resultObject[attributs].value
+
+
+						console.log("reeeeeeeeeeeeeees "+ attributs + " = "+value)
+					}
+				} )
 			} )
         }
     };
