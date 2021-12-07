@@ -1,55 +1,24 @@
-.content{
-    
-}
-
-.browserName{
-    font-size: 22px;
-    margin-left: 25px;
-}
-
-.search{
-    font-size: 18px;
-    width: 500px;
-    border-radius: 50px;
-    display: block;
-    padding: 7px 15px;
-    margin-left: 25px;
+.titrePrincipal{
+    margin: 0 0 0 var(--espace-moyen);
 }
 
 .results{
-    margin-top: 50px;
-    display: flex;
-}
-
-#listResults{
-    flex: 1;
-    padding-right: 20px;
-    margin-bottom: 200px;
-}
-
-.summaryResults{
-    border: solid 1px;
-    padding: 20px;
-    border-radius: 10px;
-    max-height: 105px;
-    margin-top: 25px;
-}
-
-.summaryResults h2, .summaryResults p{
-    margin: 0;
-}
-
-#nbResults{
-    margin-bottom: 10px;
+    margin-top: var(--espace-grand);
 }
 
 .result{
-    padding: 25px;
+    padding: var(--espace-moyen);
+    border-radius: var(--radius-grand);
+    margin: var(--espace-moyen) 0;
 }
 
 .result:hover{
-    background: rgb(220, 220, 220);
+    background: var(--bg-cta-hover);
     cursor: pointer;
+}
+
+.result h2{
+    margin: 0;
 }
 
 .introResult{
@@ -71,21 +40,21 @@
 }
 
 .result #description{
-    line-height: 1.25em;
-    height: 2.5em;  
+    line-height: var(--line_height);
+    height: calc(2*var(--line_height));  
     overflow: hidden;
+    margin: var(--espace-petit) 0;
+    text-indent: 0;
 }
 
 .result .divIncome, .result .divIndustry, .result .divProducts{
-    line-height: 1.25em;
-    height: 1.25em;  
+    line-height: var(--line_height);
+    height: var(--line_height);  
     overflow: hidden;
-    margin: 5px 0;
 }
 
 .result .property {
     font-weight: bold;
-    text-decoration: underline;
-    width: 100px;
+    width: 140px;
     display: inline-block;
 }

@@ -1,7 +1,7 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	console.log("Apple_Watch")
-    productRequest("Apple_Watch")
+    productRequest("Microsoft_Windows")
     //document.getElementById("productName").innerHTML = "TOTO";
 }
 
@@ -112,17 +112,20 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		description.innerHTML = results.results.bindings[0][predicat].value
             		description.classList.remove('no-data');
             	}
-            } else if(predicat.includes("logo")){
-
+            } else if(predicat.includes("logo" || predicat.includes("image"))){
+            	getImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
         	} else {
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
 	            	var elementPredicat = document.getElementsByClassName(predicat)
 	            	if(elementPredicat.length == 0){
 	            		var value = results.results.bindings[0][predicat].value
 	            		if(results.results.bindings[0][predicat].type == "uri"){
-	            			value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+	            			if(value.includes("http://dbpedia.org")){
+	            				value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+	            			} else {
+	            				value = "<a href=\""+value+"\">"+value+"</a>"
+	            			}
 	            		}
-	            		console.log(results.results.bindings[0][predicat])
 	            		document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
 	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
 	                    <div class=\"valAttribut\">"+value+"</div>\
@@ -145,5 +148,16 @@ function removePrefix(str){
 	} else {
 		return ""
 	}
+}
+
+function getImageProduct(url_wikipedia){
+
+	console.log("url : "+url_wikipedia)
+
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+    var url = url_base + url_wikipedia;
+
+    document.getElementById("productImage").src = url;
 }
 
