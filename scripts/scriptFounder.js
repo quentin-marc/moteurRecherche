@@ -1,7 +1,7 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	
-    founderRequest("Mark_Zuckerberg")
+    founderRequest("Henri_Nestlé")
     //document.getElementById("founderName").innerHTML = "TOTO";
 }
 var tabPredicat = []
@@ -20,6 +20,8 @@ function founderRequest(founder){
     dofounderSparql(founder,"dbo:abstract",true)
     dofounderSparql(founder,"dbo:thumbnail",false)
     dofounderSparql(founder,"dbp:name",true)
+    dofounderSparql(founder,"dbp:nationality",true)
+    dofounderSparql(founder,"rdfs:label",true)
     
 
 }
