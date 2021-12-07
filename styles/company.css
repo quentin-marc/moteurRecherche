@@ -54,11 +54,23 @@
     align-items: center;
     margin-top: var(--espace-petit);
     border-radius: var(--radius-moyen);
+    position: relative;
 }
 
-.founder:hover, .product:hover{
+.founder::after, .product::after{
+    content: " ";
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-moyen);
+}
+
+.founder:hover::after, .product:hover::after{
     cursor: pointer;
-    background: rgb(220, 220, 220);
+    background: var(--bg-cta-hover);
 }
 
 .imgFounder, .imgProduct{
