@@ -7,14 +7,14 @@ function actOnWindow(){
 
 
 function productRequest(product){
-	predicatList = ["dbo:name", "dbp:name", "foaf:name", "rdfs:label", "rdfs:label", "dbp:industry", "dbp:revenue"]
+predicatList = ["dbo:abstract", "dbp:industry", "dbo:industry", "dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
 
 	doCompanySparql(product,predicatList,true)	
 }
 
 //Create a variable name from a predicate
 function createFunctionName(predicat) {
-	return predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1]
+	return "?"+predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1]
 }
 
 //Create a filter for a request
@@ -25,6 +25,10 @@ function createFilterForRequest(predicat, varName) {
 	switch(predicateName) {
 		case "revenue" || "netIncome":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>)"
+			shouldApplyFilter = true
+			break
+		case "abstract":
+			filterContent = "langMatches(lang("+varName+"), \"EN\")"
 			shouldApplyFilter = true
 	}
 
@@ -37,7 +41,7 @@ function createFilterForRequest(predicat, varName) {
 }
 
 function doCompanySparql(companyName, predicatList, filterOnLang){
-	var contenu_requete = "SELECT * WHERE {\n?company a dbo:Company.\nFILTER(regex(str(?name), \"" + companyName + "\") && langMatches(lang(?abstract), \"EN\") )\n";
+	var contenu_requete = "SELECT DISTINCT * WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n";
 	
 	predicatList.forEach( predicate => {
 		console.log(predicate)
@@ -47,15 +51,9 @@ function doCompanySparql(companyName, predicatList, filterOnLang){
 		console.log(contenu_requete)
 	} )
 
-	/*if(filterOnLang){
-		contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
-	} else {
-		contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
-	}
-
 	contenu_requete += "}"	
 
-	//console.log("Request : \n"+contenu_requete);
+	console.log("Request : \n"+contenu_requete);
 
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -71,5 +69,5 @@ function doCompanySparql(companyName, predicatList, filterOnLang){
         }
     };
     xmlhttp.open("GET", url, true);
-    xmlhttp.send();*/
+    xmlhttp.send();
 }
