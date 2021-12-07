@@ -1,7 +1,7 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	console.log("Apple_Watch")
-    productRequest("Apple_Watch")
+    productRequest("Microsoft_Windows")
     //document.getElementById("productName").innerHTML = "TOTO";
 }
 
@@ -112,17 +112,20 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		description.innerHTML = results.results.bindings[0][predicat].value
             		description.classList.remove('no-data');
             	}
-            } else if(predicat.includes("logo")){
-
+            } else if(predicat.includes("logo" || predicat.includes("image"))){
+            	getImage("https://en.wikipedia.org/wiki/File:"+results.results.bindings[0][predicat].value.replaceAll(" ","_"))
         	} else {
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
 	            	var elementPredicat = document.getElementsByClassName(predicat)
 	            	if(elementPredicat.length == 0){
 	            		var value = results.results.bindings[0][predicat].value
 	            		if(results.results.bindings[0][predicat].type == "uri"){
-	            			value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+	            			if(value.includes("http://dbpedia.org")){
+	            				value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+	            			} else {
+	            				value = "<a href=\""+value+"\">"+value+"</a>"
+	            			}
 	            		}
-	            		console.log(results.results.bindings[0][predicat])
 	            		document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
 	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
 	                    <div class=\"valAttribut\">"+value+"</div>\
@@ -145,5 +148,28 @@ function removePrefix(str){
 	} else {
 		return ""
 	}
+}
+
+function getImage(url_wikipedia){
+
+	console.log("url : "+url_wikipedia)
+	
+	var contenu_requete = "@prefix og: <http://ogp.me/ns#> .\
+	SELECT * WHERE {\
+	"+url_wikipedia+" og:image ?newUrl}"
+
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+    	if (this.readyState == 4 && this.status == 200) {
+    		console.log(JSON.parse(this.responseText))
+    	}
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 }
 
