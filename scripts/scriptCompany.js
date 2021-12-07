@@ -23,7 +23,7 @@ function companyRequest(companyName){
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
     doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
     doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
-    /*doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite)*/
+    doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite)
 }
 
 //Create a variable name from a predicate
@@ -347,6 +347,44 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
                 var nbEmployee = document.getElementById("nbEmployee");
+                nbEmployee.innerHTML = results.results.bindings[0][predicat].value
+                nbEmployee.classList.remove('no-data');
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite){
+    //TODO dbr:Company
+    var contenu_requete = "SELECT str(?lienWebsite) WHERE {";
+
+    predicatListLienWebsite.forEach( predicate => {
+        if(predicate == "dbo:wikiPageExternalLink"){
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienLabel." +
+                "?lienLabel rdfs:label ?lienWebsite}"
+        }else {
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienWebsite. }"
+        }
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var predicat = results.head.vars[0]
+            console.log(results);
+            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                var nbEmployee = document.getElementById("lienWebsite");
                 nbEmployee.innerHTML = results.results.bindings[0][predicat].value
                 nbEmployee.classList.remove('no-data');
             }
