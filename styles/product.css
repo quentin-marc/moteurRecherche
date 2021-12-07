@@ -2,7 +2,7 @@
     width: 500px;
     display: block;
     margin: auto;
-    border-radius: var(--radius-grand);
+    /*border-radius: var(--radius-grand);*/
 }
 
 #productName{
