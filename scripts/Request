@@ -3,9 +3,9 @@ abstract:
 
 nom : 
     dbo:name
+    dbp:name
     foaf:name
     rdfs:label
-    dbp:name
 
 type d’industrie:
     dbp:industry
