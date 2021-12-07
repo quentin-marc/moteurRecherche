@@ -2,23 +2,43 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    margin: 0 auto;
 }
 
 .browserName{
     text-align: center;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 64px;
+    color: var(--cta);
+}
+
+.search:focus{
+    outline: none !important;
+    border-color: var(--cta);
 }
 
 .search{
-    font-size: 25px;
+    font-size: 22px;
     width: 600px;
-    border-radius: 50px;
-    margin: 20px auto 0;
+    border-radius: 15px;
+    margin: var(--espace-grand) auto 0;
     display: block;
-    padding: 15px 30px;
+    padding: 10px 30px;
+    border: solid;
+    border-width: 2px;
+    background-color: transparent;
 }
 
 .description{
     max-width: 1000px;
     text-align: center;
     margin: 50px auto;
+}
+
+footer{
+    position: absolute;
+    bottom: 0;
 }
