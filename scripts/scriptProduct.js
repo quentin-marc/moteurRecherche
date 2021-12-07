@@ -113,7 +113,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		description.classList.remove('no-data');
             	}
             } else if(predicat.includes("logo" || predicat.includes("image"))){
-            	getImage("https://en.wikipedia.org/wiki/File:"+results.results.bindings[0][predicat].value.replaceAll(" ","_"))
+            	getImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
         	} else {
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
 	            	var elementPredicat = document.getElementsByClassName(predicat)
@@ -150,26 +150,14 @@ function removePrefix(str){
 	}
 }
 
-function getImage(url_wikipedia){
+function getImageProduct(url_wikipedia){
 
 	console.log("url : "+url_wikipedia)
-	
-	var contenu_requete = "@prefix og: <http://ogp.me/ns#> .\
-	SELECT * WHERE {\
-	"+url_wikipedia+" og:image ?newUrl}"
 
 	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+    var url = url_base + url_wikipedia;
 
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-    	if (this.readyState == 4 && this.status == 200) {
-    		console.log(JSON.parse(this.responseText))
-    	}
-    }
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
+    document.getElementById("productImage").src = url;
 }
 
