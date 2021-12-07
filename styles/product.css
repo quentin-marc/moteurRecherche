@@ -7,22 +7,13 @@
 
 #productName{
     text-align: center;
-    margin: var(--espace-petit) 0 0;
+    margin: var(--espace-grand) 0 0;
 }
 
 #releaseDate{
     text-align: center;
     margin-top: var(--espace-petit);
     color: var(--text-secondaire);
-}
-
-#description{
-    line-height: var(--line_height);
-    height: calc(7 * var(--line_height));
-    text-align: justify;
-    overflow: hidden;
-    text-indent: var(--espace-moyen);
-    margin-top: var(--espace-grand);
 }
 
 .titleCharacteristics{
