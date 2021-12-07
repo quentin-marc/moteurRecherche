@@ -1,14 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto:wght@100;300;400;500;700;900&display=swap');
 
 :root {
+    --espace-max: 100px;
     --espace-grand: 50px;
     --espace-moyen: 25px;
     --espace-petit: 15px;
     --espace-min: 10px;
 
     --radius-grand: 25px;
+    --radius-moyen: 15px;
+    --radius-petit: 10px;
 
     --line_height: 1.5em;
+    --font-important: 20px;
 
     --text-secondaire: rgb(102, 102, 102);
     --text-secondaire-size: 16px;
@@ -35,7 +39,7 @@ body{
     margin: var(--espace-grand) auto;
     position: relative;
     padding: var(--espace-grand);
-    background: #f7f6f980;
+    background: #f7f6f9a0;
     border-radius: var(--radius-grand);
     box-shadow: 0 0 15px #a195cd40;
 }
@@ -44,6 +48,15 @@ body{
     width: 100%;
     height: 350px;
     background: rgb(155, 213, 240);
+}
+
+#description{
+    line-height: var(--line_height);
+    height: calc(7 * var(--line_height));
+    text-align: justify;
+    overflow: hidden;
+    text-indent: var(--espace-moyen);
+    margin-top: var(--espace-grand);
 }
 
 #seeMore{
