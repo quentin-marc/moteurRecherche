@@ -10,6 +10,7 @@
     --radius-grand: 25px;
     --radius-moyen: 15px;
     --radius-petit: 10px;
+    --radius-min: 5px;
 
     --line_height: 1.5em;
     --font-important: 20px;
@@ -17,6 +18,7 @@
     --text-secondaire: rgb(102, 102, 102);
     --text-secondaire-size: 16px;
     --cta: rgba(54, 13, 204, 0.6);
+    --cta-hover: rgba(54, 13, 204, 0.65);
 
     --bg-grey: #f3f3f3;
     --bg-cta-hover: rgba(54, 13, 204, 0.03);
@@ -37,7 +39,7 @@ body{
 
 .cardContent{
     width: 1100px;
-    margin: var(--espace-grand) auto;
+    margin: var(--espace-moyen) auto;
     position: relative;
     padding: var(--espace-grand);
     background: #f7f6f9a0;
@@ -45,10 +47,27 @@ body{
     box-shadow: 0 0 15px #a195cd40;
 }
 
-.fondContrasteCard{
-    width: 100%;
-    height: 350px;
-    background: rgb(155, 213, 240);
+.navigation{
+    width: 1200px;
+    margin: auto;
+    position: relative;
+}
+
+.newSearch{
+    background-color: var(--cta);
+    padding: var(--espace-min) var(--espace-grand);
+    border-radius: var(--radius-min);
+    border: none;
+    color: white;
+    font-size: var(--font-important);
+    margin-top: var(--espace-moyen);
+    margin-left: auto;
+    display: block;
+    cursor: pointer;
+}
+
+.newSearch:hover{
+    background-color: var(--cta-hover);
 }
 
 #description{
