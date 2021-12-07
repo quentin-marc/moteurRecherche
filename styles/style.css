@@ -19,6 +19,7 @@
     --cta: rgba(54, 13, 204, 0.6);
 
     --bg-grey: #f3f3f3;
+    --bg-cta-hover: rgba(54, 13, 204, 0.05);
 }
 
 body{
