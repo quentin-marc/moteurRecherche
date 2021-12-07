@@ -110,17 +110,29 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
                         var value = results.results.bindings[0][predicat].value
                         if(results.results.bindings[0][predicat].type == "uri"){
                             if(value.includes("http://dbpedia.org")){
-
-                                value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+                                if(value.includes("http://dbpedia.org/resource")){
+                                    getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
+                                } else {
+                                    value = value.split("/")[value.split("/").length-1]
+                                    document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                    <div class=\"valAttribut\">"+value+"</div>\
+                                    </div>"
+                                }
                             } else {
-                                value = "<a href=\""+value+"\">"+value+"</a>"
+                                document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
+                                </div>"
                             }
+                        }else{
+                            
+                                    document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                    <div class=\"valAttribut\">"+value+"</div>\
+                                    </div>"
                         }
                         
-                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                        <div class=\"valAttribut\">"+value+"</div>\
-                        </div>"
                     }
                 }
                 
