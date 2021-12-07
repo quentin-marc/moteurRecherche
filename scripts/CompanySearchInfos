@@ -84,5 +84,14 @@ select str(?numEmployee) where {
 OPTIONAL{dbr:Microsoft dbp:numEmployees ?numEmployee.}
 }
 
+select ?link  where {
+OPTIONAL{dbr:USell dbo:wikiPageExternalLink ?linkLabel.
+?linkLabel rdfs:label ?link}
+OPTIONAL{dbr:USell dbp:homepage ?link.}
+OPTIONAL{dbr:USell dbp:website ?link.}
+OPTIONAL{dbr:USell dbo:url ?link.}
+OPTIONAL{dbr:USell foaf:homepage ?link.}
+}
+
 
 
