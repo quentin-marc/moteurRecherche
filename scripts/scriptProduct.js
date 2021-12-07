@@ -1,7 +1,11 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	console.log("Apple_Watch")
-    productRequest("Microsoft_Windows")
+	var product = sessionStorage.getItem('Product')
+	if(!product){
+		product = "Microsoft_Windows"
+	}
+    productRequest(product)
     //document.getElementById("productName").innerHTML = "TOTO";
 }
 
@@ -80,6 +84,8 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 		contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
 	}
 
+	console.log(contenu_requete)
+
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
@@ -94,6 +100,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
             		var productname = document.getElementById("productName");
             		productname.innerHTML = results.results.bindings[0][predicat].value
+            		document.title = results.results.bindings[0][predicat].value
             		productname.classList.remove('no-data');
             	}
             } else if(predicat.includes("releaseDate") || predicat.includes("releasedate")){
@@ -113,23 +120,43 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		description.classList.remove('no-data');
             	}
             } else if(predicat.includes("logo" || predicat.includes("image"))){
-            	getImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
-        	} else {
+            	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            		setImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
+            	}
+            } else {
+
+
+            	//gere listes !
+
+
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
 	            	var elementPredicat = document.getElementsByClassName(predicat)
 	            	if(elementPredicat.length == 0){
 	            		var value = results.results.bindings[0][predicat].value
 	            		if(results.results.bindings[0][predicat].type == "uri"){
 	            			if(value.includes("http://dbpedia.org")){
-	            				value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
+	            				if(value.includes("http://dbpedia.org/resource")){
+	            					getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
+	            				} else {
+	            					value = value.split("/")[value.split("/").length-1]
+	            					document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+				                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+				                    <div class=\"valAttribut\">"+value+"</div>\
+				                	</div>"
+	            				}
 	            			} else {
-	            				value = "<a href=\""+value+"\">"+value+"</a>"
+	            				document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+			                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+			                    <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
+			                	</div>"
 	            			}
+	            		} else {
+	            			document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+				            <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+				            <div class=\"valAttribut\">"+value+"</div>\
+				            </div>"
 	            		}
-	            		document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-	                    <div class=\"valAttribut\">"+value+"</div>\
-	                	</div>"
+	            		
 	            	}
 	            }
             	
@@ -150,7 +177,7 @@ function removePrefix(str){
 	}
 }
 
-function getImageProduct(url_wikipedia){
+function setImageProduct(url_wikipedia){
 
 	console.log("url : "+url_wikipedia)
 
@@ -159,5 +186,95 @@ function getImageProduct(url_wikipedia){
     var url = url_base + url_wikipedia;
 
     document.getElementById("productImage").src = url;
+}
+
+function getTypeSparql(resource,predicat,value){
+
+	//GET TYPE
+	var contenu_requete = "SELECT * WHERE {\
+		dbr:"+resource+" rdf:type ?type\
+	}"
+
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+	var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+    	if (this.readyState == 4 && this.status == 200) {
+    		var results = JSON.parse(this.responseText);
+            var responsePredicat = results.head.vars[0]
+			if (responsePredicat.includes("type")){
+            	if(results.results.bindings.length > 0){
+
+            		var isCompany = false
+            		var isPerson = false
+
+            		results.results.bindings.forEach((type) => {
+            			if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Company")){
+        					isCompany = true
+        				} else if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Person")){
+        					isPerson = true
+        				}
+        			})
+
+        			if(isCompany){
+        				document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+	                    <div class=\"valAttribut redirect\"  onclick=\"sessionStorage.setItem('Company','"+value.split("/")[value.split("/").length-1]+"');window.location.href='company.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+	                	</div>"
+        			} else if(isPerson){
+        				document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+	                    <div class=\"valAttribut redirect\" onclick=\"sessionStorage.setItem('Person','"+value.split("/")[value.split("/").length-1]+"');window.location.href='index.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+	                	</div>"
+        			} else {
+        				//GET IS PRODUCT OF
+						contenu_requete = "SELECT * WHERE {\
+							?parent dbo:product dbr:"+resource+"\
+						}"
+
+						// Encodage de l'URL à transmettre à DBPedia
+					    url_base = "http://dbpedia.org/sparql";
+					    url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+					    xmlhttp = new XMLHttpRequest();
+					    xmlhttp.onreadystatechange = function() {
+					    	if (this.readyState == 4 && this.status == 200) {
+					    		var results = JSON.parse(this.responseText);
+					    		var responsePredicat = results.head.vars[0]
+
+					    		if (responsePredicat.includes("parent")){
+            						if(results.results.bindings.length > 0){
+            							document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+					                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+					                    <div class=\"valAttribut redirect\"  onclick=\"sessionStorage.setItem('Product','"+value.split("/")[value.split("/").length-1]+"');window.location.href='product.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+					                	</div>"
+            						} else {
+            							document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+					                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+					                    <div class=\"valAttribut\">"+value.split("/")[value.split("/").length-1]+"</div>\
+					                	</div>"
+            						}
+            					}
+
+					    		console.log(results)
+					    	}
+					    }
+
+					    xmlhttp.open("GET", url, true);
+					    xmlhttp.send();
+        			}
+            	}
+            }
+    	}
+    }
+
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+
+    
+
 }
 

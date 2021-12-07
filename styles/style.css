@@ -10,7 +10,6 @@
     --radius-grand: 25px;
     --radius-moyen: 15px;
     --radius-petit: 10px;
-    --radius-min: 5px;
 
     --line_height: 1.5em;
     --font-important: 20px;
@@ -56,7 +55,7 @@ body{
 .newSearch{
     background-color: var(--cta);
     padding: var(--espace-min) var(--espace-grand);
-    border-radius: var(--radius-min);
+    border-radius: var(--radius-petit);
     border: none;
     color: white;
     font-size: var(--font-important);
@@ -79,15 +78,19 @@ body{
     margin-top: var(--espace-grand);
 }
 
-#seeMore{
+a, #seeMore, .redirect{
     color: var(--cta);
-    display: inline-block;
-    margin-top: var(--espace-min);
+    cursor: pointer;
+    text-decoration: none;
 }
 
-#seeMore:hover{
-    cursor: pointer;
+a:hover, #seeMore:hover .redirect:hover{
     text-decoration: underline;
+}
+
+#seeMore{
+    display: inline-block;
+    margin-top: var(--espace-min);
 }
 
 footer{
