@@ -1,0 +1,27 @@
+#imageFounder{
+    background: center / cover no-repeat ;
+    margin: auto;
+    width: 200px;
+    height: 200px;
+    border-radius: 200px;
+}
+
+#founderName{
+    text-align: center;
+}
+
+.listAttributs{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.attribut{
+    flex-basis: 45%;
+    margin: var(--espace-min) 5% var(--espace-min) 0;
+}
+
+.attributName{
+    font-weight: bold;
+    width: 120px;
+    display: inline-block;
+}
