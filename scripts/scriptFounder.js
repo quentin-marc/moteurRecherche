@@ -110,11 +110,13 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
                         var value = results.results.bindings[0][predicat].value
                         if(results.results.bindings[0][predicat].type == "uri"){
                             if(value.includes("http://dbpedia.org")){
+
                                 value = "<a href=\""+value+"\">"+value.split("/")[value.split("/").length-1]+"</a>"
                             } else {
                                 value = "<a href=\""+value+"\">"+value+"</a>"
                             }
                         }
+                        
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
                         <div class=\"valAttribut\">"+value+"</div>\
@@ -151,3 +153,94 @@ function getImageFounder(url_wikipedia){
 
     document.getElementById("imageFounder").src = url;
 }
+
+function getTypeSparql(resource,predicat,value){
+
+    //GET TYPE
+    var contenu_requete = "SELECT * WHERE {\
+        dbr:"+resource+" rdf:type ?type\
+    }"
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var responsePredicat = results.head.vars[0]
+            if (responsePredicat.includes("type")){
+                if(results.results.bindings.length > 0){
+
+                    var isCompany = false
+                    var isPerson = false
+
+                    results.results.bindings.forEach((type) => {
+                        if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Company")){
+                            isCompany = true
+                        } else if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Person")){
+                            isPerson = true
+                        }
+                    })
+
+                    if(isCompany){
+                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                        <div class=\"valAttribut\"><a href=\"company.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                        </div>"
+                    } else if(isPerson){
+                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                        <div class=\"valAttribut\"><a href=\"index.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                        </div>"
+                    } else {
+                        //GET IS PRODUCT OF
+                        contenu_requete = "SELECT * WHERE {\
+                            ?parent dbo:product dbr:"+resource+"\
+                        }"
+
+                        // Encodage de l'URL à transmettre à DBPedia
+                        url_base = "http://dbpedia.org/sparql";
+                        url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+                        xmlhttp = new XMLHttpRequest();
+                        xmlhttp.onreadystatechange = function() {
+                            if (this.readyState == 4 && this.status == 200) {
+                                var results = JSON.parse(this.responseText);
+                                var responsePredicat = results.head.vars[0]
+
+                                if (responsePredicat.includes("parent")){
+                                    if(results.results.bindings.length > 0){
+                                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                        <div class=\"valAttribut\"><a href=\"product.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                                        </div>"
+                                    } else {
+                                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                        <div class=\"valAttribut\">"+value.split("/")[value.split("/").length-1]+"</div>\
+                                        </div>"
+                                    }
+                                }
+
+                                console.log(results)
+                            }
+                        }
+
+                        xmlhttp.open("GET", url, true);
+                        xmlhttp.send();
+                    }
+                }
+            }
+        }
+    }
+
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+
+    
+
+}
+
