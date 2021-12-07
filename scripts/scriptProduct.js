@@ -1,7 +1,11 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	console.log("Apple_Watch")
-    productRequest("Microsoft_Windows")
+	var product = sessionStorage.getItem('Product')
+	if(!product){
+		product = "Microsoft_Windows"
+	}
+    productRequest(product)
     //document.getElementById("productName").innerHTML = "TOTO";
 }
 
@@ -120,6 +124,11 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		setImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
             	}
             } else {
+
+
+            	//gere listes !
+
+
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
 	            	var elementPredicat = document.getElementsByClassName(predicat)
 	            	if(elementPredicat.length == 0){
@@ -141,6 +150,11 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 			                    <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
 			                	</div>"
 	            			}
+	            		} else {
+	            			document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+				            <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+				            <div class=\"valAttribut\">"+value+"</div>\
+				            </div>"
 	            		}
 	            		
 	            	}
@@ -207,12 +221,12 @@ function getTypeSparql(resource,predicat,value){
         			if(isCompany){
         				document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
 	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-	                    <div class=\"valAttribut\"><a href=\"company.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+	                    <div class=\"valAttribut redirect\"  onclick=\"sessionStorage.setItem('Company','"+value.split("/")[value.split("/").length-1]+"');window.location.href='company.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
 	                	</div>"
         			} else if(isPerson){
         				document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
 	                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-	                    <div class=\"valAttribut\"><a href=\"index.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+	                    <div class=\"valAttribut redirect\" onclick=\"sessionStorage.setItem('Person','"+value.split("/")[value.split("/").length-1]+"');window.location.href='index.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
 	                	</div>"
         			} else {
         				//GET IS PRODUCT OF
@@ -234,7 +248,7 @@ function getTypeSparql(resource,predicat,value){
             						if(results.results.bindings.length > 0){
             							document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
 					                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-					                    <div class=\"valAttribut\"><a href=\"product.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+					                    <div class=\"valAttribut redirect\"  onclick=\"sessionStorage.setItem('Product','"+value.split("/")[value.split("/").length-1]+"');window.location.href='product.html'\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
 					                	</div>"
             						} else {
             							document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\

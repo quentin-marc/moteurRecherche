@@ -78,13 +78,13 @@ body{
     margin-top: var(--espace-grand);
 }
 
-a, #seeMore{
+a, #seeMore, .redirect{
     color: var(--cta);
     cursor: pointer;
     text-decoration: none;
 }
 
-a:hover, #seeMore:hover{
+a:hover, #seeMore:hover .redirect:hover{
     text-decoration: underline;
 }
 
