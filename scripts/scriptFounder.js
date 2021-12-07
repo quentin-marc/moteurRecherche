@@ -1,36 +1,36 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 	
-    productRequest("Bill_Gates")
-    //document.getElementById("productName").innerHTML = "TOTO";
+    founderRequest("Mark_Zuckerberg")
+    //document.getElementById("founderName").innerHTML = "TOTO";
 }
+var tabPredicat = []
+function founderRequest(founder){
 
-function productRequest(product){
-
-    doProductSparql(product,"dbo:knownFor",false)
-    doProductSparql(product,"dbo:education",false)
-    doProductSparql(product,"dbo:activeYearsStartYear",false)
-    doProductSparql(product,"dbo:activeYearsEndYear",false)
-    doProductSparql(product,"dbo:deathPlace",false)
-    doProductSparql(product,"dbo:deathCause",false)
-    doProductSparql(product,"dbo:deathDate",false)
-    doProductSparql(product,"dbo:birthPlace",false)
-    doProductSparql(product,"dbo:birthName",false)
-    doProductSparql(product,"dbo:birthDate",false)
-    doProductSparql(product,"dbo:abstract",true)
-    doProductSparql(product,"dbo:thumbnail",false)
-    doProductSparql(product,"dbp:name",true)
+    dofounderSparql(founder,"dbo:knownFor",false)
+    dofounderSparql(founder,"dbo:education",false)
+    dofounderSparql(founder,"dbo:activeYearsStartYear",false)
+    dofounderSparql(founder,"dbo:activeYearsEndYear",false)
+    dofounderSparql(founder,"dbo:deathPlace",false)
+    dofounderSparql(founder,"dbo:deathCause",false)
+    dofounderSparql(founder,"dbo:deathDate",false)
+    dofounderSparql(founder,"dbo:birthPlace",false)
+    dofounderSparql(founder,"dbo:birthName",false)
+    dofounderSparql(founder,"dbo:birthDate",false)
+    dofounderSparql(founder,"dbo:abstract",true)
+    dofounderSparql(founder,"dbo:thumbnail",false)
+    dofounderSparql(founder,"dbp:name",true)
     
 
 }
 
-function doProductSparql(product,predicat,filterOnLang){
+function dofounderSparql(founder,predicat,filterOnLang){
     
-    singleSelect(product,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
+    singleSelect(founder,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
     if(predicat.split(":")[0] == "dbo"){
-        singleSelect(product,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
+        singleSelect(founder,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
     } else if(predicat.split(":")[0] == "dbp"){
-        singleSelect(product,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
+        singleSelect(founder,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
     }
 
     var isCamelCase = false;
@@ -42,25 +42,27 @@ function doProductSparql(product,predicat,filterOnLang){
     }
     if(isCamelCase){
         predicat = predicat.toLowerCase();
-        singleSelect(product,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
+        singleSelect(founder,predicat,predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1],filterOnLang)
         if(predicat.split(":")[0] == "dbo"){
-            singleSelect(product,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
+            singleSelect(founder,"dbp:"+predicat.split(":")[1],"DBP_"+predicat.split(":")[1],filterOnLang)
         } else if(predicat.split("console.log(predicat):")[0] == "dbp"){
-            singleSelect(product,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
+            singleSelect(founder,"dbo:"+predicat.split(":")[1],"DBO_"+predicat.split(":")[1],filterOnLang)
         }
     }
+
 
 }
 
 
 function singleSelect(ressource,predicat,varName,filterOnLang){
+    
     var contenu_requete;
     if(filterOnLang){
         contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
     } else {
         contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
     }
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
@@ -71,72 +73,88 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var predicat = results.head.vars[0]
-             console.log(results)
+             //console.log(results)
                 
             if(predicat == "RDFS_label" || predicat == "DBO_name" || predicat == "DBP_name"){
                 
-                if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
-                    var productname = document.getElementById("founderName");
-                    if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
-                        productname.innerHTML = results.results.bindings[0][predicat].value
+                if((tabPredicat.includes(removePrefix(predicat)) == false) && results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                    var foundername = document.getElementById("founderName");
+                    if((tabPredicat.includes(removePrefix(predicat)) == false) && results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                        foundername.innerHTML = results.results.bindings[0][predicat].value
                         document.title= results.results.bindings[0][predicat].value
-                        productname.classList.remove('no-data');
+                        tabPredicat.push(removePrefix(predicat))
+                        foundername.classList.remove('no-data');
 
                     }
                 }
             } else if(predicat.includes("abstract")){
-                if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                if((tabPredicat.includes(removePrefix(predicat)) == false) && results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
                     var description = document.getElementById("description");
                     description.innerHTML = results.results.bindings[0][predicat].value
+                    tabPredicat.push(removePrefix(predicat))
                     description.classList.remove('no-data');
                 }
             } else if(predicat.includes("thumbnail") || predicat.includes("logo") || predicat.includes("image")){
                
                 if(predicat.includes("thumbnail")){
-                    if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                    if((tabPredicat.includes(removePrefix(predicat)) == false) && results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
                         document.getElementById("imageFounder").style.backgroundImage = "url("+results.results.bindings[0][predicat].value+")";
+                        tabPredicat.push(removePrefix(predicat))
                     }
                 }else{
-                    if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                    if((tabPredicat.includes(removePrefix(predicat)) == false) && results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
                         getImageFounder(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
+                        tabPredicat.push(removePrefix(predicat))
                     }
                     
                 }
                 
             } else {
-                if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                if( (tabPredicat.includes(removePrefix(predicat)) == false) && (results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null)){
                     var elementPredicat = document.getElementsByClassName(predicat)
                     if(elementPredicat.length == 0){
                         var value = results.results.bindings[0][predicat].value
-                        if(results.results.bindings[0][predicat].type == "uri"){
-                            if(value.includes("http://dbpedia.org")){
-                                if(value.includes("http://dbpedia.org/resource")){
-                                    getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
+                        
+                        
+
+                            if(results.results.bindings[0][predicat].type == "uri"){
+                                if(value.includes("http://dbpedia.org")){
+                                
+                                    if(value.includes("http://dbpedia.org/resource")){
+                                        getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
+                                        tabPredicat.push(removePrefix(predicat))
+                                        
+                                    } else {
+                                        value = value.split("/")[value.split("/").length-1]
+                                        tabPredicat.push(removePrefix(predicat))
+                                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
+                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                        <div class=\"valAttribut\">"+value+"</div>\
+                                        </div>"
+                                    }
                                 } else {
-                                    value = value.split("/")[value.split("/").length-1]
+                                    tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                     <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                    <div class=\"valAttribut\">"+value+"</div>\
+                                    <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
                                     </div>"
                                 }
-                            } else {
-                                document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
-                                </div>"
-                            }
-                        }else{
-                            
+                            }else{
+                                    tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                     <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
                                     <div class=\"valAttribut\">"+value+"</div>\
                                     </div>"
-                        }
+                            }
+                        
+                        
                         
                     }
                 }
                 
             }
+            
+            
         }
     };
 
@@ -157,7 +175,7 @@ function removePrefix(str){
 
 function getImageFounder(url_wikipedia){
 
-    console.log("url : "+url_wikipedia)
+    //console.log("url : "+url_wikipedia)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
@@ -207,9 +225,9 @@ function getTypeSparql(resource,predicat,value){
                         <div class=\"valAttribut\"><a href=\"index.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
                         </div>"
                     } else {
-                        //GET IS PRODUCT OF
+                        //GET IS founder OF
                         contenu_requete = "SELECT * WHERE {\
-                            ?parent dbo:product dbr:"+resource+"\
+                            ?parent dbo:founder dbr:"+resource+"\
                         }"
 
                         // Encodage de l'URL à transmettre à DBPedia
@@ -226,7 +244,7 @@ function getTypeSparql(resource,predicat,value){
                                     if(results.results.bindings.length > 0){
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                        <div class=\"valAttribut\"><a href=\"product.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                                        <div class=\"valAttribut\"><a href=\"founder.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
                                         </div>"
                                     } else {
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
@@ -236,7 +254,7 @@ function getTypeSparql(resource,predicat,value){
                                     }
                                 }
 
-                                console.log(results)
+                                //console.log(results)
                             }
                         }
 
