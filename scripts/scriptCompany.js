@@ -15,6 +15,7 @@ function companyRequest(companyName){
     "dbo:url", "foaf:homepage"]
     predicatListIndustrie = ["dbp:industry", "dbo:industry"]
     predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
+    predicatListProduits = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
@@ -24,9 +25,10 @@ function companyRequest(companyName){
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
     doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
     doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
-    doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite)
-    doCompanySparqlNombreIndustrie(dbrCompanyName,predicatListIndustrie)
-    doCompanySparqlNombreRevenue(dbrCompanyName,predicatListRevenue)
+    doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
+    doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
+    doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
 }
 
 function getDbrCompanyName(companyName){
@@ -265,7 +267,7 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     xmlhttp.send();
 }
 
-function doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite){
+function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?lienWebsite) WHERE {";
 
@@ -303,7 +305,7 @@ function doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite
     xmlhttp.send();
 }
 
-function doCompanySparqlNombreIndustrie(dbrCompanyName,predicatListIndustrie){
+function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?industrieLabel) WHERE {";
 
@@ -338,7 +340,7 @@ function doCompanySparqlNombreIndustrie(dbrCompanyName,predicatListIndustrie){
     xmlhttp.send();
 }
 
-function doCompanySparqlNombreRevenue(dbrCompanyName,predicatListRevenue){
+function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?revenue) WHERE {";
 
@@ -369,4 +371,71 @@ function doCompanySparqlNombreRevenue(dbrCompanyName,predicatListRevenue){
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
+    //TODO dbr:Company
+
+    var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";
+
+    predicatListProduits.forEach( predicate => {
+        console.log(predicate)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?produit." +
+            "?produit rdfs:label ?labelProduit.\n" +
+            "FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var produit = results.head.vars[0]
+            var produitLabel = results.head.vars[1]
+            console.log(results);
+
+            /*<div className="listProducts">
+                <div className="product">
+                    <div className="imgProduct"></div>
+                    <div className="nameProduct">Iphone X</div>
+                </div>*/
+
+            for(var i = 0; i < results.results.bindings.length; i++){
+                var product = document.createElement("div")
+                var imgProduct = document.createElement("div")
+                var nameProduct = document.createElement("div")
+
+                //linkFounder.href = results.results.bindings[i][fondateur].value;
+                var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
+
+                nameProduct.appendChild(newContentHref);
+
+                nameProduct.className = "nameProduct"
+                imgProduct.className = "imgProduct"
+                product.className = "product"
+
+                //TODO idem image
+
+                product.appendChild(imgProduct)
+                product.appendChild(nameProduct)
+
+                var currentDiv = document.getElementsByClassName('listProducts')[0];
+                currentDiv.appendChild(product)
+
+                changePageProduit(product, produit, results, i)
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+function changePageProduit(product, produit, results, i){
+    product.onclick = function () {window.location.href = results.results.bindings[i][produit].value; }
 }
