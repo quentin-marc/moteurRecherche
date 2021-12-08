@@ -13,6 +13,8 @@ function companyRequest(companyName){
     predicatListNombreEmploye = ["dbp:numEmployees"]
     predicatListLienWebsite = ["dbo:wikiPageExternalLink", "dbp:homepage", "dbp:website",
     "dbo:url", "foaf:homepage"]
+    predicatListIndustrie = ["dbp:industry", "dbo:industry"]
+    predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
@@ -23,6 +25,8 @@ function companyRequest(companyName){
     doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
     doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite)
+    doCompanySparqlNombreIndustrie(dbrCompanyName,predicatListIndustrie)
+    doCompanySparqlNombreRevenue(dbrCompanyName,predicatListRevenue)
 }
 
 function getDbrCompanyName(companyName){
@@ -268,7 +272,7 @@ function doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite
     predicatListLienWebsite.forEach( predicate => {
         if(predicate == "dbo:wikiPageExternalLink"){
             contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienLabel." +
-                "?lienLabel rdfs:label ?lienWebsite}"
+                "?lienLabel rdfs:label ?lienWebsite.}"
         }else {
             contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienWebsite. }"
         }
@@ -292,6 +296,74 @@ function doCompanySparqlNombreLienWbesite(dbrCompanyName,predicatListLienWebsite
                 var nbEmployee = document.getElementById("lienWebsite");
                 nbEmployee.innerHTML = results.results.bindings[0][predicat].value
                 nbEmployee.classList.remove('no-data');
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function doCompanySparqlNombreIndustrie(dbrCompanyName,predicatListIndustrie){
+    //TODO dbr:Company
+    var contenu_requete = "SELECT str(?industrieLabel) WHERE {";
+
+    predicatListIndustrie.forEach( predicate => {
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?industrie." +
+            "?industrie rdfs:label ?industrieLabel." +
+            "FILTER(langMatches(lang(?industrieLabel), \"EN\"))}"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var predicat = results.head.vars[0]
+            console.log(results);
+            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                var industry = document.getElementById("industry");
+                industry.innerHTML = results.results.bindings[0][predicat].value
+                industry.classList.remove('no-data');
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function doCompanySparqlNombreRevenue(dbrCompanyName,predicatListRevenue){
+    //TODO dbr:Company
+    var contenu_requete = "SELECT str(?revenue) WHERE {";
+
+    predicatListRevenue.forEach( predicate => {
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?revenue.}"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var predicat = results.head.vars[0]
+            console.log(results);
+            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+                var revenue = document.getElementById("netIncome");
+                revenue.innerHTML = results.results.bindings[0][predicat].value + "€ TODO quelle monnaie mettre ??"
+                revenue.classList.remove('no-data');
             }
         }
     };
