@@ -1,27 +1,314 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-	console.log("Apple")
-    productRequest("Google")
+	var companyName = "Apple";
+	console.log(companyName)
+    serchCompanyByName(companyName)
+	//productRequest("Apple")
     //document.getElementById("productName").innerHTML = "TOTO";
 }
 
-
-function productRequest(product){
-predicatList = ["dbo:abstract", "dbp:industry", "dbo:industry", "dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome", "dbp:logo"]
-
-	doCompanySparql(product,predicatList,true)	
+//Store all information about a company
+class Company {
+	constructor(name) {
+		this.name = name;
+		this.logo = "";
+		this.abstract = "";
+		this.income = "";
+		this.industryList = [];
+		this.industryListLink = [];
+		this.productList = [];
+		this.productListLink = [];
+	}
 }
 
-//Create a variable name from a predicate
-function createFunctionName(predicat) {
-	return "?"+predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1]
+//Search a company by its name. 
+//Display all companies containing that name with some informations about them
+function serchCompanyByName(companyName) {
+	
+	var companyMap = {};
+	
+	var contenu_requete = "SELECT DISTINCT ?company, STR(?name) as ?name WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n}"
+	
+	// Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            console.log(results);
+			//Get the list of result
+			resultList = results.results.bindings
+			
+			//Loop on every result company to get more details about the company and to display the results
+			resultList.forEach( resultObject => {
+				//Get the uri of the ressource company
+				var companyDBR = getDbrCompanyName(resultObject["company"].value);
+				var companyName = resultObject["name"].value;
+
+				//Create a company object that will store the company's information
+				companyMap[companyName] = new Company(companyName);
+
+				//getCompanyMainInformation(companyDBR, companyName, companyMap);
+				getCompanyMainInformationPromise(companyDBR, companyName, companyMap).then((res)=>{
+					console.log("********************");
+					console.log("********************");
+					console.log("********************");
+					console.log("********************");
+					console.log("********************");
+					addCompanyToHtml(companyMap[companyName])
+				}).catch((error)=>{
+					console.log(`Handling error as we received ${error}`);
+				});
+			} )
+        }
+    };
+	xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+//From a company object create an HTML div to display 
+function addCompanyToHtml(company) {
+	console.log(`The function recieved with value companyMap[companyName] = `)
+	console.log(company)
+
+	//Get the element where the company will be added
+	var listResultsElement = document.getElementById("listResults");
+
+	//Parent div for this company
+	var newDivCompany = document.createElement("div");
+	newDivCompany.setAttribute("class", "result");
+	newDivCompany.setAttribute("id", company.name);
+	
+	//Company logo
+	var divCompanyLogo = document.createElement("img");
+	divCompanyLogo.setAttribute("id", "logo");
+	divCompanyLogo.setAttribute("src", getImageProduct(company.logo));
+	newDivCompany.appendChild(divCompanyLogo);
+
+	//Company name
+	var divCompanyName = document.createElement("h2");
+	divCompanyName.setAttribute("id", "name");
+	divCompanyName.innerHTML = company.name;
+	newDivCompany.appendChild(divCompanyName);
+	
+	//Company abstract
+	if (company.abstract !== "") {
+		var divCompanyAbstract = document.createElement("div");
+		divCompanyAbstract.setAttribute("id", "description");
+		divCompanyAbstract.innerHTML = company.abstract;
+		newDivCompany.appendChild(divCompanyAbstract);
+	}
+
+	//Company income
+	if (company.income !== "") {
+		var divCompanyIncome = document.createElement("div");
+		divCompanyIncome.setAttribute("class", "divIncome");
+
+		var spanCompanyIncomeText = document.createElement("span");
+		spanCompanyIncomeText.setAttribute("class", "property");
+		spanCompanyIncomeText.innerHTML = "Net Income:";
+		divCompanyIncome.appendChild(spanCompanyIncomeText);
+
+		var spanCompanyIcomeList = document.createElement("span");
+		spanCompanyIcomeList.setAttribute("id", "netIncome");
+		spanCompanyIcomeList.innerHTML = company.income;
+		divCompanyIncome.appendChild(spanCompanyIcomeList);
+		
+		newDivCompany.appendChild(divCompanyIncome);
+
+	}
+
+	//Company industries
+	if (company.industryList.length > 0) {
+		var allIndustries = "";
+		for (i=0; i < company.industryList.length; i++) {
+			allIndustries += company.industryList[i];
+			if (i <company.industryList.length-1) {
+				allIndustries += ", ";
+			}
+		}
+
+		var divCompanyIndustry = document.createElement("div");
+		divCompanyIndustry.setAttribute("class", "divIndustry");
+		
+		var spanCompanyIndusryText = document.createElement("span");
+		spanCompanyIndusryText.setAttribute("class", "property");
+		spanCompanyIndusryText.innerHTML = "Industry:";
+		divCompanyIndustry.appendChild(spanCompanyIndusryText);
+
+		var spanCompanyIndusryList = document.createElement("span");
+		spanCompanyIndusryList.setAttribute("id", "listIndustries");
+		spanCompanyIndusryList.innerHTML = allIndustries;
+		divCompanyIndustry.appendChild(spanCompanyIndusryList);
+		
+		newDivCompany.appendChild(divCompanyIndustry);
+	}
+
+	//Company products
+	if (company.productList.length > 0) {
+		var allProducts = "";
+		for (i=0; i < company.productList.length; i++) {
+			allProducts += company.productList[i];
+			if (i <company.productList.length-1) {
+				allProducts += ", ";
+			}
+		}
+
+		var divCompanyProcuct = document.createElement("div");
+		divCompanyProcuct.setAttribute("class", "divProducts");
+		
+		var spanCompanyProductText = document.createElement("span");
+		spanCompanyProductText.setAttribute("class", "property");
+		spanCompanyProductText.innerHTML = "Products:";
+		divCompanyProcuct.appendChild(spanCompanyProductText);
+
+		var spanCompanyProcuctList = document.createElement("span");
+		spanCompanyProcuctList.setAttribute("id", "listProducts");
+		spanCompanyProcuctList.innerHTML = allProducts;
+		divCompanyProcuct.appendChild(spanCompanyProcuctList);
+		
+		newDivCompany.appendChild(divCompanyProcuct);
+	}
+	
+	console.log(newDivCompany);
+
+	//Add the html content
+	listResultsElement.appendChild(newDivCompany);
+}
+
+//Querry the databse to get more infotrmations about the company
+function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
+	console.log(companyDBR);
+	return new Promise((resolve)=>{
+
+		//The list of all predicates that interset us. A list represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before) 
+		var predicateListAbstract = ["dbo:abstract"];
+		var predicateListLogo = ["dbp:logo"];
+		var predicatListIndusty = ["dbp:industry", "dbo:industry"];
+		var predicateListIncome = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"];
+				
+		const promises = [];
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListAbstract, "abstract", companyName, companyMap) );
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListLogo, "logo", companyName, companyMap) );
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicatListIndusty, "industry", companyName, companyMap, true) );
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap) );
+		
+		//Waits for all promises to return
+		return Promise.all(promises).then((res)=>{
+			resolve(true);
+		})
+	});
+}
+
+//Perform a sparql request for one predicate (and the list of alternative predicates in case there is no value) and add the result to the html element with idElement 
+//Note: predicateList represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before)
+//If get label is true, the request get the label of the returned value
+function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, companyName, companyMap, getLabel) {
+	
+	return new Promise((resolve)=>{
+
+		var labelVarName = "";
+		var querryLabel = "";
+		if (getLabel) {
+			labelName = "?label" + varName
+			labelVarName = " STR(" + labelName + ")";
+			querryLabel = "?" + varName + " rdfs:label " + labelName + ". FILTER(langMatches(lang(" + labelName + "), \"EN\"))";
+		}
+		
+		var requestContent = "SELECT DISTINCT ?" + varName + labelVarName + " WHERE {";
+		predicateList.forEach( predicate => {
+			console.log(predicate)
+			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " ?" + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+		} )
+		requestContent += "\n}"
+		
+		// Encodage de l'URL à transmettre à DBPedia
+		var url_base = "http://dbpedia.org/sparql";
+		var url = url_base + "?query=" + encodeURIComponent(requestContent) + "&format=json";
+
+		// Requête HTTP et affichage des résultats
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				//Get the response from the querry
+				var results = JSON.parse(this.responseText);
+				//Get the list of result
+				resultList = results.results.bindings
+				console.log("Request : \n"+requestContent);
+				console.log(results)
+				var predicat = results.head.vars[0];
+				var label = results.head.vars[1];
+				console.log(predicat)
+
+				//Add the result to the html
+				switch(predicat){
+					case "abstract":
+						//Update the abstract of the corresponding company
+						companyMap[companyName].abstract = geLastResult(resultList, predicat);
+						resolve(true);
+						break;
+					case "logo":
+						//Update the abstract of the corresponding company
+						companyMap[companyName].logo = geLastResult(resultList, predicat);
+						resolve(true);
+						break;
+					case "industry":
+						//Get all industries label into a list
+						var allIndustries = [];
+						resultList.forEach( attributs => {
+							if (label in attributs) {
+								allIndustries.push(attributs[label].value);
+							}
+						} );
+						//Get all industries link into a list
+						var allIndustriesLink = [];
+						resultList.forEach( attributs => {
+							if (predicat in attributs) {
+								allIndustriesLink.push(attributs[predicat].value);
+							}
+						} );
+						//Update the industry of the corresponding company
+						companyMap[companyName].industryList = allIndustries;
+						companyMap[companyName].industryListLink = allIndustriesLink;
+						resolve(true);
+						//addIndustriesToHtml(companyName, resultList);
+						break;
+					case "income":
+						//Update the income of the corresponding company
+						companyMap[companyName].income = geLastResult(resultList, predicat);;
+						resolve(true);
+						break;
+					default:
+						resolve(false);
+						break;
+				}
+			}
+		};
+		xmlhttp.open("GET", url, true);
+		xmlhttp.send();
+	});
+}
+
+//Give the last result from the reustList after a querry
+function geLastResult(resultList, predicat) {
+	var value = "";
+	resultList.forEach( attributs => {
+		if (predicat in attributs) {
+			value =  attributs[predicat].value;
+		}
+	} );
+	return value;
 }
 
 //Create a filter for a request
 function createFilterForRequest(predicat, varName) {
 	predicateName = predicat.split(":")[1]
 	shouldApplyFilter = false
-	
+	varName = '?' + varName;
+
 	switch(predicateName) {
 		case "revenue" || "netIncome":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
@@ -40,136 +327,16 @@ function createFilterForRequest(predicat, varName) {
 		return filter
 }
 
-function doCompanySparql(companyName, predicatList, filterOnLang){
-	var varNameList = ""
-	predicatList.forEach( predicate => {
-		varNameList += ", " + createFunctionName(predicate)
-	} )
-	
-	var contenu_requete = "SELECT DISTINCT ?company, ?name " + varNameList + " WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n";
-	
-	predicatList.forEach( predicate => {
-		console.log(predicate)
-		varName = createFunctionName(predicate)
-		console.log( varName )
-		contenu_requete += "OPTIONAL { ?company " + predicate + " " + varName + ". " + createFilterForRequest(predicate, varName) + "}\n"
-		console.log(contenu_requete)
-	} )
-
-	contenu_requete += "}"	
-
-	console.log("Request : \n"+contenu_requete);
-
-	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
-
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-
-			//Get the list of result
-			resultList = results.results.bindings
-			//Get the list of attributes
-			var predicatList = results.head.vars
-			listResults
-			var listResults = document.getElementById("listResults");
-
-			newDiv ="<div class=\"result\">\n" +
-						"                        <img id=\"logo\" src=\"https://upload.wikimedia.org/wikipedia/commons/8/84/Apple_Computer_Logo_rainbow.svg\"></img>\n" +
-						"                        <h2 id=\"name\">Apple</h2>\n" +
-						"                        <div id=\"description\">Apple Inc. is an American multinational technology company that specializes in consumer electronics, computer software, and online services. Apple is the world's largest technology company by revenue (totaling $274.5 billion in 2020) and, since January 2021, the world's most valuable company. As of 2021, Apple is the world's fourth-largest PC vendor by unit sales, and fourth-largest smartphone manufacturer. It is one of the Big Five American information technology companies, along with Amazon, Google, Microsoft, and Facebook. Apple was founded by Steve Jobs, Steve Wozniak, and Ronald Wayne in 1976 to develop and sell Wozniak's Apple I personal computer. It was incorporated by Jobs and Wozniak as Apple Computer, Inc. in 1977, and sales of its computers, including the Apple II, grew quickly.</div>\n" +
-						"                        <div class=\"divIncome\">\n" +
-						"                            <span class=\"property\">Net Income:</span>\n" +
-						"                            <span id=\"netIncome\">1 200 000$</span>\n" +
-						"                        </div>\n" +
-						"                        <div class=\"divIndustry\">\n" +
-						"                            <span class=\"property\">Industry:</span>\n" +
-						"                            <span id=\"listIndustries\">IA, semiconductor, retail, IA, semiconductor, retail, IA, semiconductor, retail, IA, semiconductor, retail, IA, semiconductor, retail, IA, semiconductor, retail</span>\n" +
-						"                        </div>\n" +
-						"                        <div class=\"divProducts\">\n" +
-						"                            <span class=\"property\">Products:</span>\n" +
-						"                            <span id=\"listProducts\">Iphone, Mac, Ipad, Apple Watch, Airpods, Iphone, Mac, Ipad, Apple Watch, Airpods, Iphone, Mac, Ipad, Apple Watch, Airpods, Iphone, Mac, Ipad, Apple Watch, Airpods</span>\n" +
-						"                        </div>\n" +
-						"                    </div>";
-						
-						listResults.innerHTML += newDiv;
-
-			//Loop on every result object
-			resultList.forEach( resultObject => {
-				//Get the values of all attributs inside the request
-				var image;
-				var name;
-				var abstract;
-				var industry;
-				predicatList.forEach( attributs => {
-					if (resultObject[attributs] !== undefined) {
-						value = resultObject[attributs].value
-
-						switch(attributs){
-							//Get the logo
-							case "DBP_logo":
-								console.log(getImageProduct(value))
-								image = "<img id=\"logo\" src=\""+getImageProduct(value)+"\"></img>"
-								break
-						 	//Get the name
-							case "name": 
-								name = "<h2 id=\"name\">" + value + "</h2>"
-								break
-							//Get the abstract
-							case "DBO_abstract":
-								abstract = "<div id=\"description\">" + value + "</div>"
-								break
-							//Get the industry
-							//TODO : loop on all industry and get industry name
-							case "DBP_industry":
-								industry = "<div class=\"divIndustry\">\n" +
-								"                            <span class=\"property\">Industry:</span>\n" +
-								"                            <span id=\"listIndustries\">" + value + "</span>\n" +
-								"                        </div>\n"
-								break
-							case "DBO_industry":
-								if (industry !== undefined) {
-									industry = "<div class=\"divIndustry\">\n" +
-									"                            <span class=\"property\">Industry:</span>\n" +
-									"                            <span id=\"listIndustries\">" + value + "</span>\n" +
-									"                        </div>\n"
-								}
-								break
-						}
-				
-
-						console.log("reeeeeeeeeeeeeees "+ attributs + " = "+value)
-					}
-				} )
-
-				//Add the html content
-				newDiv = "<div class=\"result\">"
-				if (image !== undefined) {
-					newDiv += image
-				}
-				if (name !== undefined) {
-					newDiv += "\n" + name
-				}
-				if (abstract !== undefined) {
-					newDiv += "\n" + abstract
-				}
-				if (industry !== undefined) {
-					newDiv += "\n" + industry
-				}
-				newDiv += "\n</div>"
-				console.log(newDiv)
-				listResults.innerHTML += newDiv;
-
-			} )
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
+//Get the dbr company name from a uri
+function getDbrCompanyName(companyURI){
+    var splitCompanyName = companyURI.split("/");
+    var dbrCompanyName = "dbr:" + splitCompanyName[splitCompanyName.length - 1].replace(/'/g, "\'");
+    return dbrCompanyName;
 }
 
+//Get the full image url with only the end of the url
+//Return the image url
+//TODO : check if the link exists otherwise return null
 function getImageProduct(url_wikipedia){
 
 	console.log("url : "+url_wikipedia)
