@@ -331,7 +331,17 @@ function createFilterForRequest(predicat, varName) {
 //Get the dbr company name from a uri
 function getDbrCompanyName(companyURI){
     var splitCompanyName = companyURI.split("/");
-    var dbrCompanyName = "dbr:" + splitCompanyName[splitCompanyName.length - 1].replace(/'/g, "\'");
+	var comapanyName = splitCompanyName[splitCompanyName.length - 1];
+	const charToEscape = ["'", "\"", ".", "&","(",")","-","_","/",","] 
+	var comapanyNameWithEscape = "";
+	for (var i = 0; i < comapanyName.length; i++) {
+		var currChar = comapanyName.charAt(i);
+		if (charToEscape.includes(currChar)) {
+			currChar = "\\" + currChar;
+		}
+		comapanyNameWithEscape += currChar;
+	  }
+    var dbrCompanyName = "dbr:" + comapanyNameWithEscape;
     return dbrCompanyName;
 }
 
