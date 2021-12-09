@@ -55,9 +55,6 @@ function serchCompanyByName(companyName) {
 				getCompanyMainInformationPromise(companyDBR, companyName, companyMap).then((res)=>{
 					console.log("********************");
 					console.log("********************");
-					console.log("********************");
-					console.log("********************");
-					console.log("********************");
 					addCompanyToHtml(companyMap[companyName])
 				}).catch((error)=>{
 					console.log(`Handling error as we received ${error}`);
@@ -189,12 +186,14 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 		var predicateListLogo = ["dbp:logo"];
 		var predicatListIndusty = ["dbp:industry", "dbo:industry"];
 		var predicateListIncome = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"];
+		var predicateListProduct = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"];
 				
 		const promises = [];
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListAbstract, "abstract", companyName, companyMap) );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListLogo, "logo", companyName, companyMap) );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicatListIndusty, "industry", companyName, companyMap, true) );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap) );
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListProduct, "product", companyName, companyMap, true) );
 		
 		//Waits for all promises to return
 		return Promise.all(promises).then((res)=>{
@@ -256,30 +255,21 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 						resolve(true);
 						break;
 					case "industry":
-						//Get all industries label into a list
-						var allIndustries = [];
-						resultList.forEach( attributs => {
-							if (label in attributs) {
-								allIndustries.push(attributs[label].value);
-							}
-						} );
-						//Get all industries link into a list
-						var allIndustriesLink = [];
-						resultList.forEach( attributs => {
-							if (predicat in attributs) {
-								allIndustriesLink.push(attributs[predicat].value);
-							}
-						} );
 						//Update the industry of the corresponding company
-						companyMap[companyName].industryList = allIndustries;
-						companyMap[companyName].industryListLink = allIndustriesLink;
+						companyMap[companyName].industryList = geAllResult(resultList, label);
+						companyMap[companyName].industryListLink = geAllResult(resultList, predicat);
 						resolve(true);
-						//addIndustriesToHtml(companyName, resultList);
 						break;
 					case "income":
 						//Update the income of the corresponding company
 						companyMap[companyName].income = geLastResult(resultList, predicat);;
 						resolve(true);
+						break;
+					case "product":
+						//Update the product of the corresponding company
+						companyMap[companyName].productList = geAllResult(resultList,label);
+						companyMap[companyName].productListLink = geAllResult(resultList, predicat);
+						resolve(true)
 						break;
 					default:
 						resolve(false);
@@ -292,7 +282,7 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 	});
 }
 
-//Give the last result from the reustList after a querry
+//Return the last result from the reustList after a querry
 function geLastResult(resultList, predicat) {
 	var value = "";
 	resultList.forEach( attributs => {
@@ -301,6 +291,17 @@ function geLastResult(resultList, predicat) {
 		}
 	} );
 	return value;
+}
+
+//Return all results from the reustList after a querry
+function geAllResult(resultList, predicat) {
+	var valueList = [];
+	resultList.forEach( attributs => {
+		if (predicat in attributs) {
+			valueList.push(attributs[predicat].value);
+		}
+	} );
+	return valueList;
 }
 
 //Create a filter for a request
