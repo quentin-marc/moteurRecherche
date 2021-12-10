@@ -1,6 +1,6 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-	var companyName = "Apple";
+	var companyName = sessionStorage.getItem('companyName');
 	console.log(companyName)
     serchCompanyByName(companyName)
 	//productRequest("Apple")

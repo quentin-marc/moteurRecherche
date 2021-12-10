@@ -18,6 +18,9 @@ function protectionSearchFields(){
     }
     else{
         //TODO lancer recherche dbpedia
-        alert("lancer recherche dbpedia");
+        //alert("lancer recherche dbpedia");
+        sessionStorage.setItem('companyName',companyName);
+	    window.location = "./listResults.html";
+
     }
 }
