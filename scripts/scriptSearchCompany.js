@@ -49,10 +49,11 @@ function serchCompanyByName(companyName) {
 	"FILTER(regex(str(?name), \"" + companyName + "\"))\n" +
 	"OPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
 	"OPTIONAL { ?company dbo:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
-	"OPTIONAL { ?company dbp:netIncome ?income. }\n" +
-	"OPTIONAL { ?company dbo:netIncome ?income. }\n" +
+	"OPTIONAL { ?company dbp:netIncome ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
+	"OPTIONAL { ?company dbo:netIncome ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
+	"OPTIONAL { ?company dbp:numEmployees ?numEmployee. }\n" +
 	"}\n" +
-	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income))";
+	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)";
 
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
