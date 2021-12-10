@@ -52,7 +52,7 @@ body{
     position: relative;
 }
 
-.newSearch, #startSearch{
+.newSearch, .return, #startSearch{
     background-color: var(--cta);
     padding: var(--espace-min) var(--espace-grand);
     border-radius: var(--radius-petit);
@@ -60,16 +60,19 @@ body{
     color: white;
     font-size: var(--font-important);
     margin-top: var(--espace-moyen);
-    margin-left: auto;
-    display: block;
+    display: inline-block;
     cursor: pointer;
+}
+
+.return{
+    margin-right: var(--espace-min);
 }
 
 #startSearch{
     margin-right: auto;
 }
 
-.newSearch:hover, #startSearch:hover{
+.newSearch:hover, #startSearch:hover, .return:hover{
     background-color: var(--cta-hover);
 }
 
