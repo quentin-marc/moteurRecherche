@@ -1,8 +1,28 @@
 window.onload = actOnWindow;
 function actOnWindow(){
+
+    //companyRequest("http://dbpedia.org/resource/Microsoft")
+
+    /*var undo = JSON.parse(sessionStorage.getItem('undo'))
+    var founder = sessionStorage.getItem('Company')
+
+    var uriUndo = {
+        type : "Company",
+        uri : company
+    }
+
+
+
+    if(!undo ){
+        undo = new Array()
+    }
+    undo.push(uriUndo)
+    sessionStorage.setItem('undo',JSON.stringify(undo))*/
+
     /*var companyURI = sessionStorage.getItem('companyURI')
     companyRequest(companyURI)*/
-    companyRequest("https://dbpedia.org/resource/Airport_Transport_Service")
+    companyRequest("https://dbpedia.org/resource/Microsoft")
+
 }
 
 function companyRequest(companyName){
@@ -234,10 +254,7 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                var currentDiv = document.getElementsByClassName('cardContent')[0];
-
-                var textHeadquarters = document.createElement("div")
-                textHeadquarters.className = textHeadquarters
+                var adressHeadquarters = document.getElementsByClassName("adressHeadquarters")[0]
 
                 var b = document.createElement("b")
                 b.innerHTML = "Headquarters:"
@@ -246,14 +263,8 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
                 span.id = "adressHeadquarters"
                 span.innerHTML = results.results.bindings[0][objet].value
 
-                textHeadquarters.appendChild(b)
-                textHeadquarters.appendChild(span)
-
-                currentDiv.appendChild(textHeadquarters)
-
-                /*var adresseCompany = document.getElementById("adressHeadquarters");
-                adresseCompany.innerHTML = results.results.bindings[0][objet].value
-                adresseCompany.classList.remove('no-data');*/
+                adressHeadquarters.appendChild(b)
+                adressHeadquarters.appendChild(span)
             }
         }
     };
@@ -285,9 +296,23 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var dateCreation = document.getElementById("dateCreation");
+                //Creation - <span id="dateCreation"></span>
+                var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Creation - "
+
+                var span = document.createElement("span")
+                span.id = "dateCreation"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                textAnneeCreation.appendChild(b)
+                textAnneeCreation.appendChild(span)
+
+                currentDiv.appendChild(textAnneeCreation)
+                /*var dateCreation = document.getElementById("dateCreation");
                 dateCreation.innerHTML = results.results.bindings[0][objet].value
-                dateCreation.classList.remove('no-data');
+                dateCreation.classList.remove('no-data');*/
             }
         }
     };
@@ -319,9 +344,29 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var nbEmployee = document.getElementById("nbEmployee");
+
+                /*<div className="nbEmployes">
+                    <b>Workforce:</b>
+                    <span id="nbEmployee"></span>
+                    employees
+                </div>*/
+
+                var nbEmployes = document.getElementsByClassName("nbEmployes")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Workforce:"
+
+                var span = document.createElement("span")
+                span.id = "nbEmployee"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                nbEmployes.appendChild(b)
+                nbEmployes.appendChild(span)
+                nbEmployes.append(" employees")
+
+                /*var nbEmployee = document.getElementById("nbEmployee");
                 nbEmployee.innerHTML = results.results.bindings[0][objet].value
-                nbEmployee.classList.remove('no-data');
+                nbEmployee.classList.remove('no-data');*/
             }
         }
     };
@@ -357,10 +402,23 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var lienWebsite = document.getElementById("lienWebsite");
+
+                var lienWebsite = document.getElementsByClassName("lienWebsite")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Website:"
+
+                var span = document.createElement("span")
+                span.id = "lienWebsite"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                lienWebsite.appendChild(b)
+                lienWebsite.appendChild(span)
+
+                /*var lienWebsite = document.getElementById("lienWebsite");
                 lienWebsite.innerHTML = results.results.bindings[0][objet].value
                 lienWebsite.href = results.results.bindings[0][objet].value
-                lienWebsite.classList.remove('no-data');
+                lienWebsite.classList.remove('no-data');*/
             }
         }
     };
@@ -393,9 +451,23 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var industry = document.getElementById("industry");
+
+                var industry = document.getElementsByClassName("industry")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Industry:"
+
+                var span = document.createElement("span")
+                span.id = "industry"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                industry.appendChild(b)
+                industry.appendChild(span)
+
+
+                /*var industry = document.getElementById("industry");
                 industry.innerHTML = results.results.bindings[0][objet].value
-                industry.classList.remove('no-data');
+                industry.classList.remove('no-data');*/
             }
         }
     };
@@ -426,9 +498,28 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var revenue = document.getElementById("netIncome");
+
+                /*<h2>Net Income: <span id="netIncome"></span></h2>*/
+                /*<div className="netIncome">
+                    <b>Net income:</b>
+                    <span id="netIncome"></span>
+                </div>*/
+
+                var revenue = document.getElementsByClassName("netIncome")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Industry:"
+
+                var span = document.createElement("span")
+                span.id = "netIncome"
+                span.innerHTML = results.results.bindings[0][objet].value + "$"
+
+                revenue.appendChild(b)
+                revenue.appendChild(span)
+
+                /*var revenue = document.getElementById("netIncome");
                 revenue.innerHTML = results.results.bindings[0][objet].value + "$"
-                revenue.classList.remove('no-data');
+                revenue.classList.remove('no-data');*/
             }
         }
     };
