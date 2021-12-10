@@ -69,6 +69,11 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
                 var description = document.getElementById("description");
                 description.innerHTML = results.results.bindings[0][objet].value
                 description.classList.remove('no-data');
+
+                if(description.offsetHeight > 210){
+                    document.getElementById('seeMore').style.display = "inline-block";
+                    document.getElementById('description').style.maxHeight = "210px";
+                }
             }
         }
     };

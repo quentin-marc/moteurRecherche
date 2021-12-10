@@ -42,6 +42,19 @@
     margin: var(--espace-moyen) auto;
 }
 
+#infosSup{
+    margin: var(--espace-grand) 0;
+}
+
+#infosSup > *{
+    margin: var(--espace-petit) 0;
+}
+
+#infosSup > * > b{
+    width: 130px;
+    display: inline-block;
+}
+
 .listFounders, .listProducts{
     display: flex;
     flex-wrap: wrap;
@@ -53,6 +66,7 @@
     display: flex;
     align-items: center;
     margin-top: var(--espace-petit);
+    margin-right: var(--espace-petit);
     border-radius: var(--radius-moyen);
     position: relative;
 }
