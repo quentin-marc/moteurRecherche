@@ -254,7 +254,7 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                var textHeadquarters = document.getElementsByClassName("textHeadquarters")[0]
+                var adressHeadquarters = document.getElementsByClassName("adressHeadquarters")[0]
 
                 var b = document.createElement("b")
                 b.innerHTML = "Headquarters:"
@@ -263,8 +263,8 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
                 span.id = "adressHeadquarters"
                 span.innerHTML = results.results.bindings[0][objet].value
 
-                textHeadquarters.appendChild(b)
-                textHeadquarters.appendChild(span)
+                adressHeadquarters.appendChild(b)
+                adressHeadquarters.appendChild(span)
             }
         }
     };
@@ -500,14 +500,21 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 /*<h2>Net Income: <span id="netIncome"></span></h2>*/
+                /*<div className="netIncome">
+                    <b>Net income:</b>
+                    <span id="netIncome"></span>
+                </div>*/
 
-                var revenue = document.getElementsByClassName("income")[0]
+                var revenue = document.getElementsByClassName("netIncome")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Industry:"
 
                 var span = document.createElement("span")
                 span.id = "netIncome"
                 span.innerHTML = results.results.bindings[0][objet].value + "$"
 
-                revenue.append("Net Income: ")
+                revenue.appendChild(b)
                 revenue.appendChild(span)
 
                 /*var revenue = document.getElementById("netIncome");
