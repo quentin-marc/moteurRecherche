@@ -613,62 +613,78 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             var logo = results.head.vars[0]
             var thumbnail = results.head.vars[1]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
+            if(results.results.bindings.length > 0) {
+                if (results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
 
-                /*$.fn.checkPageExists = function(defaultUrl){
+                    /*$.fn.checkPageExists = function(defaultUrl){
 
-                    $.each(this, function(){
+                        $.each(this, function(){
 
-                        var $link = $(this);
+                            var $link = $(this);
 
-                        $.ajax({
-                            url: $link.attr("href"),
-                            error: function(){
-                                $link.attr("href", defaultUrl);
-                            }
+                            $.ajax({
+                                url: $link.attr("href"),
+                                error: function(){
+                                    $link.attr("href", defaultUrl);
+                                }
+                            });
                         });
+                    };
+
+                    $(document).ready(function(){
+                        $("a").checkPageExists("default.html");
                     });
-                };
 
-                $(document).ready(function(){
-                    $("a").checkPageExists("default.html");
-                });
+                    $.ajax({
+                        url: "http://something/whatever.docx",
+                        method: "HEAD",
+                        statusCode: {
+                            404: function () {
+                                alert('not found');
+                            },
+                            200: function() {
+                                alert("foundfile exists");
+                            }
+                        }
+                    });*/
 
-                $.ajax({
-                    url: "http://something/whatever.docx",
-                    method: "HEAD",
-                    statusCode: {
-                        404: function () {
-                            alert('not found');
+                    var imageCompany = document.getElementById("imageCompany");
+                    var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
+                    var srcLogo = getImageProduct(uriLogo)
+
+                    $.ajax({
+                        type: 'HEAD',
+                        url: srcLogo,
+                        headers: {  'Access-Control-Allow-Origin': srcLogo },
+                        success: function () {
+                            console.log("logo found : " + srcLogo)
+                            imageCompany.src = srcLogo
                         },
-                        200: function() {
-                            alert("foundfile exists");
+                        error: function () {
+                            // page does not exist
+                            if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
+                                console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
+                                imageCompany.src = results.results.bindings[0][thumbnail].value
+                            } else {
+                                console.log("nothing found 1")
+                                imageCompany.src = '../img/DBpedia-Logo.png'
+                            }
                         }
+                    });
+                } else {
+                    if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
+                        console.log("thumbnail found 2 : " + results.results.bindings[0][thumbnail].value)
+                        imageCompany.src = results.results.bindings[0][thumbnail].value
+                    } else {
+                        console.log("nothing found 2")
+                        imageCompany.src = '../img/DBpedia-Logo.png'
                     }
-                });*/
-
-                var imageCompany = document.getElementById("imageCompany");
-                var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
-                var srcLogo = getImageProduct(uriLogo)
-
-                $.ajax({
-                    type: 'HEAD',
-                    url: srcLogo,
-                    success: function () {
-                        imageCompany.src = srcLogo
-                    },
-                    error: function () {
-                        // page does not exist
-                        if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                            imageCompany.src = results.results.bindings[0][thumbnail].value
-                        } else {
-                            imageCompany.src = '../img/DBpedia-Logo.png'
-                        }
-                    }
-                });
-            }else {
+                }
+            } else {
+                console.log("nothing found 3")
                 imageCompany.src = '../img/DBpedia-Logo.png'
             }
+        }
 
                /* //if()
 
@@ -682,7 +698,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
                 var imageCompany = document.getElementById("imageCompany");
                 imageCompany.src = '../img/DBpedia-Logo.png'
             }*/
-        }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
