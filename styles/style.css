@@ -75,11 +75,15 @@ body{
 
 #description{
     line-height: var(--line_height);
-    height: calc(7 * var(--line_height));
     text-align: justify;
     overflow: hidden;
     text-indent: var(--espace-moyen);
     margin-top: var(--espace-grand);
+}
+
+.redirect{
+    width: auto;
+    display: inline-block;
 }
 
 a, #seeMore, .redirect{
@@ -88,12 +92,12 @@ a, #seeMore, .redirect{
     text-decoration: none;
 }
 
-a:hover, #seeMore:hover .redirect:hover{
+a:hover, #seeMore:hover, .redirect:hover{
     text-decoration: underline;
 }
 
 #seeMore{
-    display: inline-block;
+    display: none;
     margin-top: var(--espace-min);
 }
 
