@@ -1,6 +1,6 @@
 // affiche le champ entier associé au "see more"
 function seeMore(){
-    document.getElementById("description").style.maxHeight = "none";
+    document.getElementById("description").style.height = "auto";
     document.getElementById('seeMore').style.display = "none";
 }
 
@@ -26,28 +26,43 @@ function Undo(){
 
     var undo = JSON.parse(sessionStorage.getItem('undo'))
 
-    undo.pop()
+   
+    
+    
+
+    
+    
+
+     undo.pop()
+
+    
     var previousValue = undo.pop();
 
-    sessionStorage.setItem(undo,JSON.stringify(undo))
+    sessionStorage.setItem("undo",JSON.stringify(undo))
+    
+    if(!previousValue){
 
-    var type = previousValue.type;
-    sessionStorage.setItem(type,previousValue.uri)
-    switch (type){
-        
-        case("Founder"):
-            window.location.href = "founder.html"
+        window.location.href = "index.html"
+    }else{
+        var type = previousValue.type;
+        sessionStorage.setItem(type,previousValue.uri)
+        switch (type){
 
-            break;
+            case("Founder"):
+                window.location.href = "founder.html"
 
-        case ("Company"):
-            window.location.href = "company.html"
+                break;
 
-            break;
+            case ("Company"):
+                window.location.href = "company.html"
 
-        case("Product"):
-            window.location.href = "product.html"
-            break;
+                break;
+
+            case("Product"):
+                window.location.href = "product.html"
+                break;
+        }
+    
 
 
 
