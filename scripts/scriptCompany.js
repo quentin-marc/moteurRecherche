@@ -565,19 +565,29 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                     nameProduct.className = "nameProduct"
                     imgProduct.className = "imgProduct"
-                    imgProduct.src = results.results.bindings[i][produitImg].value
+
+                    var label = results.results.bindings[i][produitLabel].value
+                    var tester=new Image()
+                    tester.onload=function() {
+                        console.log("succes")
+                    }
+                    tester.onerror=function() {
+                        console.log("echec produit : " + label)
+                    }
+                    tester.src= results.results.bindings[i][produitImg].value != null;
+                    if(results.results.bindings[i][produitImg].value != null){
+                        imgProduct.src = results.results.bindings[i][produitImg].value
+                    }else {
+                        imgProduct.src = '../img/DBpedia-Logo.png'
+                    }
                     product.className = "product"
                     product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
                     product.appendChild(imgProduct)
                     product.appendChild(nameProduct)
 
-                    /*var currentDiv = document.getElementsByClassName('listProducts')[0];
-                    currentDiv.appendChild(product)*/
-
                     listProducts.appendChild(product)
 
-                    //changePageProduit(product, produit, results, i)
                 }
             }
         }
