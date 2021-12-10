@@ -19,7 +19,7 @@ function protectionSearchFields(){
     else{
         //TODO lancer recherche dbpedia
         //alert("lancer recherche dbpedia");
-        sessionStorage.setItem('companyName',companyName);
+        sessionStorage.setItem('searchCompany',companyName);
 	    window.location = "./listResults.html";
 
     }

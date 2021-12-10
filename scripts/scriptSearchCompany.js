@@ -1,9 +1,23 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-	var companyName = sessionStorage.getItem('companyName');
-	console.log(companyName)
-    serchCompanyByName(companyName)
-	document.getElementById("textResearch").innerHTML = sessionStorage.getItem('companyName');
+
+	var undo = JSON.parse(sessionStorage.getItem('undo'))
+
+	var searchCompany = sessionStorage.getItem('searchCompany');
+
+	var uriUndo = {
+        type : "searchCompany",
+        uri : searchCompany
+    } 
+
+    if(!undo ){
+        undo = new Array()
+    }
+    undo.push(uriUndo)
+    sessionStorage.setItem('undo',JSON.stringify(undo))
+
+    serchCompanyByName(searchCompany);
+	document.getElementById("textResearch").innerHTML = searchCompany;
 	//productRequest("Apple")
     //document.getElementById("productName").innerHTML = "TOTO";
 }
@@ -374,10 +388,21 @@ function getDbrCompanyName(companyURI){
 function getImageProduct(url_wikipedia){
 
 	console.log("url : "+url_wikipedia)
-
 	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
-    return url_base + url_wikipedia;
+    var newURL = "https://commons.wikimedia.org/wiki/Special:FilePath/" + url_wikipedia;
+	console.log("url : "+newURL)
+	var http = new XMLHttpRequest();
+	http.open('HEAD', newURL);
+	http.send();
+
+	console.log("url : "+newURL)	
+	console.log("http.statushttp.statushttp.statushttp.statushttp.statushttp.status")
+	console.log(http.status)
+
+	if (http.status === 404)
+		newURL = "";
+	
+    return newURL;
 }
 
 //Change to page name
