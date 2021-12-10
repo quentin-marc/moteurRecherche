@@ -21,3 +21,39 @@ function protectionSearchFields(){
         alert("lancer recherche dbpedia");
     }
 }
+
+function Undo(){
+
+    var undo = JSON.parse(sessionStorage.getItem('undo'))
+
+    undo.pop()
+    var previousValue = undo.pop();
+
+    sessionStorage.setItem(undo,JSON.stringify(undo))
+
+    var type = previousValue.type;
+    sessionStorage.setItem(type,previousValue.uri)
+    switch (type){
+        
+        case("Founder"):
+            window.location.href = "founder.html"
+
+            break;
+
+        case ("Company"):
+            window.location.href = "company.html"
+
+            break;
+
+        case("Product"):
+            window.location.href = "product.html"
+            break;
+
+
+
+    }
+
+    
+
+
+}
