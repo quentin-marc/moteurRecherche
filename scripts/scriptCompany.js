@@ -221,14 +221,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
-function changePageFounder(founder, fondateur, results, i){
-    //founder.onclick = function () {window.location.href = results.results.bindings[i][fondateur].value; }
-    founder.onclick = function () {
-        console.log(results.results.bindings[i][fondateur].value);
-        sessionStorage.setItem('companyURI',results.results.bindings[i][fondateur].value);
-        window.location = "./founder.html";
-    }
-}
 
 function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
     //TODO dbr:Company
@@ -501,12 +493,6 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                /*<h2>Net Income: <span id="netIncome"></span></h2>*/
-                /*<div className="netIncome">
-                    <b>Net income:</b>
-                    <span id="netIncome"></span>
-                </div>*/
-
                 var revenue = document.getElementsByClassName("netIncome")[0]
 
                 var b = document.createElement("b")
@@ -601,13 +587,6 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
-function changePageProduit(product, produit, results, i){
-    product.onclick = function () {
-        console.log(results.results.bindings[i][produit].value);
-        sessionStorage.setItem('companyURI',results.results.bindings[i][produit].value);
-        window.location = "./product.html";
-    }
-}
 
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     //TODO dbr:Company
@@ -632,10 +611,17 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var logo = document.getElementById("imageCompany");
+
+                var imageCompany = document.getElementById("imageCompany");
                 var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
                 var srcLogo = getImageProduct(uriLogo)
-                logo.src = srcLogo
+
+                imageCompany.src = srcLogo
+
+                /*var logo = document.getElementById("imageCompany");
+                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
+                var srcLogo = getImageProduct(uriLogo)
+                logo.src = srcLogo*/
                 //logo.innerHTML = results.results.bindings[0][objet].value
                 logo.classList.remove('no-data');
             }
