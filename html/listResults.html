@@ -28,7 +28,7 @@
             <button class="newSearch" onclick="location.href='index.html';">New search</button>
         </div>
         <div class="cardContent">
-            <!-- <h1 class="titrePrincipal">Results for: "<span id="textResearch">apple</span>"</h1> -->
+            <h1 class="titrePrincipal">Results for: "<span id="textResearch">apple</span>"</h1> 
             <div class="results">
                 <div id="listResults">
                     
@@ -40,4 +40,7 @@
             <p>Arthur Durand, Amine Lbath, Brahim Mahmoudi, El Yazid Dahkil, Maxime Boyer, Quentin Marc, Sellem Beye</p>
         </footer>
     </body>
+    <script>
+        document.getElementById("textResearch").innerHTML = sessionStorage.getItem('companyName');
+        </script>
 </html>
