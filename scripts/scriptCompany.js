@@ -616,61 +616,27 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             if(results.results.bindings.length > 0) {
                 if (results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
 
-                    /*$.fn.checkPageExists = function(defaultUrl){
-
-                        $.each(this, function(){
-
-                            var $link = $(this);
-
-                            $.ajax({
-                                url: $link.attr("href"),
-                                error: function(){
-                                    $link.attr("href", defaultUrl);
-                                }
-                            });
-                        });
-                    };
-
-                    $(document).ready(function(){
-                        $("a").checkPageExists("default.html");
-                    });
-
-                    $.ajax({
-                        url: "http://something/whatever.docx",
-                        method: "HEAD",
-                        statusCode: {
-                            404: function () {
-                                alert('not found');
-                            },
-                            200: function() {
-                                alert("foundfile exists");
-                            }
-                        }
-                    });*/
-
                     var imageCompany = document.getElementById("imageCompany");
                     var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
                     var srcLogo = getImageProduct(uriLogo)
 
-                    $.ajax({
-                        type: 'HEAD',
-                        url: srcLogo,
-                        headers: {  'Access-Control-Allow-Origin': srcLogo },
-                        success: function () {
-                            console.log("logo found : " + srcLogo)
-                            imageCompany.src = srcLogo
-                        },
-                        error: function () {
-                            // page does not exist
-                            if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                                console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
-                                imageCompany.src = results.results.bindings[0][thumbnail].value
-                            } else {
-                                console.log("nothing found 1")
-                                imageCompany.src = '../img/DBpedia-Logo.png'
-                            }
+                    var tester=new Image()
+                    tester.onload=function() {
+                        console.log("logo found : " + srcLogo)
+                        imageCompany.src = srcLogo
+                    }
+                    tester.onerror=function() {
+                        console.log("onerror")
+                        if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
+                            console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
+                            imageCompany.src = results.results.bindings[0][thumbnail].value
+                        } else {
+                            console.log("nothing found 1")
+                            imageCompany.src = '../img/DBpedia-Logo.png'
                         }
-                    });
+                    }
+                    tester.src= srcLogo;
+
                 } else {
                     if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
                         console.log("thumbnail found 2 : " + results.results.bindings[0][thumbnail].value)
@@ -685,19 +651,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
                 imageCompany.src = '../img/DBpedia-Logo.png'
             }
         }
-
-               /* //if()
-
-                var imageCompany = document.getElementById("imageCompany");
-                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
-                var srcLogo = getImageProduct(uriLogo)
-
-                imageCompany.src = results.results.bindings[0][objet].value
-
-            }else {
-                var imageCompany = document.getElementById("imageCompany");
-                imageCompany.src = '../img/DBpedia-Logo.png'
-            }*/
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
