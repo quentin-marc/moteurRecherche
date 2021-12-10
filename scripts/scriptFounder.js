@@ -1,9 +1,28 @@
 window.onload = actOnWindow;
 function actOnWindow(){
+    var undo = JSON.parse(sessionStorage.getItem('undo'))
+  
+
 	var founder = sessionStorage.getItem('Founder')
     if(!founder){
         founder = "https://dbpedia.org/page/Bill_Gates"
     }
+    var uriUndo = {
+        type : "Founder",
+        uri : founder
+    }
+
+    
+
+    if(!undo ){
+        undo = new Array()
+    }
+    undo.push(uriUndo)
+    sessionStorage.setItem('undo',JSON.stringify(undo))
+
+    console.log(undo)
+
+    
     founderRequest(founder)
     //document.getElementById("founderName").innerHTML = "TOTO";
 }
@@ -100,6 +119,11 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                     description.innerHTML = results.results.bindings[0][predicat].value
                     tabPredicat.push(removePrefix(predicat))
                     description.classList.remove('no-data');
+
+                    if(description.offsetHeight > 210){
+                        document.getElementById('seeMore').style.display = "inline-block";
+                        document.getElementById('description').style.maxHeight = "210px";
+                    }
                 }
             } else if(predicat.includes("thumbnail") || predicat.includes("logo") || predicat.includes("image")){
                
