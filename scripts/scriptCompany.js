@@ -276,9 +276,23 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var dateCreation = document.getElementById("dateCreation");
+                //Creation - <span id="dateCreation"></span>
+                var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
+
+                var b = document.createElement("b")
+                b.innerHTML = "Creation - "
+
+                var span = document.createElement("span")
+                span.id = "dateCreation"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                textAnneeCreation.appendChild(b)
+                textAnneeCreation.appendChild(span)
+
+                currentDiv.appendChild(textAnneeCreation)
+                /*var dateCreation = document.getElementById("dateCreation");
                 dateCreation.innerHTML = results.results.bindings[0][objet].value
-                dateCreation.classList.remove('no-data');
+                dateCreation.classList.remove('no-data');*/
             }
         }
     };
