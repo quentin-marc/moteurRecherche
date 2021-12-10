@@ -216,11 +216,13 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 			labelVarName = " STR(" + labelName + ")";
 			querryLabel = "?" + varName + " rdfs:label " + labelName + ". FILTER(langMatches(lang(" + labelName + "), \"EN\"))";
 		}
+
+		varName = '?' + varName;
 		
-		var requestContent = "SELECT DISTINCT ?" + varName + labelVarName + " WHERE {";
+		var requestContent = "SELECT DISTINCT " + varName + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
 			console.log(predicate)
-			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " ?" + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
 		} )
 		requestContent += "\n}"
 		
@@ -308,8 +310,7 @@ function geAllResult(resultList, predicat) {
 function createFilterForRequest(predicat, varName) {
 	predicateName = predicat.split(":")[1]
 	shouldApplyFilter = false
-	varName = '?' + varName;
-
+	
 	switch(predicateName) {
 		case "revenue" || "netIncome":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
