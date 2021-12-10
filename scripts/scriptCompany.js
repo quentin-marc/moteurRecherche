@@ -4,6 +4,7 @@ function actOnWindow(){
     //companyRequest("http://dbpedia.org/resource/Microsoft")
 
     var undo = JSON.parse(sessionStorage.getItem('undo'))
+    var founder = sessionStorage.getItem('Company')
 
     var uriUndo = {
         type : "Company",
