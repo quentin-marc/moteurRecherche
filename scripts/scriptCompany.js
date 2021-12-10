@@ -19,8 +19,8 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))*/
 
-    /*var companyURI = sessionStorage.getItem('companyURI')
-    companyRequest(companyURI)*/
+    var companyURI = sessionStorage.getItem('companyURI')
+    companyRequest(companyURI)
     companyRequest("https://dbpedia.org/resource/Microsoft")
 
 }
@@ -647,4 +647,11 @@ function getImageProduct(url_wikipedia){
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
     return url_base + url_wikipedia;
+}
+
+//Change to page name
+function changePage( pageName, companyURI ) {
+    console.log(companyURI);
+    sessionStorage.setItem('companyURI',companyURI);
+    window.location = "./"+pageName;
 }
