@@ -16,6 +16,9 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
 
+	console.log("searchCompanysearchCompanysearchCompanysearchCompanysearchCompany")
+	console.log(searchCompany)
+
     serchCompanyByName(searchCompany);
 	document.getElementById("textResearch").innerHTML = searchCompany;
 	//productRequest("Apple")
@@ -45,7 +48,7 @@ function serchCompanyByName(companyName) {
 	
 	var contenu_requete = "SELECT DISTINCT ?company, STR(?name) as ?name WHERE {\n" +
 	"?company a dbo:Company; dbp:name ?name.\n" +
-	"FILTER(regex(str(?name), \"Apple\"))\n" +
+	"FILTER(regex(str(?name), \"" + companyName + "\"))\n" +
 	"OPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
 	"OPTIONAL { ?company dbo:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
 	"OPTIONAL { ?company dbp:netIncome ?income. }\n" +
