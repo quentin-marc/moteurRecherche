@@ -1,8 +1,27 @@
 window.onload = actOnWindow;
 function actOnWindow(){
+
+    //companyRequest("http://dbpedia.org/resource/Microsoft")
+
+    var undo = JSON.parse(sessionStorage.getItem('undo'))
+
+    var uriUndo = {
+        type : "Founder",
+        uri : founder
+    }
+
+
+
+    if(!undo ){
+        undo = new Array()
+    }
+    undo.push(uriUndo)
+    sessionStorage.setItem('undo',JSON.stringify(undo))
+
     /*var companyURI = sessionStorage.getItem('companyURI')
     companyRequest(companyURI)*/
     companyRequest("https://dbpedia.org/resource/Microsoft")
+
 }
 
 function companyRequest(companyName){
