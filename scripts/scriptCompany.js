@@ -19,8 +19,8 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))*/
 
-    var companyURI = sessionStorage.getItem('companyURI')
-    companyRequest(companyURI)
+    /*var companyURI = sessionStorage.getItem('companyURI')
+    companyRequest(companyURI)*/
     companyRequest("https://dbpedia.org/resource/Microsoft")
 
 }
@@ -200,12 +200,10 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
                     nameFounder.className = "nameFounder"
                     imgFounder.className = "imgFounder"
-                    imgFounder.src = results.results.bindings[i][fondateurImg].value
+                    imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
                     founder.className = "founder"
-                nameFounder.className = "nameFounder"
-                imgFounder.className = "imgFounder"
-                imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
-                founder.className = "founder"
+                    founder.setAttribute("onclick", "changePage('founder.html', '" + results.results.bindings[i][fondateur].value + "')");
+
 
                     //TODO idem image
 
@@ -215,16 +213,13 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     /*var currentDiv = document.getElementsByClassName('listFounders')[0];*/
                     listFounders.appendChild(founder)
 
-                    changePage(founder, fondateur, results, i)
+                    //changePageFounder(founder, fondateur, results, i)
                 }
             }
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-}
-function changePage(founder, fondateur, results, i){
-    founder.onclick = function () {window.location.href = results.results.bindings[i][fondateur].value; }
 }
 
 function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
@@ -309,7 +304,6 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
                 textAnneeCreation.appendChild(b)
                 textAnneeCreation.appendChild(span)
 
-                currentDiv.appendChild(textAnneeCreation)
                 /*var dateCreation = document.getElementById("dateCreation");
                 dateCreation.innerHTML = results.results.bindings[0][objet].value
                 dateCreation.classList.remove('no-data');*/
@@ -499,12 +493,6 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                /*<h2>Net Income: <span id="netIncome"></span></h2>*/
-                /*<div className="netIncome">
-                    <b>Net income:</b>
-                    <span id="netIncome"></span>
-                </div>*/
-
                 var revenue = document.getElementsByClassName("netIncome")[0]
 
                 var b = document.createElement("b")
@@ -581,8 +569,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     imgProduct.className = "imgProduct"
                     imgProduct.src = results.results.bindings[i][produitImg].value
                     product.className = "product"
-
-                    //TODO idem image
+                    product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
                     product.appendChild(imgProduct)
                     product.appendChild(nameProduct)
@@ -592,16 +579,13 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                     listProducts.appendChild(product)
 
-                    changePageProduit(product, produit, results, i)
+                    //changePageProduit(product, produit, results, i)
                 }
             }
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-}
-function changePageProduit(product, produit, results, i){
-    product.onclick = function () {window.location.href = results.results.bindings[i][produit].value; }
 }
 
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
@@ -627,10 +611,17 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var logo = document.getElementById("imageCompany");
+
+                var imageCompany = document.getElementById("imageCompany");
                 var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
                 var srcLogo = getImageProduct(uriLogo)
-                logo.src = srcLogo
+
+                imageCompany.src = srcLogo
+
+                /*var logo = document.getElementById("imageCompany");
+                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
+                var srcLogo = getImageProduct(uriLogo)
+                logo.src = srcLogo*/
                 //logo.innerHTML = results.results.bindings[0][objet].value
                 logo.classList.remove('no-data');
             }
@@ -650,8 +641,13 @@ function getImageProduct(url_wikipedia){
 }
 
 //Change to page name
-function changePage( pageName, companyURI ) {
-    console.log(companyURI);
-    sessionStorage.setItem('companyURI',companyURI);
+function changePage( pageName, URI ) {
+    console.log(URI);
+
+    if(pageName == "product.html"){
+        sessionStorage.setItem('Product',URI);
+    }else {
+        sessionStorage.setItem('Founder',URI);
+    }
     window.location = "./"+pageName;
 }
