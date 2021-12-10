@@ -254,7 +254,7 @@ function getTypeSparql(resource,predicat,value){
                     } else if(isPerson){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Person','"+encodeURI(value)+"');window.location.href='founder.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
+                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Founder','"+encodeURI(value)+"');window.location.href='founder.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
                     } else {
                         //GET IS founder OF
