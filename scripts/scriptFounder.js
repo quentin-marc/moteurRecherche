@@ -1,7 +1,10 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-	
-    founderRequest("Henri_Nestlé")
+	var founder = sessionStorage.getItem('Founder')
+    if(!founder){
+        founder = "https://dbpedia.org/page/Bill_Gates"
+    }
+    founderRequest(founder)
     //document.getElementById("founderName").innerHTML = "TOTO";
 }
 var tabPredicat = []
@@ -56,8 +59,10 @@ function dofounderSparql(founder,predicat,filterOnLang){
 }
 
 
-function singleSelect(ressource,predicat,varName,filterOnLang){
-    
+function singleSelect(ressourceURI,predicat,varName,filterOnLang){
+
+
+    var ressource = ressourceURI.split("/")[ressourceURI.split("/").length-1]
     var contenu_requete;
     if(filterOnLang){
         contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
@@ -219,12 +224,13 @@ function getTypeSparql(resource,predicat,value){
                     if(isCompany){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                        <div class=\"valAttribut\"><a href=\"company.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('Company','"+encodeURI(value)+"');window.location.href='company.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
+
                     } else if(isPerson){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                        <div class=\"valAttribut\"><a href=\"index.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Person','"+encodeURI(value)+"');window.location.href='founder.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
                     } else {
                         //GET IS founder OF
@@ -246,7 +252,7 @@ function getTypeSparql(resource,predicat,value){
                                     if(results.results.bindings.length > 0){
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                        <div class=\"valAttribut\"><a href=\"founder.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
                                         </div>"
                                     } else {
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
@@ -275,4 +281,3 @@ function getTypeSparql(resource,predicat,value){
     
 
 }
-
