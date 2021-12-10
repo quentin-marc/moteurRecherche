@@ -612,11 +612,12 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             var results = JSON.parse(this.responseText);
             var logo = results.head.vars[0]
             var thumbnail = results.head.vars[1]
+
+            var imageCompany = document.getElementById("imageCompany");
+
             console.log(results);
             if(results.results.bindings.length > 0) {
                 if (results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
-
-                    var imageCompany = document.getElementById("imageCompany");
                     var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
                     var srcLogo = getImageProduct(uriLogo)
 
