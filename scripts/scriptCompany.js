@@ -16,6 +16,8 @@ function companyRequest(companyName){
     predicatListIndustrie = ["dbp:industry", "dbo:industry"]
     predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
     predicatListProduits = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"]
+    predicatListLogo = ["dbp:logo", "dbo:thumbnail"]
+    predicatListImgFondateur = ["dbo:thumbnail"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
@@ -29,11 +31,16 @@ function companyRequest(companyName){
     doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
     doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+    doCompanySparqlLogo(dbrCompanyName,predicatListLogo)
+    //doCompanySparqlImgFondateur(dbrCompanyName,predicatListImgFondateur)
 }
 
 function getDbrCompanyName(companyName){
     var splitCompanyName = companyName.split("/")
     var dbrCompanyName = "dbr:" + splitCompanyName[splitCompanyName.length - 1]
+    var title = document.getElementById("title");
+    title.innerHTML = splitCompanyName[splitCompanyName.length - 1]
+    title.classList.remove('no-data');
     return dbrCompanyName
 }
 
@@ -41,9 +48,9 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
     //TODO dbr:Company
     var contenu_requete = "SELECT ?abstract WHERE {";
 
-    predicatListAbstract.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?abstract. FILTER(langMatches(lang(?abstract), \"EN\"))}}"
+    predicatListAbstract.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?abstract. FILTER(langMatches(lang(?abstract), \"EN\"))}}"
         console.log(contenu_requete)
     } )
 
@@ -56,12 +63,17 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var description = document.getElementById("description");
-                description.innerHTML = results.results.bindings[0][predicat].value
+                description.innerHTML = results.results.bindings[0][objet].value
                 description.classList.remove('no-data');
+
+                if(description.offsetHeight > 210){
+                    document.getElementById('seeMore').style.display = "inline-block";
+                    document.getElementById('description').style.maxHeight = "210px";
+                }
             }
         }
     };
@@ -73,9 +85,9 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
     //TODO dbr:Company
     var contenu_requete = "SELECT ?name WHERE {";
 
-    predicatListName.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?name.}"
+    predicatListName.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?name.}"
     } )
 
     contenu_requete += "FILTER(langMatches(lang(?name), \"EN\"))}"
@@ -90,11 +102,11 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var companyName = document.getElementById("companyName");
-                companyName.innerHTML = results.results.bindings[0][predicat].value
+                companyName.innerHTML = results.results.bindings[0][objet].value
                 companyName.classList.remove('no-data');
             }
         }
@@ -106,12 +118,13 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
 function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     //TODO dbr:Company
 
-    var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
 
-    predicatListFondateur.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?fondateur." +
-            "?fondateur rdfs:label ?fondateurLabel.\n" +
+    predicatListFondateur.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            "?fondateur rdfs:label ?fondateurLabel." +
+            "?fondateur dbo:thumbnail ?imgFondateur." +
             "FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
     } )
 
@@ -129,10 +142,11 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var results = JSON.parse(this.responseText);
             var fondateur = results.head.vars[0]
             var fondateurLabel = results.head.vars[1]
+            var fondateurImg = results.head.vars[2]
             console.log(results);
             for(var i = 0; i < results.results.bindings.length; i++){
                 var founder = document.createElement("div")
-                var imgFounder = document.createElement("div")
+                var imgFounder = document.createElement("img")
                 var nameFounder = document.createElement("div")
 
                 //linkFounder.href = results.results.bindings[i][fondateur].value;
@@ -142,6 +156,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
                 nameFounder.className = "nameFounder"
                 imgFounder.className = "imgFounder"
+                imgFounder.src = results.results.bindings[i][fondateurImg].value
                 founder.className = "founder"
 
                 //TODO idem image
@@ -167,9 +182,9 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
     //TODO dbr:Company
     var contenu_requete = "SELECT ?localisationLabel WHERE {";
 
-    predicatListLocalisation.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?localisation. " +
+    predicatListLocalisation.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?localisation. " +
             "?localisation rdfs:label ?localisationLabel.\n" +
             "FILTER(langMatches(lang(?localisationLabel), \"EN\"))\n }"
     } )
@@ -186,11 +201,11 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var adresseCompany = document.getElementById("adressHeadquarters");
-                adresseCompany.innerHTML = results.results.bindings[0][predicat].value
+                adresseCompany.innerHTML = results.results.bindings[0][objet].value
                 adresseCompany.classList.remove('no-data');
             }
         }
@@ -201,11 +216,11 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
 
 function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
     //TODO dbr:Company
-    var contenu_requete = "SELECT str(?anneeCreation) WHERE {";
+    var contenu_requete = "SELECT YEAR(?anneeCreation) WHERE {";
 
-    predicatListAnneeCreation.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?anneeCreation. }"
+    predicatListAnneeCreation.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?anneeCreation. }"
     } )
 
     contenu_requete += "}"
@@ -220,11 +235,11 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var dateCreation = document.getElementById("dateCreation");
-                dateCreation.innerHTML = results.results.bindings[0][predicat].value
+                dateCreation.innerHTML = results.results.bindings[0][objet].value
                 dateCreation.classList.remove('no-data');
             }
         }
@@ -237,9 +252,9 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?nbEmployee) WHERE {";
 
-    predicatListNombreEmploye.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?nbEmployee. }"
+    predicatListNombreEmploye.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?nbEmployee. }"
     } )
 
     contenu_requete += "}"
@@ -254,11 +269,11 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var nbEmployee = document.getElementById("nbEmployee");
-                nbEmployee.innerHTML = results.results.bindings[0][predicat].value
+                nbEmployee.innerHTML = results.results.bindings[0][objet].value
                 nbEmployee.classList.remove('no-data');
             }
         }
@@ -271,12 +286,12 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?lienWebsite) WHERE {";
 
-    predicatListLienWebsite.forEach( predicate => {
-        if(predicate == "dbo:wikiPageExternalLink"){
-            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienLabel." +
+    predicatListLienWebsite.forEach( predicat => {
+        if(predicat == "dbo:wikiPageExternalLink"){
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?lienLabel." +
                 "?lienLabel rdfs:label ?lienWebsite.}"
         }else {
-            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?lienWebsite. }"
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?lienWebsite. }"
         }
     } )
 
@@ -292,11 +307,11 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var nbEmployee = document.getElementById("lienWebsite");
-                nbEmployee.innerHTML = results.results.bindings[0][predicat].value
+                nbEmployee.innerHTML = results.results.bindings[0][objet].value
                 nbEmployee.classList.remove('no-data');
             }
         }
@@ -309,8 +324,8 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?industrieLabel) WHERE {";
 
-    predicatListIndustrie.forEach( predicate => {
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?industrie." +
+    predicatListIndustrie.forEach( predicat => {
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?industrie." +
             "?industrie rdfs:label ?industrieLabel." +
             "FILTER(langMatches(lang(?industrieLabel), \"EN\"))}"
     } )
@@ -327,11 +342,11 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var industry = document.getElementById("industry");
-                industry.innerHTML = results.results.bindings[0][predicat].value
+                industry.innerHTML = results.results.bindings[0][objet].value
                 industry.classList.remove('no-data');
             }
         }
@@ -344,8 +359,8 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     //TODO dbr:Company
     var contenu_requete = "SELECT str(?revenue) WHERE {";
 
-    predicatListRevenue.forEach( predicate => {
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?revenue.}"
+    predicatListRevenue.forEach( predicat => {
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?revenue. FILTER(datatype(?revenue) = <http://dbpedia.org/datatype/usDollar>)}"
     } )
 
     contenu_requete += "}"
@@ -360,11 +375,11 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var predicat = results.head.vars[0]
+            var objet = results.head.vars[0]
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var revenue = document.getElementById("netIncome");
-                revenue.innerHTML = results.results.bindings[0][predicat].value + "€ TODO quelle monnaie mettre ??"
+                revenue.innerHTML = results.results.bindings[0][objet].value + "$"
                 revenue.classList.remove('no-data');
             }
         }
@@ -376,12 +391,13 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     //TODO dbr:Company
 
-    var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";
+    var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
-    predicatListProduits.forEach( predicate => {
-        console.log(predicate)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicate + " ?produit." +
-            "?produit rdfs:label ?labelProduit.\n" +
+    predicatListProduits.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            "?produit rdfs:label ?labelProduit." +
+            "?produit dbo:thumbnail ?imgProduit." +
             "FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
     } )
 
@@ -399,17 +415,12 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var results = JSON.parse(this.responseText);
             var produit = results.head.vars[0]
             var produitLabel = results.head.vars[1]
+            var produitImg = results.head.vars[2]
             console.log(results);
-
-            /*<div className="listProducts">
-                <div className="product">
-                    <div className="imgProduct"></div>
-                    <div className="nameProduct">Iphone X</div>
-                </div>*/
 
             for(var i = 0; i < results.results.bindings.length; i++){
                 var product = document.createElement("div")
-                var imgProduct = document.createElement("div")
+                var imgProduct = document.createElement("img")
                 var nameProduct = document.createElement("div")
 
                 //linkFounder.href = results.results.bindings[i][fondateur].value;
@@ -419,6 +430,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                 nameProduct.className = "nameProduct"
                 imgProduct.className = "imgProduct"
+                imgProduct.src = results.results.bindings[i][produitImg].value
                 product.className = "product"
 
                 //TODO idem image
@@ -438,4 +450,57 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 }
 function changePageProduit(product, produit, results, i){
     product.onclick = function () {window.location.href = results.results.bindings[i][produit].value; }
+}
+
+/*dbo:thumbnail (lien auquel il manque le http://)
+dbp:logo
+select ?logo where {
+OPTIONAL{dbr:Microsoft dbp:logo ?logo.}
+OPTIONAL{dbr:Microsoft dbo:thumbnail ?logo.}
+}
+*/
+
+function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
+    //TODO dbr:Company
+    var contenu_requete = "SELECT ?logo WHERE {";
+
+    predicatListLogo.forEach( predicat => {
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?logo.}"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var objet = results.head.vars[0]
+            console.log(results);
+            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+                var logo = document.getElementById("imageCompany");
+                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
+                var srcLogo = getImageProduct(uriLogo)
+                logo.src = srcLogo
+                //logo.innerHTML = results.results.bindings[0][objet].value
+                logo.classList.remove('no-data');
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function getImageProduct(url_wikipedia){
+
+    console.log("url : "+url_wikipedia)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+    return url_base + url_wikipedia;
 }

@@ -180,8 +180,13 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
             		var description = document.getElementById("description");
             		if(description.classList.contains('no-data')){
-            			description.innerHTML = results.results.bindings[0][predicat].value
+            			description.innerHTML = results.results.bindings[0][predicat].value;
             			description.classList.remove('no-data');
+						
+						if(description.offsetHeight > 210){
+							document.getElementById('seeMore').style.display = "inline-block";
+							document.getElementById('description').style.maxHeight = "210px";
+						}
             		}
             	}
             } else if(predicat.includes("logo" || predicat.includes("image"))){

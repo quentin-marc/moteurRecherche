@@ -18,6 +18,7 @@ class Company {
 		this.industryListLink = [];
 		this.productList = [];
 		this.productListLink = [];
+		this.companyURI = "";
 	}
 }
 
@@ -45,17 +46,19 @@ function serchCompanyByName(companyName) {
 			//Loop on every result company to get more details about the company and to display the results
 			resultList.forEach( resultObject => {
 				//Get the uri of the ressource company
-				var companyDBR = getDbrCompanyName(resultObject["company"].value);
+				var companyURI = resultObject["company"].value;
+				var companyDBR = getDbrCompanyName(companyURI);
 				var companyName = resultObject["name"].value;
 
 				//Create a company object that will store the company's information
 				companyMap[companyName] = new Company(companyName);
+				companyMap[companyName].companyURI = companyURI;
 
 				//getCompanyMainInformation(companyDBR, companyName, companyMap);
 				getCompanyMainInformationPromise(companyDBR, companyName, companyMap).then((res)=>{
 					console.log("********************");
 					console.log("********************");
-					addCompanyToHtml(companyMap[companyName])
+					addCompanyToHtml(companyMap[companyName]);
 				}).catch((error)=>{
 					console.log(`Handling error as we received ${error}`);
 				});
@@ -77,6 +80,7 @@ function addCompanyToHtml(company) {
 	//Parent div for this company
 	var newDivCompany = document.createElement("div");
 	newDivCompany.setAttribute("class", "result");
+	newDivCompany.setAttribute("onclick", "changePage('company.html', '" + company.companyURI + "')");
 	newDivCompany.setAttribute("id", company.name);
 	
 	//Company logo
@@ -216,11 +220,13 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 			labelVarName = " STR(" + labelName + ")";
 			querryLabel = "?" + varName + " rdfs:label " + labelName + ". FILTER(langMatches(lang(" + labelName + "), \"EN\"))";
 		}
+
+		varName = '?' + varName;
 		
-		var requestContent = "SELECT DISTINCT ?" + varName + labelVarName + " WHERE {";
+		var requestContent = "SELECT DISTINCT " + varName + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
 			console.log(predicate)
-			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " ?" + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
 		} )
 		requestContent += "\n}"
 		
@@ -308,8 +314,7 @@ function geAllResult(resultList, predicat) {
 function createFilterForRequest(predicat, varName) {
 	predicateName = predicat.split(":")[1]
 	shouldApplyFilter = false
-	varName = '?' + varName;
-
+	
 	switch(predicateName) {
 		case "revenue" || "netIncome":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
@@ -355,4 +360,11 @@ function getImageProduct(url_wikipedia){
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
     return url_base + url_wikipedia;
+}
+
+//Change to page name
+function changePage( pageName, companyURI ) {
+	console.log(companyURI);
+	sessionStorage.setItem('companyURI',companyURI);
+	window.location = "./"+pageName;
 }
