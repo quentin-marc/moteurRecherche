@@ -181,6 +181,10 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     imgFounder.className = "imgFounder"
                     imgFounder.src = results.results.bindings[i][fondateurImg].value
                     founder.className = "founder"
+                nameFounder.className = "nameFounder"
+                imgFounder.className = "imgFounder"
+                imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
+                founder.className = "founder"
 
                     //TODO idem image
 
@@ -364,9 +368,10 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var nbEmployee = document.getElementById("lienWebsite");
-                nbEmployee.innerHTML = results.results.bindings[0][objet].value
-                nbEmployee.classList.remove('no-data');
+                var lienWebsite = document.getElementById("lienWebsite");
+                lienWebsite.innerHTML = results.results.bindings[0][objet].value
+                lienWebsite.href = results.results.bindings[0][objet].value
+                lienWebsite.classList.remove('no-data');
             }
         }
     };
