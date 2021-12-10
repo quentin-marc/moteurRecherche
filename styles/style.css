@@ -65,7 +65,11 @@ body{
     cursor: pointer;
 }
 
-.newSearch:hover{
+#startSearch{
+    margin-right: auto;
+}
+
+.newSearch:hover, #startSearch:hover{
     background-color: var(--cta-hover);
 }
 

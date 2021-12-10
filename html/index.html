@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="../styles/style.css">
         <link rel="stylesheet" href="../styles/index.css">
         <link rel="stylesheet" href="../styles/animatedBG.css">
+        <script src="../scripts/scriptsIHM.js"></script>
         <meta charset="UTF-8">
     </head>
     <body>
@@ -25,12 +26,13 @@
         </div >
         <div class="content">
             <h1 class="browserName">Compan'IF</h1>
+            <div id="msgUser">Please enter at list one information to start browsing.</div>
             <input type="text" placeholder="Company's name" class="search" id="name"></input>
             <input type="text" placeholder="Founder" class="search" id="founder"></input>
             <input type="text" placeholder="Industry type" class="search" id="industry"></input>
-            <button id="startSearch">Search</button>
+            <button id="startSearch" onclick="protectionSearchFields()">Search</button>
             <p class="description">
-                Welcome on the browser specialized on companies. Please start typing a company name, the name of a founder... (TODO lister les criteres de recherche)
+                Welcome on the browser specialized on companies. Please enter at list one information to start browsing.
             </p>
         </div>
         <footer>
