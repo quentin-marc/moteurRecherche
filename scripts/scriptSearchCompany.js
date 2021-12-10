@@ -15,10 +15,8 @@ function actOnWindow(){
     }
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
-
-	console.log("searchCompanysearchCompanysearchCompanysearchCompanysearchCompany")
-	console.log(searchCompany)
-
+	
+	console.log("searchCompany")
     serchCompanyByName(searchCompany);
 	document.getElementById("textResearch").innerHTML = searchCompany;
 	//productRequest("Apple")
@@ -107,7 +105,7 @@ function addCompanyToHtml(company) {
 	var newDivCompany = document.createElement("div");
 	newDivCompany.setAttribute("class", "result");
 	newDivCompany.setAttribute("onclick", "changePage('company.html', '" + company.companyURI + "')");
-	newDivCompany.setAttribute("id", company.name);
+		
 	
 	//Company logo
 	var divCompanyLogo = document.createElement("img");
@@ -391,21 +389,10 @@ function getDbrCompanyName(companyURI){
 function getImageProduct(url_wikipedia){
 
 	console.log("url : "+url_wikipedia)
+
 	// Encodage de l'URL à transmettre à DBPedia
-    var newURL = "https://commons.wikimedia.org/wiki/Special:FilePath/" + url_wikipedia;
-	console.log("url : "+newURL)
-	var http = new XMLHttpRequest();
-	http.open('HEAD', newURL);
-	http.send();
-
-	console.log("url : "+newURL)	
-	console.log("http.statushttp.statushttp.statushttp.statushttp.statushttp.status")
-	console.log(http.status)
-
-	if (http.status === 404)
-		newURL = "";
-	
-    return newURL;
+    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+    return url_base + url_wikipedia;
 }
 
 //Change to page name
