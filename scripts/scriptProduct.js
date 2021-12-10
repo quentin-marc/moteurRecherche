@@ -1,12 +1,28 @@
 window.onload = actOnWindow;
 function actOnWindow(){
+
+	var undo = JSON.parse(sessionStorage.getItem('undo'))
+
 	//On recupere les donnees de sessionsStorage. Si inexistant, on prend Windows pour les tests
 	var product = sessionStorage.getItem('Product')
 	if(!product){
-		product = "Microsoft_Windows"
+		product = "https://dbpedia.org/page/Microsoft_Windows"
 	}
+
+	var uriUndo = {
+        type : "Product",
+        uri : product
+    }
+
+    if(!undo ){
+        undo = new Array()
+    }
+    undo.push(uriUndo)
+    sessionStorage.setItem('undo',JSON.stringify(undo))
+
+    console.log(undo)
 	//On recupere et affiche les donnees
-    productRequest(product)
+    productRequest(product.split("/")[product.split("/").length-1])
 }
 
 

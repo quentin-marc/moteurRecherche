@@ -4,7 +4,6 @@
     display: block;
     margin: auto;
     border-radius: var(--radius-grand);
-    /*background: center / cover no-repeat url("https://media.istockphoto.com/photos/apple-park-picture-id1165785407?k=20&m=1165785407&s=612x612&w=0&h=2I8kkWQIW-6TppXO7Ol6jBYY3-8sibfgrVEZmltsE2M=");*/
 }
 
 #logo{
@@ -51,7 +50,7 @@
 }
 
 #infosSup > * > b{
-    width: 130px;
+    width: 150px;
     display: inline-block;
 }
 
@@ -62,13 +61,17 @@
 }
 
 .founder, .product{
-    width: 600px;
+    width: 350px;
     display: flex;
     align-items: center;
     margin-top: var(--espace-petit);
-    margin-right: var(--espace-petit);
     border-radius: var(--radius-moyen);
     position: relative;
+    margin-right: var(--espace-petit);
+}
+
+.product{
+    min-height: 70px;
 }
 
 .founder::after, .product::after{
@@ -89,12 +92,13 @@
 
 .imgFounder{
     height: 90px;
-    width: 70px;
+    width: 90px;
     border-radius: var(--radius-petit);
 }
 
 .imgProduct{
-    border-radius: var(--radius-petit);
+    width: 90px;
+    margin-left: var(--espace-min);
 }
 
 .nameFounder, .nameProduct{

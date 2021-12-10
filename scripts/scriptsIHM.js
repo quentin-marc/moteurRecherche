@@ -1,6 +1,6 @@
 // affiche le champ entier associé au "see more"
 function seeMore(){
-    document.getElementById("description").style.maxHeight = "none";
+    document.getElementById("description").style.height = "auto";
     document.getElementById('seeMore').style.display = "none";
 }
 
@@ -18,6 +18,60 @@ function protectionSearchFields(){
     }
     else{
         //TODO lancer recherche dbpedia
-        alert("lancer recherche dbpedia");
+        //alert("lancer recherche dbpedia");
+        sessionStorage.setItem('searchCompany',companyName);
+	    window.location = "./listResults.html";
+
     }
+}
+
+function Undo(){
+
+    var undo = JSON.parse(sessionStorage.getItem('undo'))
+
+   
+    
+    
+
+    
+    
+
+     undo.pop()
+
+    
+    var previousValue = undo.pop();
+
+    sessionStorage.setItem("undo",JSON.stringify(undo))
+    
+    if(!previousValue){
+
+        window.location.href = "index.html"
+    }else{
+        var type = previousValue.type;
+        sessionStorage.setItem(type,previousValue.uri)
+        switch (type){
+
+            case("Founder"):
+                window.location.href = "founder.html"
+
+                break;
+
+            case ("Company"):
+                window.location.href = "company.html"
+
+                break;
+
+            case("Product"):
+                window.location.href = "product.html"
+                break;
+        }
+    
+
+
+
+    }
+
+    
+
+
 }
