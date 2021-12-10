@@ -66,6 +66,7 @@
     display: flex;
     align-items: center;
     margin-top: var(--espace-petit);
+    margin-right: var(--espace-petit);
     border-radius: var(--radius-moyen);
     position: relative;
 }

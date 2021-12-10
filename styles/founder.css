@@ -23,5 +23,5 @@
 .attributName{
     font-weight: bold;
     width: 120px;
-    display: inline-block;
+    display: block;
 }
