@@ -51,7 +51,7 @@
 }
 
 #infosSup > * > b{
-    width: 130px;
+    width: 150px;
     display: inline-block;
 }
 
@@ -62,13 +62,17 @@
 }
 
 .founder, .product{
-    width: 600px;
+    width: 350px;
     display: flex;
     align-items: center;
     margin-top: var(--espace-petit);
-    margin-right: var(--espace-petit);
     border-radius: var(--radius-moyen);
     position: relative;
+    margin-right: var(--espace-petit);
+}
+
+.product{
+    min-height: 70px;
 }
 
 .founder::after, .product::after{
@@ -89,12 +93,13 @@
 
 .imgFounder{
     height: 90px;
-    width: 70px;
+    width: 90px;
     border-radius: var(--radius-petit);
 }
 
 .imgProduct{
-    border-radius: var(--radius-petit);
+    width: 90px;
+    margin-left: var(--espace-min);
 }
 
 .nameFounder, .nameProduct{
