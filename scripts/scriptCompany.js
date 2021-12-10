@@ -146,7 +146,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             console.log(results);
             for(var i = 0; i < results.results.bindings.length; i++){
                 var founder = document.createElement("div")
-                var imgFounder = document.createElement("img")
+                var imgFounder = document.createElement("div")
                 var nameFounder = document.createElement("div")
 
                 //linkFounder.href = results.results.bindings[i][fondateur].value;
@@ -156,7 +156,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
                 nameFounder.className = "nameFounder"
                 imgFounder.className = "imgFounder"
-                imgFounder.src = results.results.bindings[i][fondateurImg].value
+                imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
                 founder.className = "founder"
 
                 //TODO idem image
