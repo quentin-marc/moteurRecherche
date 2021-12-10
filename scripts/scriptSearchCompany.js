@@ -28,8 +28,16 @@ function serchCompanyByName(companyName) {
 	
 	var companyMap = {};
 	
-	var contenu_requete = "SELECT DISTINCT ?company, STR(?name) as ?name WHERE {\n?company a dbo:Company; dbp:name ?name.\nFILTER(regex(str(?name), \"" + companyName + "\"))\n}"
-	
+	var contenu_requete = "SELECT DISTINCT ?company, STR(?name) as ?name WHERE {\n" +
+	"?company a dbo:Company; dbp:name ?name.\n" +
+	"FILTER(regex(str(?name), \"Apple\"))\n" +
+	"OPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
+	"OPTIONAL { ?company dbo:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
+	"OPTIONAL { ?company dbp:netIncome ?income. }\n" +
+	"OPTIONAL { ?company dbo:netIncome ?income. }\n" +
+	"}\n" +
+	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income))";
+
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
@@ -196,7 +204,7 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListAbstract, "abstract", companyName, companyMap) );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListLogo, "logo", companyName, companyMap) );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicatListIndusty, "industry", companyName, companyMap, true) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap) );
+		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap, false, "integer") );
 		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListProduct, "product", companyName, companyMap, true) );
 		
 		//Waits for all promises to return
@@ -209,7 +217,7 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 //Perform a sparql request for one predicate (and the list of alternative predicates in case there is no value) and add the result to the html element with idElement 
 //Note: predicateList represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before)
 //If get label is true, the request get the label of the returned value
-function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, companyName, companyMap, getLabel) {
+function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, companyName, companyMap, getLabel, convertResultType) {
 	
 	return new Promise((resolve)=>{
 
@@ -222,10 +230,19 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 		}
 
 		varName = '?' + varName;
+
+		var resultRequest = varName;
+		if(convertResultType === "integer") {
+			resultRequest = "<http://www.w3.org/2001/XMLSchema#integer>("+varName+")";
+		} 
+		else if (convertResultType === "integer") {
+			resultRequest = "STR("+varName+")";
+		}
+
 		
-		var requestContent = "SELECT DISTINCT " + varName + labelVarName + " WHERE {";
+		var requestContent = "SELECT DISTINCT " + resultRequest + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
-			console.log(predicate)
+			console.log(predicate);
 			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
 		} )
 		requestContent += "\n}"
@@ -249,29 +266,29 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 				console.log(predicat)
 
 				//Add the result to the html
-				switch(predicat){
-					case "abstract":
+				switch(varName){
+					case "?abstract":
 						//Update the abstract of the corresponding company
 						companyMap[companyName].abstract = geLastResult(resultList, predicat);
 						resolve(true);
 						break;
-					case "logo":
+					case "?logo":
 						//Update the abstract of the corresponding company
 						companyMap[companyName].logo = geLastResult(resultList, predicat);
 						resolve(true);
 						break;
-					case "industry":
+					case "?industry":
 						//Update the industry of the corresponding company
 						companyMap[companyName].industryList = geAllResult(resultList, label);
 						companyMap[companyName].industryListLink = geAllResult(resultList, predicat);
 						resolve(true);
 						break;
-					case "income":
+					case "?income":
 						//Update the income of the corresponding company
 						companyMap[companyName].income = geLastResult(resultList, predicat);;
 						resolve(true);
 						break;
-					case "product":
+					case "?product":
 						//Update the product of the corresponding company
 						companyMap[companyName].productList = geAllResult(resultList,label);
 						companyMap[companyName].productListLink = geAllResult(resultList, predicat);
