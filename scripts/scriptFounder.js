@@ -100,6 +100,11 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                     description.innerHTML = results.results.bindings[0][predicat].value
                     tabPredicat.push(removePrefix(predicat))
                     description.classList.remove('no-data');
+
+                    if(description.offsetHeight > 210){
+                        document.getElementById('seeMore').style.display = "inline-block";
+                        document.getElementById('description').style.maxHeight = "210px";
+                    }
                 }
             } else if(predicat.includes("thumbnail") || predicat.includes("logo") || predicat.includes("image")){
                

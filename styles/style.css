@@ -75,7 +75,6 @@ body{
 
 #description{
     line-height: var(--line_height);
-    height: calc(7 * var(--line_height));
     text-align: justify;
     overflow: hidden;
     text-indent: var(--espace-moyen);
@@ -98,7 +97,7 @@ a:hover, #seeMore:hover, .redirect:hover{
 }
 
 #seeMore{
-    display: inline-block;
+    display: none;
     margin-top: var(--espace-min);
 }
 

@@ -1,6 +1,6 @@
 // affiche le champ entier associé au "see more"
 function seeMore(){
-    document.getElementById("description").style.height = "auto";
+    document.getElementById("description").style.maxHeight = "none";
     document.getElementById('seeMore').style.display = "none";
 }
 
