@@ -6,8 +6,8 @@ function actOnWindow(){
     var undo = JSON.parse(sessionStorage.getItem('undo'))
 
     var uriUndo = {
-        type : "Founder",
-        uri : founder
+        type : "Company",
+        uri : company
     }
 
     
