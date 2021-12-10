@@ -23,17 +23,18 @@ function companyRequest(companyName){
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
-    doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract)
-    doCompanySparqlName(dbrCompanyName,predicatListName)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
-    doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
-    doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
-    doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
-    doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
-    doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
-    doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
     doCompanySparqlLogo(dbrCompanyName,predicatListLogo)
+    doCompanySparqlName(dbrCompanyName,predicatListName)
+    doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
+    doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract)
+    doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
+    doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
+    doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
+    doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
+    doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+
     //doCompanySparqlImgFondateur(dbrCompanyName,predicatListImgFondateur)
 }
 
@@ -233,24 +234,7 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                /*
-                <div class="textHeadquarters">
-                    <b>Headquarters:</b> <span id="adressHeadquarters"></span>
-                </div>
-                 */
-
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
-
-                var subtitleFounders = document.getElementsByClassName("subTitle")[0]
-                subtitleFounders.innerHTML = "Founders"
-
-                var listFounders = document.createElement("div")
-                listFounders.className = "listFounders"
-                subtitleFounders.appendChild(listFounders)
-                for (var i = 0; i < results.results.bindings.length; i++) {
-                    var founder = document.createElement("div")
-                    var imgFounder = document.createElement("img")
-                    var nameFounder = document.createElement("div")}
 
                 var textHeadquarters = document.createElement("div")
                 textHeadquarters.className = textHeadquarters
@@ -259,12 +243,17 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
                 b.innerHTML = "Headquarters:"
 
                 var span = document.createElement("span")
-                span.innerHTML = "Headquarters:"
+                span.id = "adressHeadquarters"
+                span.innerHTML = results.results.bindings[0][objet].value
 
+                textHeadquarters.appendChild(b)
+                textHeadquarters.appendChild(span)
 
-                var adresseCompany = document.getElementById("adressHeadquarters");
+                currentDiv.appendChild(textHeadquarters)
+
+                /*var adresseCompany = document.getElementById("adressHeadquarters");
                 adresseCompany.innerHTML = results.results.bindings[0][objet].value
-                adresseCompany.classList.remove('no-data');
+                adresseCompany.classList.remove('no-data');*/
             }
         }
     };
