@@ -52,7 +52,7 @@ body{
     position: relative;
 }
 
-.newSearch{
+.newSearch, #startSearch{
     background-color: var(--cta);
     padding: var(--espace-min) var(--espace-grand);
     border-radius: var(--radius-petit);
