@@ -1,8 +1,9 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-	var companyName = "Apple";
+	var companyName = sessionStorage.getItem('companyName');
 	console.log(companyName)
     serchCompanyByName(companyName)
+	document.getElementById("textResearch").innerHTML = sessionStorage.getItem('companyName');
 	//productRequest("Apple")
     //document.getElementById("productName").innerHTML = "TOTO";
 }
