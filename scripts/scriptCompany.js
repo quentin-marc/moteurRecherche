@@ -1,6 +1,8 @@
 window.onload = actOnWindow;
 function actOnWindow(){
-    companyRequest("http://dbpedia.org/resource/Microsoft")
+    /*var companyURI = sessionStorage.getItem('companyURI')
+    companyRequest(companyURI)*/
+    companyRequest("https://dbpedia.org/resource/Airport_Transport_Service")
 }
 
 function companyRequest(companyName){
@@ -21,27 +23,39 @@ function companyRequest(companyName){
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
-    doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract)
-    doCompanySparqlName(dbrCompanyName,predicatListName)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
-    doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
-    doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
-    doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
-    doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
-    doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
-    doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
     doCompanySparqlLogo(dbrCompanyName,predicatListLogo)
+    doCompanySparqlName(dbrCompanyName,predicatListName)
+    doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
+    doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract)
+    doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
+    doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie)
+    doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
+    doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
+    doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+
     //doCompanySparqlImgFondateur(dbrCompanyName,predicatListImgFondateur)
 }
 
-function getDbrCompanyName(companyName){
-    var splitCompanyName = companyName.split("/")
-    var dbrCompanyName = "dbr:" + splitCompanyName[splitCompanyName.length - 1]
+
+function getDbrCompanyName(companyURI){
+    var splitCompanyName = companyURI.split("/");
+    var comapanyName = splitCompanyName[splitCompanyName.length - 1];
     var title = document.getElementById("title");
     title.innerHTML = splitCompanyName[splitCompanyName.length - 1]
     title.classList.remove('no-data');
-    return dbrCompanyName
+    const charToEscape = ["'", "\"", ".", "&","(",")","-","_","/",","]
+    var comapanyNameWithEscape = "";
+    for (var i = 0; i < comapanyName.length; i++) {
+        var currChar = comapanyName.charAt(i);
+        if (charToEscape.includes(currChar)) {
+            currChar = "\\" + currChar;
+        }
+        comapanyNameWithEscape += currChar;
+    }
+    var dbrCompanyName = "dbr:" + comapanyNameWithEscape;
+    return dbrCompanyName;
 }
 
 function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
@@ -144,30 +158,45 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var fondateurLabel = results.head.vars[1]
             var fondateurImg = results.head.vars[2]
             console.log(results);
-            for(var i = 0; i < results.results.bindings.length; i++){
-                var founder = document.createElement("div")
-                var imgFounder = document.createElement("div")
-                var nameFounder = document.createElement("div")
 
-                //linkFounder.href = results.results.bindings[i][fondateur].value;
-                var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
+            if (results.results.bindings.length > 1) {
+                var currentDiv = document.getElementsByClassName('cardContent')[0];
 
-                nameFounder.appendChild(newContentHref);
+                var subtitleFounders = document.getElementsByClassName("subTitle")[0]
+                subtitleFounders.innerHTML = "Founders"
 
+                var listFounders = document.createElement("div")
+                listFounders.className = "listFounders"
+                subtitleFounders.appendChild(listFounders)
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    var founder = document.createElement("div")
+                    var imgFounder = document.createElement("img")
+                    var nameFounder = document.createElement("div")
+
+                    //linkFounder.href = results.results.bindings[i][fondateur].value;
+                    var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
+
+                    nameFounder.appendChild(newContentHref);
+
+                    nameFounder.className = "nameFounder"
+                    imgFounder.className = "imgFounder"
+                    imgFounder.src = results.results.bindings[i][fondateurImg].value
+                    founder.className = "founder"
                 nameFounder.className = "nameFounder"
                 imgFounder.className = "imgFounder"
                 imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
                 founder.className = "founder"
 
-                //TODO idem image
+                    //TODO idem image
 
-                founder.appendChild(imgFounder)
-                founder.appendChild(nameFounder)
+                    founder.appendChild(imgFounder)
+                    founder.appendChild(nameFounder)
 
-                var currentDiv = document.getElementsByClassName('listFounders')[0];
-                currentDiv.appendChild(founder)
+                    /*var currentDiv = document.getElementsByClassName('listFounders')[0];*/
+                    listFounders.appendChild(founder)
 
-                changePage(founder, fondateur, results, i)
+                    changePage(founder, fondateur, results, i)
+                }
             }
         }
     };
@@ -204,9 +233,27 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var adresseCompany = document.getElementById("adressHeadquarters");
+
+                var currentDiv = document.getElementsByClassName('cardContent')[0];
+
+                var textHeadquarters = document.createElement("div")
+                textHeadquarters.className = textHeadquarters
+
+                var b = document.createElement("b")
+                b.innerHTML = "Headquarters:"
+
+                var span = document.createElement("span")
+                span.id = "adressHeadquarters"
+                span.innerHTML = results.results.bindings[0][objet].value
+
+                textHeadquarters.appendChild(b)
+                textHeadquarters.appendChild(span)
+
+                currentDiv.appendChild(textHeadquarters)
+
+                /*var adresseCompany = document.getElementById("adressHeadquarters");
                 adresseCompany.innerHTML = results.results.bindings[0][objet].value
-                adresseCompany.classList.remove('no-data');
+                adresseCompany.classList.remove('no-data');*/
             }
         }
     };
@@ -419,30 +466,43 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var produitImg = results.head.vars[2]
             console.log(results);
 
-            for(var i = 0; i < results.results.bindings.length; i++){
-                var product = document.createElement("div")
-                var imgProduct = document.createElement("img")
-                var nameProduct = document.createElement("div")
+            if (results.results.bindings.length > 1) {
 
-                //linkFounder.href = results.results.bindings[i][fondateur].value;
-                var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
+                var currentDiv = document.getElementsByClassName('cardContent')[0];
 
-                nameProduct.appendChild(newContentHref);
+                var subtitleProducts = document.getElementsByClassName("subTitle")[1]
+                subtitleProducts.innerHTML = "Products"
+                var listProducts = document.createElement("div")
+                listProducts.className = "listProducts"
+                subtitleProducts.appendChild(listProducts)
 
-                nameProduct.className = "nameProduct"
-                imgProduct.className = "imgProduct"
-                imgProduct.src = results.results.bindings[i][produitImg].value
-                product.className = "product"
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    var product = document.createElement("div")
+                    var imgProduct = document.createElement("img")
+                    var nameProduct = document.createElement("div")
 
-                //TODO idem image
+                    //linkFounder.href = results.results.bindings[i][fondateur].value;
+                    var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
 
-                product.appendChild(imgProduct)
-                product.appendChild(nameProduct)
+                    nameProduct.appendChild(newContentHref);
 
-                var currentDiv = document.getElementsByClassName('listProducts')[0];
-                currentDiv.appendChild(product)
+                    nameProduct.className = "nameProduct"
+                    imgProduct.className = "imgProduct"
+                    imgProduct.src = results.results.bindings[i][produitImg].value
+                    product.className = "product"
 
-                changePageProduit(product, produit, results, i)
+                    //TODO idem image
+
+                    product.appendChild(imgProduct)
+                    product.appendChild(nameProduct)
+
+                    /*var currentDiv = document.getElementsByClassName('listProducts')[0];
+                    currentDiv.appendChild(product)*/
+
+                    listProducts.appendChild(product)
+
+                    changePageProduit(product, produit, results, i)
+                }
             }
         }
     };
@@ -452,14 +512,6 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 function changePageProduit(product, produit, results, i){
     product.onclick = function () {window.location.href = results.results.bindings[i][produit].value; }
 }
-
-/*dbo:thumbnail (lien auquel il manque le http://)
-dbp:logo
-select ?logo where {
-OPTIONAL{dbr:Microsoft dbp:logo ?logo.}
-OPTIONAL{dbr:Microsoft dbo:thumbnail ?logo.}
-}
-*/
 
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     //TODO dbr:Company
