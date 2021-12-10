@@ -20,9 +20,8 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
 
-    console.log(undo)
 	//On recupere et affiche les donnees
-    productRequest(product.split("/")[product.split("/").length-1])
+    productRequest("dbr:"+product.split("/")[product.split("/").length-1])
 }
 
 
@@ -63,6 +62,8 @@ function productRequest(product){
 	doProductSparql(product,"dbp:inventor",false)
 	doProductSparql(product,"dbo:product",false)
 
+	singleSelect("?is_product_of",["dbo:product"],product,false)
+
 }
 
 function doProductSparql(product,predicat,filterOnLang){
@@ -74,7 +75,7 @@ function doProductSparql(product,predicat,filterOnLang){
 	var tabPredicat = []
 	var tabVarName = []
 	tabPredicat.push(predicat);
-	var varName = predicat.split(":")[1]
+	var varName = "?"+predicat.split(":")[1]
 	//tabVarName.push(predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1]);
 
 
@@ -143,12 +144,12 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	if(filterOnLang){
 		//contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
 		for(var i=0 ; i<predicat.length ; i++){
-			contenu_requete += "OPTIONAL {dbr:"+ressource+" "+predicat[i]+" ?"+varName+" . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}\n"
+			contenu_requete += "OPTIONAL {"+ressource+" "+predicat[i]+" "+varName+" . FILTER(langMatches(lang("+varName+"), \"EN\"))}\n"
 		}
 	} else {
 		//contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
 		for(var i=0 ; i<predicat.length ; i++){
-			contenu_requete += "OPTIONAL {dbr:"+ressource+" "+predicat[i]+" ?"+varName+"}\n"
+			contenu_requete += "OPTIONAL {"+ressource+" "+predicat[i]+" "+varName+"}\n"
 		}
 	}
 	contenu_requete += "}"
@@ -212,11 +213,9 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 
             } else { //s'il ne s'agit pas d'un attriobit "hardcode" dans le html
 
-
             	//gere listes !
 
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
-
             		
             		//Div ayant tous les attributs "dynamiques"
             		//liste attribut
@@ -338,31 +337,12 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
         				}
         			})
 
-        			/*//liste attribut
-        			var listAttributs = document.getElementsByClassName('listAttributs')[0]
-
-    				//Attribut
-        			var divAttribut = document.createElement('div')
-        			divAttribut.setAttribute('class','attribut')
-
-            		//Nom de l'attribut
-            		var divAttributeName = document.createElement('div')
-            		divAttributeName.setAttribute('class','attributName')
-            		var textnode = document.createTextNode(firstCharUpperCase(predicat))
-            		divAttributeName.appendChild(textnode)
-            		divAttribut.appendChild(divAttributeName)
-
-            		//Valeur de l'attribut
-            		var divValAttribut = document.createElement('div')
-            		divValAttribut.setAttribute('class','valAttribut')
-            		divAttribut.appendChild(divValAttribut)*/
-
         			if(isCompany){
 
         				//Si company : href vers company.html
 						var divSingleValue = document.createElement('div')
 				        divSingleValue.setAttribute('class','singleValue redirect')
-				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("Company","'+value.split("/")[value.split("/").length-1]+'");window.location.href="company.html"')
+				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("Company","'+encodeURI(value)+'");window.location.href="company.html"')
 						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
 				       	divSingleValue.appendChild(valTextnode)
 				        divValAttribut.appendChild(divSingleValue)
@@ -372,7 +352,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 						//Si person : href vers founder.html
 						var divSingleValue = document.createElement('div')
 	                	divSingleValue.setAttribute('class','singleValue redirect')
-	                	divSingleValue.setAttribute('onclick','sessionStorage.setItem("Person","'+value.split("/")[value.split("/").length-1]+'");window.location.href="founder.html"')
+	                	divSingleValue.setAttribute('onclick','sessionStorage.setItem("Founder","'+encodeURI(value)+'");window.location.href="founder.html"')
 						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
 						divSingleValue.appendChild(valTextnode)
 				        divValAttribut.appendChild(divSingleValue)
@@ -401,7 +381,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
             							//length non nulle, la ressource actuelle a un parent, c'est un product
 					               		var divSingleValue = document.createElement('div')
 	                					divSingleValue.setAttribute('class','singleValue redirect')
-                						divSingleValue.setAttribute('onclick','sessionStorage.setItem("Product","'+value.split("/")[value.split("/").length-1]+'");window.location.href="product.html"')
+                						divSingleValue.setAttribute('onclick','sessionStorage.setItem("Product","'+encodeURI(value)+'");window.location.href="product.html"')
 										var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
 										divSingleValue.appendChild(valTextnode)
 				        				divValAttribut.appendChild(divSingleValue)
