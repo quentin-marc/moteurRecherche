@@ -1,8 +1,6 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 
-    //companyRequest("http://dbpedia.org/resource/Microsoft")
-
     /*var undo = JSON.parse(sessionStorage.getItem('undo'))
     var founder = sessionStorage.getItem('Company')
 
@@ -19,9 +17,9 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))*/
 
-    /*var companyURI = sessionStorage.getItem('companyURI')
-    companyRequest(companyURI)*/
-    companyRequest("https://dbpedia.org/resource/Microsoft")
+    var companyURI = sessionStorage.getItem('companyURI')
+    companyRequest(companyURI)
+    //companyRequest("https://dbpedia.org/resource/Microsoft")
 
 }
 
@@ -38,7 +36,7 @@ function companyRequest(companyName){
     predicatListIndustrie = ["dbp:industry", "dbo:industry"]
     predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
     predicatListProduits = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"]
-    predicatListLogo = ["dbp:logo", "dbo:thumbnail"]
+    predicatListLogo = ["dbp:logo","dbo:thumbnail"]
     predicatListImgFondateur = ["dbo:thumbnail"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
@@ -590,10 +588,14 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     //TODO dbr:Company
-    var contenu_requete = "SELECT ?logo WHERE {";
+    var contenu_requete = "SELECT ?logo ?thumbnail WHERE {";
 
     predicatListLogo.forEach( predicat => {
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?logo.}"
+        if(predicat == "dbp:logo"){
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?logo.}"
+        }else if(predicat == "dbo:thumbnail") {
+            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?thumbnail.}"
+        }
     } )
 
     contenu_requete += "}"
@@ -608,22 +610,46 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var objet = results.head.vars[0]
+            var logo = results.head.vars[0]
+            var thumbnail = results.head.vars[1]
+
+            var imageCompany = document.getElementById("imageCompany");
+
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+            if(results.results.bindings.length > 0) {
+                if (results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
+                    var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
+                    var srcLogo = getImageProduct(uriLogo)
 
-                var imageCompany = document.getElementById("imageCompany");
-                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
-                var srcLogo = getImageProduct(uriLogo)
+                    var tester=new Image()
+                    tester.onload=function() {
+                        console.log("logo found : " + srcLogo)
+                        imageCompany.src = srcLogo
+                    }
+                    tester.onerror=function() {
+                        console.log("onerror")
+                        if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
+                            console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
+                            imageCompany.src = results.results.bindings[0][thumbnail].value
+                        } else {
+                            console.log("nothing found 1")
+                            imageCompany.src = '../img/DBpedia-Logo.png'
+                        }
+                    }
+                    tester.src= srcLogo;
 
-                imageCompany.src = srcLogo
-
-                /*var logo = document.getElementById("imageCompany");
-                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
-                var srcLogo = getImageProduct(uriLogo)
-                logo.src = srcLogo*/
-                //logo.innerHTML = results.results.bindings[0][objet].value
-                logo.classList.remove('no-data');
+                } else {
+                    if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
+                        console.log("thumbnail found 2 : " + results.results.bindings[0][thumbnail].value)
+                        imageCompany.src = results.results.bindings[0][thumbnail].value
+                    } else {
+                        console.log("nothing found 2")
+                        imageCompany.src = '../img/DBpedia-Logo.png'
+                    }
+                }
+            } else {
+                console.log("nothing found 3")
+                imageCompany.src = '../img/DBpedia-Logo.png'
             }
         }
     };
