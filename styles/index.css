@@ -24,12 +24,23 @@
     font-size: 22px;
     width: 600px;
     border-radius: 15px;
-    margin: var(--espace-grand) auto 0;
+    margin: var(--espace-moyen) auto 0;
     display: block;
     padding: 10px 30px;
     border: solid;
     border-width: 2px;
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+.search:first-of-type{
+    margin-top: 0;
+}
+
+#msgUser{
+    color: rgba(255, 0, 0, 0.8);
+    text-align: center;
+    margin-bottom: var(--espace-moyen);
+    display: none;
 }
 
 .description{
