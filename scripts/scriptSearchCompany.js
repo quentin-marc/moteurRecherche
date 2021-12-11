@@ -68,6 +68,9 @@ function serchCompanyByName(companyName) {
 			//Get the list of result
 			resultList = results.results.bindings
 			
+			const promises = [];
+			var companyNameOrderdList = [];
+
 			//Loop on every result company to get more details about the company and to display the results
 			resultList.forEach( resultObject => {
 				//Get the uri of the ressource company
@@ -78,16 +81,21 @@ function serchCompanyByName(companyName) {
 				//Create a company object that will store the company's information
 				companyMap[companyName] = new Company(companyName);
 				companyMap[companyName].companyURI = companyURI;
+				companyNameOrderdList.push(companyName);
 
 				//getCompanyMainInformation(companyDBR, companyName, companyMap);
-				getCompanyMainInformationPromise(companyDBR, companyName, companyMap).then((res)=>{
+				promises.push( getCompanyMainInformationPromise(companyDBR, companyName, companyMap) );
+			} )
+
+			//Waits for all promises to return to display the results
+			//This allows to display the answer in an orered way
+			return Promise.all(promises).then(()=>{
+				companyNameOrderdList.forEach( companyName => {
 					console.log("********************");
 					console.log("********************");
 					addCompanyToHtml(companyMap[companyName]);
-				}).catch((error)=>{
-					console.log(`Handling error as we received ${error}`);
 				});
-			} )
+			});
         }
     };
 	xmlhttp.open("GET", url, true);
@@ -109,10 +117,18 @@ function addCompanyToHtml(company) {
 		
 	
 	//Company logo
-	var divCompanyLogo = document.createElement("img");
-	divCompanyLogo.setAttribute("id", "logo");
-	divCompanyLogo.setAttribute("src", getImageProduct(company.logo));
-	newDivCompany.appendChild(divCompanyLogo);
+	console.log("company.logo")
+	console.log("company.logo")
+	console.log("company.logo")
+	console.log(company.logo)
+	if(company.logo != "") {
+		console.log("IN")
+		var divCompanyLogo = document.createElement("img");
+		divCompanyLogo.setAttribute("id", "logo");
+		divCompanyLogo.setAttribute("src", company.logo);
+		newDivCompany.appendChild(divCompanyLogo);
+		
+	}
 
 	//Company name
 	var divCompanyName = document.createElement("h2");
@@ -291,8 +307,16 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 						break;
 					case "?logo":
 						//Update the abstract of the corresponding company
-						companyMap[companyName].logo = geLastResult(resultList, predicat);
-						resolve(true);
+						getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
+							console.log("####################################")
+							console.log("####################################")
+							console.log("####################################")
+							console.log("####################################")
+							console.log("####################################")
+							console.log(imageFullURI)
+							companyMap[companyName].logo = imageFullURI;
+							resolve(true);
+						});
 						break;
 					case "?industry":
 						//Update the industry of the corresponding company
@@ -387,13 +411,31 @@ function getDbrCompanyName(companyURI){
 //Get the full image url with only the end of the url
 //Return the image url
 //TODO : check if the link exists otherwise return null
-function getImageProduct(url_wikipedia){
+function getImageProduct(imageURIend){
 
-	console.log("url : "+url_wikipedia)
-
-	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
-    return url_base + url_wikipedia;
+	return new Promise((resultFullURI)=>{
+		if (imageURIend != "") {
+			var fullURI = "https://commons.wikimedia.org/wiki/Special:FilePath/" + imageURIend;
+			var tester=new Image();
+			tester.onload=function() {
+			console.log("++++++++++++++++++++++++++++++++++++")
+			console.log("++++++++++++++++++++++++++++++++++++")
+				console.log(fullURI)
+				console.log("CORRECT "+fullURI)
+				resultFullURI(fullURI);
+			};
+			tester.onerror=function() {
+			console.log("------------------------------------")
+			console.log("------------------------------------")
+				console.log(fullURI)
+				console.log("NOT CORRECT "+fullURI)
+				resultFullURI("");
+			};
+			tester.src=fullURI;
+		} else {
+			resultFullURI("")
+		}
+	});
 }
 
 //Change to page name
