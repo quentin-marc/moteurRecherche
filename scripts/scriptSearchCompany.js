@@ -25,8 +25,10 @@ function actOnWindow(){
 
 //Store all information about a company
 class Company {
-	constructor(name) {
-		this.name = name;
+	constructor(companyURI) {
+		this.companyURI = companyURI; //The full URI
+		this.comapanyDBR = ""; //Company with prefix and escaped characters
+		this.name = "";
 		this.logo = "";
 		this.abstract = "";
 		this.income = "";
@@ -34,8 +36,12 @@ class Company {
 		this.industryListLink = [];
 		this.productList = [];
 		this.productListLink = [];
-		this.companyURI = "";
 	}
+}
+
+//Create the rquest to search for company
+function createSearchCompanyQuerry() {
+
 }
 
 //Search a company by its name. 
@@ -56,59 +62,46 @@ function serchCompanyByName(companyName) {
 	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)\n" +
 	"LIMIT 20";
 
-	/*
-	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+	doSparqlRequest(contenu_requete).then( results => {
+		console.log(results);
+		//Get the list of result
+		var resultList = results.results.bindings
+		
+		const promises = [];
+		var companyResultOrderdList = [];
 
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);*/
-		doSparqlRequest(contenu_requete).then( results => {
-            console.log(results);
-			//Get the list of result
-			resultList = results.results.bindings
-			
-			const promises = [];
-			var companyNameOrderdList = [];
+		//Loop on every result company to get more details about the company and to display the results
+		resultList.forEach( resultObject => {
+			//Get the uri of the ressource company
+			var companyURI = resultObject["company"].value;
+			var companyDBR = getDbrCompanyName(companyURI);
+			var companyName = resultObject["name"].value;
 
-			//Loop on every result company to get more details about the company and to display the results
-			resultList.forEach( resultObject => {
-				//Get the uri of the ressource company
-				var companyURI = resultObject["company"].value;
-				var companyDBR = getDbrCompanyName(companyURI);
-				var companyName = resultObject["name"].value;
+			//Create a company object that will store the company's information
+			companyMap[companyURI] = new Company(companyURI);
+			companyMap[companyURI].comapanyDBR = companyDBR;
+			companyMap[companyURI].name = companyName;
+			companyResultOrderdList.push(companyURI);
 
-				//Create a company object that will store the company's information
-				companyMap[companyName] = new Company(companyName);
-				companyMap[companyName].companyURI = companyURI;
-				companyNameOrderdList.push(companyName);
+			//getCompanyMainInformation(companyDBR, companyName, companyMap);
+			promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
+		} )
 
-				//getCompanyMainInformation(companyDBR, companyName, companyMap);
-				promises.push( getCompanyMainInformationPromise(companyDBR, companyName, companyMap) );
-			} )
-
-			//Waits for all promises to return to display the results
-			//This allows to display the answer in an orered way
-			return Promise.all(promises).then(()=>{
-				companyNameOrderdList.forEach( companyName => {
-					console.log("********************");
-					console.log("********************");
-					addCompanyToHtml(companyMap[companyName]);
-				});
+		//Waits for all promises to return to display the results
+		//This allows to display the answer in an orered way
+		return Promise.all(promises).then(()=>{
+			companyResultOrderdList.forEach( companyURI => {
+				console.log("********************");
+				console.log("********************");
+				addCompanyToHtml(companyMap[companyURI]);
 			});
 		});
-        /*}
-    };
-	xmlhttp.open("GET", url, true);
-    xmlhttp.send();*/
+	});
 }
 
 //From a company object create an HTML div to display 
 function addCompanyToHtml(company) {
-	console.log(`The function recieved with value companyMap[companyName] = `)
+	console.log(`The function recieved with value companyMap[company.companyURI] = `)
 	console.log(company)
 
 	//Get the element where the company will be added
@@ -226,7 +219,7 @@ function addCompanyToHtml(company) {
 }
 
 //Querry the databse to get more infotrmations about the company
-function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
+function getCompanyMainInformationPromise(company, companyDBR) {
 	console.log(companyDBR);
 	return new Promise((resolve)=>{
 
@@ -238,11 +231,11 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 		var predicateListProduct = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"];
 				
 		const promises = [];
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListAbstract, "abstract", companyName, companyMap) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListLogo, "logo", companyName, companyMap) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicatListIndusty, "industry", companyName, companyMap, true) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap, false, "integer") );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListProduct, "product", companyName, companyMap, true) );
+		promises.push( doSparqlRequestForPredicatePromise(company, predicateListAbstract, "abstract") );
+		promises.push( doSparqlRequestForPredicatePromise(company, predicateListLogo, "logo") );
+		promises.push( doSparqlRequestForPredicatePromise(company, predicatListIndusty, "industry", true) );
+		promises.push( doSparqlRequestForPredicatePromise(company, predicateListIncome, "income", false, "integer") );
+		promises.push( doSparqlRequestForPredicatePromise(company, predicateListProduct, "product", true) );
 		
 		//Waits for all promises to return
 		return Promise.all(promises).then((res)=>{
@@ -254,7 +247,7 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 //Perform a sparql request for one predicate (and the list of alternative predicates in case there is no value) and add the result to the html element with idElement 
 //Note: predicateList represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before)
 //If get label is true, the request get the label of the returned value
-function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, companyName, companyMap, getLabel, convertResultType) {
+function doSparqlRequestForPredicatePromise(company, predicateList, varName, getLabel, convertResultType) {
 	
 	return new Promise((resolve)=>{
 
@@ -280,78 +273,62 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 		var requestContent = "SELECT DISTINCT " + resultRequest + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
 			console.log(predicate);
-			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
 		} )
 		requestContent += "\n}"
 		
-		/*
-		// Encodage de l'URL à transmettre à DBPedia
-		var url_base = "http://dbpedia.org/sparql";
-		var url = url_base + "?query=" + encodeURIComponent(requestContent) + "&format=json";
+		//Performs the request
+		doSparqlRequest(requestContent).then( results => {
+			//Get the list of result
+			resultList = results.results.bindings
+			console.log("Request : \n"+requestContent);
+			console.log(results)
+			var predicat = results.head.vars[0];
+			var label = results.head.vars[1];
+			console.log(predicat)
 
-		// Requête HTTP et affichage des résultats
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				//Get the response from the querry
-				var results = JSON.parse(this.responseText);*/
-			//Performs the request
-			doSparqlRequest(requestContent).then( results => {
-				//Get the list of result
-				resultList = results.results.bindings
-				console.log("Request : \n"+requestContent);
-				console.log(results)
-				var predicat = results.head.vars[0];
-				var label = results.head.vars[1];
-				console.log(predicat)
-
-				//Add the result to the html
-				switch(varName){
-					case "?abstract":
-						//Update the abstract of the corresponding company
-						companyMap[companyName].abstract = geLastResult(resultList, predicat);
+			//Add the result to the html
+			switch(varName){
+				case "?abstract":
+					//Update the abstract of the corresponding company
+					company.abstract = geLastResult(resultList, predicat);
+					resolve(true);
+					break;
+				case "?logo":
+					//Update the abstract of the corresponding company
+					getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
+						console.log("####################################")
+						console.log("####################################")
+						console.log("####################################")
+						console.log("####################################")
+						console.log("####################################")
+						console.log(imageFullURI)
+						company.logo = imageFullURI;
 						resolve(true);
-						break;
-					case "?logo":
-						//Update the abstract of the corresponding company
-						getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
-							console.log("####################################")
-							console.log("####################################")
-							console.log("####################################")
-							console.log("####################################")
-							console.log("####################################")
-							console.log(imageFullURI)
-							companyMap[companyName].logo = imageFullURI;
-							resolve(true);
-						});
-						break;
-					case "?industry":
-						//Update the industry of the corresponding company
-						companyMap[companyName].industryList = geAllResult(resultList, label);
-						companyMap[companyName].industryListLink = geAllResult(resultList, predicat);
-						resolve(true);
-						break;
-					case "?income":
-						//Update the income of the corresponding company
-						companyMap[companyName].income = geLastResult(resultList, predicat);;
-						resolve(true);
-						break;
-					case "?product":
-						//Update the product of the corresponding company
-						companyMap[companyName].productList = geAllResult(resultList,label);
-						companyMap[companyName].productListLink = geAllResult(resultList, predicat);
-						resolve(true);
-						break;
-					default:
-						resolve(false);
-						break;
-				}
-			});
-			/*
+					});
+					break;
+				case "?industry":
+					//Update the industry of the corresponding company
+					company.industryList = geAllResult(resultList, label);
+					company.industryListLink = geAllResult(resultList, predicat);
+					resolve(true);
+					break;
+				case "?income":
+					//Update the income of the corresponding company
+					company.income = geLastResult(resultList, predicat);;
+					resolve(true);
+					break;
+				case "?product":
+					//Update the product of the corresponding company
+					company.productList = geAllResult(resultList,label);
+					company.productListLink = geAllResult(resultList, predicat);
+					resolve(true);
+					break;
+				default:
+					resolve(false);
+					break;
 			}
-		};
-		xmlhttp.open("GET", url, true);
-		xmlhttp.send();*/
+		});
 	});
 }
 
