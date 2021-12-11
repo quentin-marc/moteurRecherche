@@ -34,8 +34,6 @@ function actOnWindow(){
 		}
 	};
 	document.getElementById("textResearch").innerHTML = textFilter;
-	//productRequest("Apple")
-    //document.getElementById("productName").innerHTML = "TOTO";
 }
 
 //Store all information about a company
@@ -107,19 +105,17 @@ function serchCompanyByFilter(filterValueList) {
 
 		//Waits for all promises to return to display the results
 		//This allows to display the answer in an orered way
-		return Promise.all(promises).then(()=>{
+		Promise.all(promises).then(()=>{
 			companyResultOrderdList.forEach( companyURI => {
 				addCompanyToHtml(companyMap[companyURI]);
 			});
 		});
+		console.log("Search done!")
 	});
 }
 
 //From a company object create an HTML div to display 
 function addCompanyToHtml(company) {
-	console.log(`The function recieved with value companyMap[company.companyURI] = `)
-	console.log(company)
-
 	//Get the element where the company will be added
 	var listResultsElement = document.getElementById("listResults");
 
@@ -131,7 +127,6 @@ function addCompanyToHtml(company) {
 	
 	//Company logo
 	if(company.logo != "") {
-		console.log("IN")
 		var divCompanyLogo = document.createElement("img");
 		divCompanyLogo.setAttribute("id", "logo");
 		divCompanyLogo.setAttribute("src", company.logo);
@@ -225,15 +220,12 @@ function addCompanyToHtml(company) {
 		newDivCompany.appendChild(divCompanyProcuct);
 	}
 	
-	console.log(newDivCompany);
-
 	//Add the html content
 	listResultsElement.appendChild(newDivCompany);
 }
 
 //Querry the databse to get more infotrmations about the company
 function getCompanyMainInformationPromise(company, companyDBR) {
-	console.log(companyDBR);
 	return new Promise((resolve)=>{
 
 		//The list of all predicates that interset us. A list represents all the predicates for a same information orderd by decreasing relevence (i.e. if the first predicate does not return a value, then we will take the answer from the next one) 
@@ -287,7 +279,6 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 		
 		var requestContent = "SELECT DISTINCT " + resultRequest + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
-			console.log(predicate);
 			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(varName) + "}"
 		} )
 		requestContent += "\n}"
@@ -296,18 +287,8 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 		doSparqlRequest(requestContent).then( results => {
 			//Get the list of result
 			resultList = results.results.bindings
-			console.log("################")
-			console.log("################")
-			console.log("################")
-			console.log("################")
-			console.log("################")
-			console.log("################")
-			console.log("################")
-			console.log("Request : \n"+requestContent);
-			console.log(results)
 			var predicat = results.head.vars[0];
 			var label = results.head.vars[1];
-			console.log(predicat)
 
 			//Add the result to the html
 			switch(varName){
@@ -335,12 +316,6 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 					resolve(true);
 					break;
 				case "?income":
-					console.log("QUERRY");
-					console.log("QUERRY");
-					console.log("QUERRY");
-					console.log("QUERRY");
-					console.log("QUERRY");
-					console.log(requestContent)
 					//Update the income of the corresponding company
 					company.income = geLastResult(resultList, predicat);;
 					resolve(true);
@@ -374,7 +349,6 @@ function doSparqlRequest(request) {
 		xmlhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
 				var results = JSON.parse(this.responseText);
-				console.log(results);
 				//Get the list of result
 				resultList = results.results.bindings
 				answer(results);
@@ -387,10 +361,6 @@ function doSparqlRequest(request) {
 
 //Return the last result from the reustList after a querry
 function geLastResult(resultList, predicat) {
-	console.log(predicat)
-	console.log(resultList)
-	console.log(resultList[0])
-	console.log(resultList[0][predicat])
 	var value = "";
 	if(resultList.length > 0) {
 		var attributs = resultList[0] 
@@ -398,13 +368,6 @@ function geLastResult(resultList, predicat) {
 			value =  attributs[predicat].value;
 		}
 	}
-	/*
-	var value = "";
-	resultList.forEach( attributs => {
-		if (predicat in attributs) {
-			value =  attributs[predicat].value;
-		}
-	} );*/
 	return value;
 }
 
@@ -458,19 +421,7 @@ function getImageProduct(imageURIend){
 				} else {
 					resultFullURI("");
 				}
-			}).catch(error => {
-				console.log(error)
-				console.log(error)
 			});
-			/*
-			var tester=new Image();
-			tester.onload=function() {
-				resultFullURI(fullURI);
-			};
-			tester.onerror=function() {
-				resultFullURI("");
-			};
-			tester.src=fullURI;*/
 		} else {
 			resultFullURI("")
 		}
@@ -479,7 +430,6 @@ function getImageProduct(imageURIend){
 
 //Change to page name
 function changePage( pageName, companyURI ) {
-	console.log(companyURI);
 	sessionStorage.setItem('companyURI',companyURI);
 	window.location = "./"+pageName;
 }
