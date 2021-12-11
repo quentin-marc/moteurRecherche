@@ -1,12 +1,13 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 
-    /*var undo = JSON.parse(sessionStorage.getItem('undo'))
-    var founder = sessionStorage.getItem('Company')
+    //var undo = JSON.parse(sessionStorage.getItem('undo'))
+    var companyURI = sessionStorage.getItem('companyURI')
+    
 
-    var uriUndo = {
-        type : "Company",
-        uri : company
+    /*var uriUndo = {
+        type : "companyURI",
+        uri : companyURI
     }
 
 
@@ -15,9 +16,8 @@ function actOnWindow(){
         undo = new Array()
     }
     undo.push(uriUndo)
-    sessionStorage.setItem('undo',JSON.stringify(undo))*/
-
-    var companyURI = sessionStorage.getItem('companyURI')
+    sessionStorage.setItem('undo',JSON.stringify(undo))
+    console.log(undo)*/
     companyRequest(companyURI)
     //companyRequest("https://dbpedia.org/resource/Microsoft")
 

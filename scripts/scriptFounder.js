@@ -248,7 +248,7 @@ function getTypeSparql(resource,predicat,value){
                     if(isCompany){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                         <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('Company','"+encodeURI(value)+"');window.location.href='company.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
+                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('companyURI','"+encodeURI(value)+"');window.location.href='company.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
 
                     } else if(isPerson){
