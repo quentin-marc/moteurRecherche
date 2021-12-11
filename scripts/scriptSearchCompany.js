@@ -444,31 +444,24 @@ function createFilterForRequest(varName) {
 		return filter
 }
 
-//Get the dbr company name from a uri
-function getDbrCompanyName(companyURI){
-    var splitCompanyName = companyURI.split("/");
-	var comapanyName = splitCompanyName[splitCompanyName.length - 1];
-	const charToEscape = ["'", "\"", ".", "&","(",")","-","_","/",","] 
-	var comapanyNameWithEscape = "";
-	for (var i = 0; i < comapanyName.length; i++) {
-		var currChar = comapanyName.charAt(i);
-		if (charToEscape.includes(currChar)) {
-			currChar = "\\" + currChar;
-		}
-		comapanyNameWithEscape += currChar;
-	  }
-    var dbrCompanyName = "dbr:" + comapanyNameWithEscape;
-    return dbrCompanyName;
-}
-
 //Get the full image url with only the end of the url
-//Return the image url
-//TODO : check if the link exists otherwise return null
+//Return the image url if the image was found
 function getImageProduct(imageURIend){
 
 	return new Promise((resultFullURI)=>{
 		if (imageURIend != "") {
 			var fullURI = "https://commons.wikimedia.org/wiki/Special:FilePath/" + imageURIend;
+			//Test if the image exists
+			imageExists(fullURI).then( exists => {
+				if(exists) {
+					resultFullURI(fullURI);
+				} else {
+					resultFullURI("");
+				}
+			}).catch(error => {
+				console.log(error)
+			});
+			/*
 			var tester=new Image();
 			tester.onload=function() {
 				resultFullURI(fullURI);
@@ -476,7 +469,7 @@ function getImageProduct(imageURIend){
 			tester.onerror=function() {
 				resultFullURI("");
 			};
-			tester.src=fullURI;
+			tester.src=fullURI;*/
 		} else {
 			resultFullURI("")
 		}
