@@ -53,8 +53,10 @@ function serchCompanyByName(companyName) {
 	"OPTIONAL { ?company dbo:netIncome ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
 	"OPTIONAL { ?company dbp:numEmployees ?numEmployee. }\n" +
 	"}\n" +
-	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)";
+	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)\n" +
+	"LIMIT 20";
 
+	/*
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
@@ -63,7 +65,8 @@ function serchCompanyByName(companyName) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
+            var results = JSON.parse(this.responseText);*/
+		doSparqlRequest(contenu_requete).then( results => {
             console.log(results);
 			//Get the list of result
 			resultList = results.results.bindings
@@ -96,10 +99,11 @@ function serchCompanyByName(companyName) {
 					addCompanyToHtml(companyMap[companyName]);
 				});
 			});
-        }
+		});
+        /*}
     };
 	xmlhttp.open("GET", url, true);
-    xmlhttp.send();
+    xmlhttp.send();*/
 }
 
 //From a company object create an HTML div to display 
@@ -156,7 +160,7 @@ function addCompanyToHtml(company) {
 
 		var spanCompanyIcomeList = document.createElement("span");
 		spanCompanyIcomeList.setAttribute("id", "netIncome");
-		spanCompanyIcomeList.innerHTML = company.income;
+		spanCompanyIcomeList.innerHTML = company.income + "$";
 		divCompanyIncome.appendChild(spanCompanyIcomeList);
 		
 		newDivCompany.appendChild(divCompanyIncome);
@@ -280,6 +284,7 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 		} )
 		requestContent += "\n}"
 		
+		/*
 		// Encodage de l'URL à transmettre à DBPedia
 		var url_base = "http://dbpedia.org/sparql";
 		var url = url_base + "?query=" + encodeURIComponent(requestContent) + "&format=json";
@@ -289,7 +294,9 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 		xmlhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
 				//Get the response from the querry
-				var results = JSON.parse(this.responseText);
+				var results = JSON.parse(this.responseText);*/
+			//Performs the request
+			doSparqlRequest(requestContent).then( results => {
 				//Get the list of result
 				resultList = results.results.bindings
 				console.log("Request : \n"+requestContent);
@@ -333,12 +340,39 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 						//Update the product of the corresponding company
 						companyMap[companyName].productList = geAllResult(resultList,label);
 						companyMap[companyName].productListLink = geAllResult(resultList, predicat);
-						resolve(true)
+						resolve(true);
 						break;
 					default:
 						resolve(false);
 						break;
 				}
+			});
+			/*
+			}
+		};
+		xmlhttp.open("GET", url, true);
+		xmlhttp.send();*/
+	});
+}
+
+//Perform the input sparql request
+//Return the answer of this query 
+function doSparqlRequest(request) {
+	
+	return new Promise((answer)=>{
+		// Encodage de l'URL à transmettre à DBPedia
+		var url_base = "http://dbpedia.org/sparql";
+		var url = url_base + "?query=" + encodeURIComponent(request) + "&format=json";
+
+		// Requête HTTP et affichage des résultats
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var results = JSON.parse(this.responseText);
+				console.log(results);
+				//Get the list of result
+				resultList = results.results.bindings
+				answer(results);
 			}
 		};
 		xmlhttp.open("GET", url, true);
