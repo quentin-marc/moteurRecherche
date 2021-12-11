@@ -75,15 +75,12 @@ function serchCompanyByName(companyName) {
 			//Get the uri of the ressource company
 			var companyURI = resultObject["company"].value;
 			var companyDBR = getDbrCompanyName(companyURI);
-			var companyName = resultObject["name"].value;
 
 			//Create a company object that will store the company's information
 			companyMap[companyURI] = new Company(companyURI);
 			companyMap[companyURI].comapanyDBR = companyDBR;
-			companyMap[companyURI].name = companyName;
 			companyResultOrderdList.push(companyURI);
 
-			//getCompanyMainInformation(companyDBR, companyName, companyMap);
 			promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
 		} )
 
@@ -224,6 +221,7 @@ function getCompanyMainInformationPromise(company, companyDBR) {
 	return new Promise((resolve)=>{
 
 		//The list of all predicates that interset us. A list represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before) 
+		var predicateListName = ["rdfs:label", "foaf:name", "dbo:name", "dbp:name"]
 		var predicateListAbstract = ["dbo:abstract"];
 		var predicateListLogo = ["dbp:logo"];
 		var predicatListIndusty = ["dbp:industry", "dbo:industry"];
@@ -231,6 +229,7 @@ function getCompanyMainInformationPromise(company, companyDBR) {
 		var predicateListProduct = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"];
 				
 		const promises = [];
+		promises.push( doSparqlRequestForPredicatePromise(company, predicateListName, "name", false, "string") );
 		promises.push( doSparqlRequestForPredicatePromise(company, predicateListAbstract, "abstract") );
 		promises.push( doSparqlRequestForPredicatePromise(company, predicateListLogo, "logo") );
 		promises.push( doSparqlRequestForPredicatePromise(company, predicatListIndusty, "industry", true) );
@@ -265,7 +264,7 @@ function doSparqlRequestForPredicatePromise(company, predicateList, varName, get
 		if(convertResultType === "integer") {
 			resultRequest = "<http://www.w3.org/2001/XMLSchema#integer>("+varName+")";
 		} 
-		else if (convertResultType === "integer") {
+		else if (convertResultType === "string") {
 			resultRequest = "STR("+varName+")";
 		}
 
@@ -273,7 +272,7 @@ function doSparqlRequestForPredicatePromise(company, predicateList, varName, get
 		var requestContent = "SELECT DISTINCT " + resultRequest + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
 			console.log(predicate);
-			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(varName) + "}"
 		} )
 		requestContent += "\n}"
 		
@@ -289,6 +288,11 @@ function doSparqlRequestForPredicatePromise(company, predicateList, varName, get
 
 			//Add the result to the html
 			switch(varName){
+				case "?name":
+					//Update the name of the corresponding company
+					company.name = geLastResult(resultList, predicat);
+					resolve(true);
+					break;
 				case "?abstract":
 					//Update the abstract of the corresponding company
 					company.abstract = geLastResult(resultList, predicat);
@@ -297,12 +301,6 @@ function doSparqlRequestForPredicatePromise(company, predicateList, varName, get
 				case "?logo":
 					//Update the abstract of the corresponding company
 					getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
-						console.log("####################################")
-						console.log("####################################")
-						console.log("####################################")
-						console.log("####################################")
-						console.log("####################################")
-						console.log(imageFullURI)
 						company.logo = imageFullURI;
 						resolve(true);
 					});
@@ -380,16 +378,18 @@ function geAllResult(resultList, predicat) {
 }
 
 //Create a filter for a request
-function createFilterForRequest(predicat, varName) {
-	predicateName = predicat.split(":")[1]
+function createFilterForRequest(varName) {
 	shouldApplyFilter = false
 	
-	switch(predicateName) {
-		case "revenue" || "netIncome":
+	switch(varName) {
+		case "?income":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
 			shouldApplyFilter = true
 			break
-		case "abstract":
+		case "?name":
+			filterContent = "langMatches(lang("+varName+"), \"EN\")"
+			shouldApplyFilter = true
+		case "?abstract":
 			filterContent = "langMatches(lang("+varName+"), \"EN\")"
 			shouldApplyFilter = true
 	}
