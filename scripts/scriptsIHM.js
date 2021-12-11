@@ -19,7 +19,17 @@ function protectionSearchFields(){
     else{
         //TODO lancer recherche dbpedia
         //alert("lancer recherche dbpedia");
-        sessionStorage.setItem('searchCompany',companyName);
+        var filterValueList = [];
+        if (companyName.length > 0) {
+            filterValueList.push(["dbp:name", companyName]);
+        }
+        if (founder.length > 0) {
+            filterValueList.push(["dbp:founders", founder, "dbp:name"]);
+        }
+        if (industry.length > 0) {
+            filterValueList.push(["dbo:industry", industry, "rdfs:label"]);
+        }
+        sessionStorage.setItem('searchCompany', JSON.stringify(filterValueList));
 	    window.location = "./listResults.html";
 
     }
