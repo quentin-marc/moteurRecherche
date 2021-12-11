@@ -460,6 +460,7 @@ function getImageProduct(imageURIend){
 				}
 			}).catch(error => {
 				console.log(error)
+				console.log(error)
 			});
 			/*
 			var tester=new Image();
