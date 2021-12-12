@@ -32,6 +32,6 @@
 
 .attributName{
     font-weight: bold;
-    width: 120px;
+    /*width: 120px;*/
     display: block;
 }
