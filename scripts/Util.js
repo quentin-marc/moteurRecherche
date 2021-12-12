@@ -35,3 +35,23 @@ function getDbrCompanyName(companyURI){
     var dbrCompanyName = "dbr:" + comapanyNameWithEscape;
     return dbrCompanyName;
 }
+
+//format a string ('_' -> ' ', and add ' ' before every upper case)
+function formatString(stringToSplit){
+    var character='';
+    var stringResult = "";
+
+    for(var i=0 ; i < stringToSplit.length ; i++){
+        character = stringToSplit.charAt(i);
+		if(i>0 && character.match(/[a-z]/i) && character == character.toUpperCase()){
+        	stringResult += " " + character;
+        } else if( i==0 && character == "_"  ) {
+        } else if(i>0 && character == "_"){
+        	stringResult += " ";
+        } else {
+        	stringResult +=character;
+        }
+    }
+
+    return stringResult;
+}
