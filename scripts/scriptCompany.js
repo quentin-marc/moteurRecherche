@@ -494,11 +494,12 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
                 var revenue = document.getElementsByClassName("netIncome")[0]
 
                 var b = document.createElement("b")
-                b.innerHTML = "Industry:"
+                b.innerHTML = "Income:"
 
                 var span = document.createElement("span")
+                let dollarUSLocale = Intl.NumberFormat('en-US');
                 span.id = "netIncome"
-                span.innerHTML = results.results.bindings[0][objet].value + "$"
+                span.innerHTML = dollarUSLocale.format(results.results.bindings[0][objet].value) + "$"
 
                 revenue.appendChild(b)
                 revenue.appendChild(span)
