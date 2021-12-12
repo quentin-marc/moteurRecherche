@@ -19,7 +19,7 @@ function protectionSearchFields(){
     else{
 
         // on met les premieres lettres en majuscule pour chaque recherche
-        companyName = majFirstLetters(companyName);
+        companyName = majFirstLetterOnly(companyName);
         founder = majFirstLetters(founder);
         industry = majFirstLetters(industry);
 
@@ -50,7 +50,12 @@ function majFirstLetters(str) {
     }
     // Directly return the joined string
     return splitStr.join(' '); 
- }
+}
+
+//Put the first letter in uppercase
+function majFirstLetterOnly(str) {
+    return str.charAt(0).toUpperCase() + str.substring(1); 
+}
 
 function Undo(){
 
