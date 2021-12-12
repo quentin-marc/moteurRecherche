@@ -638,21 +638,38 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
                     tester.onerror=function() {
                         console.log("onerror")
                         if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                            console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
-                            imageCompany.src = results.results.bindings[0][thumbnail].value
+                            var url = results.results.bindings[0][thumbnail].value
+                            var tester2=new Image()
+                            tester2.onload=function() {
+                                console.log("thumbnail found 1 : " + url)
+                                imageCompany.src = url
+                            }
+                            tester2.onerror=function() {
+                                    console.log("nothing found 1")
+                                    imageCompany.src = '../img/DBpedia-Logo.png'
+                            }
+                            tester2.src= url;
                         } else {
                             console.log("nothing found 1")
                             imageCompany.src = '../img/DBpedia-Logo.png'
                         }
                     }
                     tester.src= srcLogo;
-
                 } else {
                     if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                        console.log("thumbnail found 2 : " + results.results.bindings[0][thumbnail].value)
-                        imageCompany.src = results.results.bindings[0][thumbnail].value
+                        var url = results.results.bindings[0][thumbnail].value
+                        var tester2 = new Image()
+                        tester2.onload = function () {
+                            console.log("thumbnail found 1 : " + url)
+                            imageCompany.src = url
+                        }
+                        tester2.onerror = function () {
+                            console.log("nothing found 1")
+                            imageCompany.src = '../img/DBpedia-Logo.png'
+                        }
+                        tester2.src = url;
                     } else {
-                        console.log("nothing found 2")
+                        console.log("nothing found 1")
                         imageCompany.src = '../img/DBpedia-Logo.png'
                     }
                 }
