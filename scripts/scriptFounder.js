@@ -141,10 +141,12 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                 }
                 
             } else {
+
                 if( (tabPredicat.includes(removePrefix(predicat)) == false) && (results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null)){
                     var elementPredicat = document.getElementsByClassName(predicat)
                     if(elementPredicat.length == 0){
                         var value = results.results.bindings[0][predicat].value
+                        
                         
                         
                             
@@ -152,7 +154,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                 if(value.includes("http://dbpedia.org")){
                                 
                                     if(value.includes("http://dbpedia.org/resource")){
-                                        getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
+                                        getTypeSparql(splitString(value.split("/")[value.split("/").length-1]),predicat,value)
                                         tabPredicat.push(removePrefix(predicat))
                                         
                                     } else {
@@ -160,7 +162,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                         tabPredicat.push(removePrefix(predicat))
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                         <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\">"+value+"</div>\
+                                        <div class=\"valAttribut\">"+splitString(value)+"</div>\
                                         </div>"
                                     }
                                 } else {
@@ -174,7 +176,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                     <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                    <div class=\"valAttribut\">"+value+"</div>\
+                                    <div class=\"valAttribut\">"+splitString(value)+"</div>\
                                     </div>"
                             }
                         
@@ -247,13 +249,13 @@ function getTypeSparql(resource,predicat,value){
 
                     if(isCompany){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
                         <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('companyURI','"+encodeURI(value)+"');window.location.href='company.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
 
                     } else if(isPerson){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
                         <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Founder','"+encodeURI(value)+"');window.location.href='founder.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
                         </div>"
                     } else {
@@ -275,13 +277,13 @@ function getTypeSparql(resource,predicat,value){
                                 if (responsePredicat.includes("parent")){
                                     if(results.results.bindings.length > 0){
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+value.split("/")[value.split("/").length-1]+"</a></div>\
+                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
+                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+splitString(value.split("/")[value.split("/").length-1])+"</a></div>\
                                         </div>"
                                     } else {
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
-                                        <div class=\"valAttribut\">"+value.split("/")[value.split("/").length-1]+"</div>\
+                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
+                                        <div class=\"valAttribut\">"+splitString(value.split("/")[value.split("/").length-1])+"</div>\
                                         </div>"
                                     }
                                 }
@@ -313,7 +315,7 @@ function splitString(stingToSplit){
     while (i <= stingToSplit.length){
         character = stingToSplit.charAt(i);
         
-            if (character == character.toUpperCase()) {
+            if ( character == character.toUpperCase() || character == "_"  ) {
                 stringResult += " ";
             }
             
