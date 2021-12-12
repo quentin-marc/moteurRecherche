@@ -398,9 +398,7 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
                 var a = document.createElement("a")
                 a.id = "lienWebsite"
                 a.href = results.results.bindings[0][objet].value
-                var splitCompanyName = results.results.bindings[0][objet].value.split("/");
-                var comapanyName = splitCompanyName[splitCompanyName.length - 1];
-                a.innerHTML = comapanyName
+                a.innerHTML = results.results.bindings[0][objet].value
 
                 lienWebsite.appendChild(b)
                 lienWebsite.appendChild(a)
