@@ -136,7 +136,7 @@ function addCompanyToHtml(company) {
 	//Parent div for this company
 	var newDivCompany = document.createElement("div");
 	newDivCompany.setAttribute("class", "result");
-	newDivCompany.setAttribute("onclick", "changePage('company.html', '" + company.companyURI + "')");
+	newDivCompany.setAttribute("onclick", "changePage('company.html', \"" + company.companyURI + "\")");
 		
 	
 	//Company logo
