@@ -36,8 +36,7 @@ function protectionSearchFields(){
             filterValueList.push(["dbo:industry", industry, "rdfs:label"]);
         }
         sessionStorage.setItem('searchCompany', JSON.stringify(filterValueList));
-	    window.location = "./listResults.html";
-
+        window.location = "./listResults.html";
     }
 }
 
@@ -50,7 +49,7 @@ function majFirstLetters(str) {
     }
     // Directly return the joined string
     return splitStr.join(' '); 
- }
+}
 
 function Undo(){
 
