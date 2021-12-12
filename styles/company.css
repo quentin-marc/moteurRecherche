@@ -87,6 +87,7 @@
     height: 90px;
     width: 90px;
     border-radius: var(--radius-petit);
+    background: top / cover no-repeat url("../img/personneAnonyme.png");
 }
 
 .imgProduct{

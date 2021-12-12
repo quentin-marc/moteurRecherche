@@ -1,8 +1,8 @@
 #productImage{
-    width: 500px;
+    max-width: 600px;
+    max-height: 300px;
     display: block;
     margin: auto;
-    /*border-radius: var(--radius-grand);*/
 }
 
 #productName{

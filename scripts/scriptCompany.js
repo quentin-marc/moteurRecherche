@@ -188,7 +188,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    var imgFounder = document.createElement("img")
+                    var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
                     var nameFounder = document.createElement("div")
 
                     //linkFounder.href = results.results.bindings[i][fondateur].value;
@@ -196,16 +196,11 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
                     nameFounder.appendChild(newContentHref);
 
-                    nameFounder.className = "nameFounder"
-                    imgFounder.className = "imgFounder"
-                    imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
+                    nameFounder.className = "nameFounder"                    
                     founder.className = "founder"
                     founder.setAttribute("onclick", "changePage('founder.html', '" + results.results.bindings[i][fondateur].value + "')");
 
-
-                    //TODO idem image
-
-                    founder.appendChild(imgFounder)
+                    founder.innerHTML = imgFounder
                     founder.appendChild(nameFounder)
 
                     /*var currentDiv = document.getElementsByClassName('listFounders')[0];*/
@@ -554,7 +549,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    var imgProduct = document.createElement("img")
+                    var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
 
                     //linkFounder.href = results.results.bindings[i][fondateur].value;
@@ -563,26 +558,11 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     nameProduct.appendChild(newContentHref);
 
                     nameProduct.className = "nameProduct"
-                    imgProduct.className = "imgProduct"
-
-                    var label = results.results.bindings[i][produitLabel].value
-                    var tester=new Image()
-                    tester.onload=function() {
-                        console.log("succes")
-                    }
-                    tester.onerror=function() {
-                        console.log("echec produit : " + label)
-                    }
-                    tester.src= results.results.bindings[i][produitImg].value != null;
-                    if(results.results.bindings[i][produitImg].value != null){
-                        imgProduct.src = results.results.bindings[i][produitImg].value
-                    }else {
-                        imgProduct.src = '../img/DBpedia-Logo.png'
-                    }
+                    
                     product.className = "product"
                     product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
-                    product.appendChild(imgProduct)
+                    product.innerHTML = imgProduct
                     product.appendChild(nameProduct)
 
                     listProducts.appendChild(product)
@@ -593,6 +573,10 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+function chargerImage(image, source){
+    image.src = source;
 }
 
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
