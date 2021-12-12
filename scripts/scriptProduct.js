@@ -220,6 +220,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		//Div ayant tous les attributs "dynamiques"
             		//liste attribut
         			var listAttributs = document.getElementsByClassName('listAttributs')[0]
+					listAttributs.style.height = "auto";
 
     				//Attribut
         			var divAttribut = document.createElement('div')
@@ -280,12 +281,15 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 							divValAttribut.appendChild(valTextnode)
 		                	divSingleValue.appendChild(valTextnode)
 				            divValAttribut.appendChild(divSingleValue)
-
 	            		}	
             		}
 	            }
             }
         }
+
+		if(listAttributs.offsetHeight > 200){
+			listAttributs.style.height = (listAttributs.offsetHeight+100)+"px";
+		}
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
@@ -414,8 +418,4 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-
-
-    
-
 }
