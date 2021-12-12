@@ -546,14 +546,10 @@ function chargerImage(image, source){
 
 //Requete pour récuperer le logo de l'entreprise
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
-    var contenu_requete = "SELECT ?logo ?thumbnail WHERE {";
+    var contenu_requete = "SELECT ?logo WHERE {";
 
     predicatListLogo.forEach( predicat => {
-        if(predicat == "dbp:logo"){
-            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?logo.}"
-        }else if(predicat == "dbo:thumbnail") {
-            contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?thumbnail.}"
-        }
+        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?logo.}"
     } )
 
     contenu_requete += "}"
@@ -576,7 +572,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
                     var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
-                    //var srcLogo = getImageProduct(uriLogo)
                     getImageProduct( uriLogo ).then((imageFullURI)=>{
                         if(imageFullURI != ""){
                             imageCompany.src = imageFullURI
