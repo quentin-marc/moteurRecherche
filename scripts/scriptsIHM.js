@@ -17,6 +17,12 @@ function protectionSearchFields(){
         document.getElementById('msgUser').style.display = "block";
     }
     else{
+
+        // on met les premieres lettres en majuscule pour chaque recherche
+        companyName = majFirstLetters(companyName);
+        founder = majFirstLetters(founder);
+        industry = majFirstLetters(industry);
+
         //TODO lancer recherche dbpedia
         //alert("lancer recherche dbpedia");
         var filterValueList = [];
@@ -35,19 +41,22 @@ function protectionSearchFields(){
     }
 }
 
+function majFirstLetters(str) {
+    var splitStr = str.toLowerCase().split(' ');
+    for (var i = 0; i < splitStr.length; i++) {
+        // You do not need to check if i is larger than splitStr length, as your for does that for you
+        // Assign it back to the array
+        splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+    }
+    // Directly return the joined string
+    return splitStr.join(' '); 
+ }
+
 function Undo(){
 
     var undo = JSON.parse(sessionStorage.getItem('undo'))
 
-   
-    
-    
-
-    
-    
-
-     undo.pop()
-
+    undo.pop()
     
     var previousValue = undo.pop();
 
@@ -75,13 +84,6 @@ function Undo(){
                 window.location.href = "product.html"
                 break;
         }
-    
-
-
 
     }
-
-    
-
-
 }

@@ -400,17 +400,15 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
                 var b = document.createElement("b")
                 b.innerHTML = "Website:"
 
-                var span = document.createElement("span")
-                span.id = "lienWebsite"
-                span.innerHTML = results.results.bindings[0][objet].value
+                var a = document.createElement("a")
+                a.id = "lienWebsite"
+                a.href = results.results.bindings[0][objet].value
+                var splitCompanyName = results.results.bindings[0][objet].value.split("/");
+                var comapanyName = splitCompanyName[splitCompanyName.length - 1];
+                a.innerHTML = comapanyName
 
                 lienWebsite.appendChild(b)
-                lienWebsite.appendChild(span)
-
-                /*var lienWebsite = document.getElementById("lienWebsite");
-                lienWebsite.innerHTML = results.results.bindings[0][objet].value
-                lienWebsite.href = results.results.bindings[0][objet].value
-                lienWebsite.classList.remove('no-data');*/
+                lienWebsite.appendChild(a)
             }
         }
     };
@@ -640,21 +638,38 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
                     tester.onerror=function() {
                         console.log("onerror")
                         if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                            console.log("thumbnail found 1 : " + results.results.bindings[0][thumbnail].value)
-                            imageCompany.src = results.results.bindings[0][thumbnail].value
+                            var url = results.results.bindings[0][thumbnail].value
+                            var tester2=new Image()
+                            tester2.onload=function() {
+                                console.log("thumbnail found 1 : " + url)
+                                imageCompany.src = url
+                            }
+                            tester2.onerror=function() {
+                                    console.log("nothing found 1")
+                                    imageCompany.src = '../img/DBpedia-Logo.png'
+                            }
+                            tester2.src= url;
                         } else {
                             console.log("nothing found 1")
                             imageCompany.src = '../img/DBpedia-Logo.png'
                         }
                     }
                     tester.src= srcLogo;
-
                 } else {
                     if (results.results.bindings[0][thumbnail] && results.results.bindings[0][thumbnail].value != null) {
-                        console.log("thumbnail found 2 : " + results.results.bindings[0][thumbnail].value)
-                        imageCompany.src = results.results.bindings[0][thumbnail].value
+                        var url = results.results.bindings[0][thumbnail].value
+                        var tester2 = new Image()
+                        tester2.onload = function () {
+                            console.log("thumbnail found 1 : " + url)
+                            imageCompany.src = url
+                        }
+                        tester2.onerror = function () {
+                            console.log("nothing found 1")
+                            imageCompany.src = '../img/DBpedia-Logo.png'
+                        }
+                        tester2.src = url;
                     } else {
-                        console.log("nothing found 2")
+                        console.log("nothing found 1")
                         imageCompany.src = '../img/DBpedia-Logo.png'
                     }
                 }

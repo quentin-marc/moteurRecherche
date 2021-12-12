@@ -70,6 +70,7 @@ body{
 
 #startSearch{
     margin-right: auto;
+    margin-left: auto;
 }
 
 .newSearch:hover, #startSearch:hover, .return:hover{
