@@ -155,29 +155,29 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                 if(value.includes("http://dbpedia.org")){
                                 
                                     if(value.includes("http://dbpedia.org/resource")){
-                                        getTypeSparql(splitString(value.split("/")[value.split("/").length-1]),predicat,value)
+                                        getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
                                         tabPredicat.push(removePrefix(predicat))
                                         
                                     } else {
                                         value = value.split("/")[value.split("/").length-1]
                                         tabPredicat.push(removePrefix(predicat))
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\">"+splitString(value)+"</div>\
+                                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                                        <div class=\"valAttribut\">"+formatString(value)+"</div>\
                                         </div>"
                                     }
                                 } else {
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                    <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
+                                    <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
                                     <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
                                     </div>"
                                 }
                             }else{
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                    <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                    <div class=\"valAttribut\">"+splitString(value)+"</div>\
+                                    <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                                    <div class=\"valAttribut\">"+formatString(value)+"</div>\
                                     </div>"
                             }
                         
@@ -250,14 +250,14 @@ function getTypeSparql(resource,predicat,value){
 
                     if(isCompany){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('companyURI','"+encodeURI(value)+"');window.location.href='company.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
+                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('companyURI','"+encodeURI(value)+"');window.location.href='company.html' >"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
                         </div>"
 
                     } else if(isPerson){
                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Founder','"+encodeURI(value)+"');window.location.href='founder.html' >"+value.split("/")[value.split("/").length-1]+"</div>\
+                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Founder','"+encodeURI(value)+"');window.location.href='founder.html' >"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
                         </div>"
                     } else {
                         //GET IS founder OF
@@ -278,13 +278,13 @@ function getTypeSparql(resource,predicat,value){
                                 if (responsePredicat.includes("parent")){
                                     if(results.results.bindings.length > 0){
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+splitString(value.split("/")[value.split("/").length-1])+"</a></div>\
+                                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+formatString(value.split("/")[value.split("/").length-1])+"</a></div>\
                                         </div>"
                                     } else {
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\">"+splitString(value.split("/")[value.split("/").length-1])+"</div>\
+                                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
+                                        <div class=\"valAttribut\">"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
                                         </div>"
                                     }
                                 }
