@@ -37,7 +37,6 @@ function companyRequest(companyName){
     predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
     predicatListProduits = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"]
     predicatListLogo = ["dbp:logo"]
-    predicatListImgFondateur = ["dbo:thumbnail"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
@@ -188,7 +187,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
                     var nameFounder = document.createElement("div")
 
-                    //linkFounder.href = results.results.bindings[i][fondateur].value;
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
 
                     nameFounder.appendChild(newContentHref);
@@ -200,10 +198,8 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     founder.innerHTML = imgFounder
                     founder.appendChild(nameFounder)
 
-                    /*var currentDiv = document.getElementsByClassName('listFounders')[0];*/
                     listFounders.appendChild(founder)
 
-                    //changePageFounder(founder, fondateur, results, i)
                 }
             }
         }
@@ -281,7 +277,6 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                //Creation - <span id="dateCreation"></span>
                 var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
 
                 var b = document.createElement("b")
@@ -294,9 +289,6 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
                 textAnneeCreation.appendChild(b)
                 textAnneeCreation.appendChild(span)
 
-                /*var dateCreation = document.getElementById("dateCreation");
-                dateCreation.innerHTML = results.results.bindings[0][objet].value
-                dateCreation.classList.remove('no-data');*/
             }
         }
     };
@@ -328,13 +320,6 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-
-                /*<div className="nbEmployes">
-                    <b>Workforce:</b>
-                    <span id="nbEmployee"></span>
-                    employees
-                </div>*/
-
                 var nbEmployes = document.getElementsByClassName("nbEmployes")[0]
 
                 var b = document.createElement("b")
@@ -347,10 +332,6 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
                 nbEmployes.appendChild(b)
                 nbEmployes.appendChild(span)
                 nbEmployes.append(" employees")
-
-                /*var nbEmployee = document.getElementById("nbEmployee");
-                nbEmployee.innerHTML = results.results.bindings[0][objet].value
-                nbEmployee.classList.remove('no-data');*/
             }
         }
     };
@@ -443,11 +424,6 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
 
                 industry.appendChild(b)
                 industry.appendChild(span)
-
-
-                /*var industry = document.getElementById("industry");
-                industry.innerHTML = results.results.bindings[0][objet].value
-                industry.classList.remove('no-data');*/
             }
         }
     };
@@ -491,10 +467,6 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 
                 revenue.appendChild(b)
                 revenue.appendChild(span)
-
-                /*var revenue = document.getElementById("netIncome");
-                revenue.innerHTML = results.results.bindings[0][objet].value + "$"
-                revenue.classList.remove('no-data');*/
             }
         }
     };
