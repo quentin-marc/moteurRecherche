@@ -518,7 +518,6 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
 
-                    //linkFounder.href = results.results.bindings[i][fondateur].value;
                     var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
 
                     nameProduct.appendChild(newContentHref);
