@@ -88,6 +88,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
     } else {
         contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
     }
+    console.log(contenu_requete)
     //console.log(contenu_requete)
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -314,8 +315,10 @@ function splitString(stingToSplit){
     var i=0;
     while (i <= stingToSplit.length){
         character = stingToSplit.charAt(i);
-        
-            if ( character == character.toUpperCase() || character == "_"  ) {
+            if(!isNaN(character)){
+
+            }
+            else if( i>0 && (character == character.toUpperCase() || character == "_"  )) {
                 stringResult += " ";
             }
             
