@@ -147,7 +147,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                         var value = results.results.bindings[0][predicat].value
                         
                         
-
+                            
                             if(results.results.bindings[0][predicat].type == "uri"){
                                 if(value.includes("http://dbpedia.org")){
                                 
@@ -159,21 +159,21 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                         value = value.split("/")[value.split("/").length-1]
                                         tabPredicat.push(removePrefix(predicat))
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                        <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
                                         <div class=\"valAttribut\">"+value+"</div>\
                                         </div>"
                                     }
                                 } else {
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                    <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
                                     <div class=\"valAttribut\"><a href=\""+value+"\">"+value+"</a></div>\
                                     </div>"
                                 }
                             }else{
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                    <div class=\"attributName\">"+removePrefix(predicat)+"</div>\
+                                    <div class=\"attributName\">"+splitString(removePrefix(predicat))+"</div>\
                                     <div class=\"valAttribut\">"+value+"</div>\
                                     </div>"
                             }
@@ -304,4 +304,23 @@ function getTypeSparql(resource,predicat,value){
 
     
 
+}
+
+function splitString(stingToSplit){
+    var character='';
+    var stringResult = "";
+    var i=0;
+    while (i <= stingToSplit.length){
+        character = stingToSplit.charAt(i);
+        
+            if (character == character.toUpperCase()) {
+                stringResult += " ";
+            }
+            
+            stringResult +=character;
+        
+        i++;
+    }
+
+    return stringResult;
 }
