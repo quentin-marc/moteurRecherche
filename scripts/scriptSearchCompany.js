@@ -3,11 +3,12 @@ function actOnWindow(){
 
 	var undo = JSON.parse(sessionStorage.getItem('undo'))
 
-	var searchCompany = sessionStorage.getItem('searchCompany');
+	//This stores a list of filters and wanted value. If the value is not accessible directly through the filter, the predicate to access the value is added in third position
+	var filterValueList = JSON.parse(sessionStorage.getItem('searchCompany'));
 
 	var uriUndo = {
         type : "searchCompany",
-        uri : searchCompany
+        uri : filterValueList
     } 
 
     if(!undo ){
@@ -15,20 +16,32 @@ function actOnWindow(){
     }
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
+	
+	//Perform the search
+	if(filterValueList.length > 0) {
+    	serchCompanyByFilter(filterValueList);
+	}
 
-	console.log("searchCompanysearchCompanysearchCompanysearchCompanysearchCompany")
-	console.log(searchCompany)
-
-    serchCompanyByName(searchCompany);
-	document.getElementById("textResearch").innerHTML = searchCompany;
-	//productRequest("Apple")
-    //document.getElementById("productName").innerHTML = "TOTO";
+	//Display the value of the filters 
+	var textFilter = "No search filter. Please enter a new search.";
+	for (i=0; i<filterValueList.length; i++){
+		if (i==0){
+			textFilter = "";
+		}
+		textFilter += filterValueList[i][1] ;
+		if (i < filterValueList.length-1) {
+			textFilter += ", ";
+		}
+	};
+	document.getElementById("textResearch").innerHTML = textFilter;
 }
 
 //Store all information about a company
 class Company {
-	constructor(name) {
-		this.name = name;
+	constructor(companyURI) {
+		this.companyURI = companyURI; //The full URI
+		this.comapanyDBR = ""; //Company with prefix and escaped characters
+		this.name = "";
 		this.logo = "";
 		this.abstract = "";
 		this.income = "";
@@ -36,84 +49,104 @@ class Company {
 		this.industryListLink = [];
 		this.productList = [];
 		this.productListLink = [];
-		this.companyURI = "";
 	}
+}
+
+//Create the rquest to search for company
+function createSearchCompanyQuerry(filterValueList) {
+	var querryContent = "SELECT DISTINCT ?company WHERE {\n?company a dbo:Company.";
+	filterValueList.forEach( filterAndValue => {
+		var currVar = "?"+filterAndValue[0].split(":")[0].toUpperCase()+"_"+filterAndValue[0].split(":")[1];
+		querryContent += "\n?company " + filterAndValue[0] + " " + currVar + ".";
+		//If the value is not accessible directly through the filter, the predicate to access the value is added in third position
+		if (filterAndValue[2]) {
+			querryContent += "\n" + currVar + " " + filterAndValue[2] + " " + currVar + "Value.";
+			currVar += "Value";
+		}
+		querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + filterAndValue[1].toLowerCase() + "\"))";
+	} );
+	//Get more data to order the result by relevence
+	querryContent += "\nOPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }";
+	querryContent += "\nOPTIONAL { ?company dbp:netIncome ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }"
+	querryContent += "\nOPTIONAL { ?company dbp:numEmployees ?numEmployees. }"
+	querryContent += "\n}"
+	querryContent += "ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)\n";
+	querryContent += "LIMIT 20";
+	console.log(querryContent)
+	return querryContent;
 }
 
 //Search a company by its name. 
 //Display all companies containing that name with some informations about them
-function serchCompanyByName(companyName) {
-	
-	var companyMap = {};
-	
-	var contenu_requete = "SELECT DISTINCT ?company, STR(?name) as ?name WHERE {\n" +
-	"?company a dbo:Company; dbp:name ?name.\n" +
-	"FILTER(regex(str(?name), \"" + companyName + "\"))\n" +
-	"OPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
-	"OPTIONAL { ?company dbo:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }\n" +
-	"OPTIONAL { ?company dbp:netIncome ?income. }\n" +
-	"OPTIONAL { ?company dbo:netIncome ?income. }\n" +
-	"}\n" +
-	"ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income))";
+function serchCompanyByFilter(filterValueList) {
 
-	// Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+	doSparqlRequest( createSearchCompanyQuerry(filterValueList) ).then( results => {
+		console.log(results);
+		//Get the list of result
+		var resultList = results.results.bindings
+		
+		var companyMap = {};
+		const promises = [];
+		var companyResultOrderdList = [];
 
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-            console.log(results);
-			//Get the list of result
-			resultList = results.results.bindings
-			
-			//Loop on every result company to get more details about the company and to display the results
-			resultList.forEach( resultObject => {
-				//Get the uri of the ressource company
-				var companyURI = resultObject["company"].value;
-				var companyDBR = getDbrCompanyName(companyURI);
-				var companyName = resultObject["name"].value;
+		//Loop on every result company to get more details about the company and to display the results
+		resultList.forEach( resultObject => {
+			//Get the uri of the ressource company
+			var companyURI = resultObject["company"].value;
+			var companyDBR = getDbrCompanyName(companyURI);
 
-				//Create a company object that will store the company's information
-				companyMap[companyName] = new Company(companyName);
-				companyMap[companyName].companyURI = companyURI;
+			//Create a company object that will store the company's information
+			companyMap[companyURI] = new Company(companyURI);
+			companyMap[companyURI].comapanyDBR = companyDBR;
+			companyResultOrderdList.push(companyURI);
 
-				//getCompanyMainInformation(companyDBR, companyName, companyMap);
-				getCompanyMainInformationPromise(companyDBR, companyName, companyMap).then((res)=>{
-					console.log("********************");
-					console.log("********************");
-					addCompanyToHtml(companyMap[companyName]);
-				}).catch((error)=>{
-					console.log(`Handling error as we received ${error}`);
+			promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
+		} )
+
+		//Waits for all promises to return to display the results
+		//This allows to display the answer in an orered way
+		Promise.all(promises).then(()=>{
+
+			// supprime l'animation d'attente
+			document.getElementById('currentlySearching').style.display = "none";
+			document.getElementById('waitingAnimation').style.display = "none";
+
+			// affichage du titre principal
+			document.getElementById('titrePrincipal').style.display = "block";
+
+			if(companyResultOrderdList.length == 0){
+				document.getElementById("listResults").innerHTML = "<p class='noMatch'>No results match with your search...</p>"
+			}
+			else{
+				// ajoute les companies au HTML
+				companyResultOrderdList.forEach( companyURI => {
+					addCompanyToHtml(companyMap[companyURI]);
 				});
-			} )
-        }
-    };
-	xmlhttp.open("GET", url, true);
-    xmlhttp.send();
+			}
+		});
+		console.log("Search done!")
+	});
 }
 
 //From a company object create an HTML div to display 
 function addCompanyToHtml(company) {
-	console.log(`The function recieved with value companyMap[companyName] = `)
-	console.log(company)
-
 	//Get the element where the company will be added
 	var listResultsElement = document.getElementById("listResults");
 
 	//Parent div for this company
 	var newDivCompany = document.createElement("div");
 	newDivCompany.setAttribute("class", "result");
-	newDivCompany.setAttribute("onclick", "changePage('company.html', '" + company.companyURI + "')");
-	newDivCompany.setAttribute("id", company.name);
+	newDivCompany.setAttribute("onclick", "changePage('company.html', \"" + company.companyURI + "\")");
+		
 	
 	//Company logo
-	var divCompanyLogo = document.createElement("img");
-	divCompanyLogo.setAttribute("id", "logo");
-	divCompanyLogo.setAttribute("src", getImageProduct(company.logo));
-	newDivCompany.appendChild(divCompanyLogo);
+	if(company.logo != "") {
+		var divCompanyLogo = document.createElement("img");
+		divCompanyLogo.setAttribute("id", "logo");
+		divCompanyLogo.setAttribute("src", company.logo);
+		newDivCompany.appendChild(divCompanyLogo);
+		
+	}
 
 	//Company name
 	var divCompanyName = document.createElement("h2");
@@ -130,6 +163,7 @@ function addCompanyToHtml(company) {
 	}
 
 	//Company income
+	let dollarUSLocale = Intl.NumberFormat('en-US');
 	if (company.income !== "") {
 		var divCompanyIncome = document.createElement("div");
 		divCompanyIncome.setAttribute("class", "divIncome");
@@ -141,7 +175,7 @@ function addCompanyToHtml(company) {
 
 		var spanCompanyIcomeList = document.createElement("span");
 		spanCompanyIcomeList.setAttribute("id", "netIncome");
-		spanCompanyIcomeList.innerHTML = company.income;
+		spanCompanyIcomeList.innerHTML = dollarUSLocale.format(company.income) + "$";
 		divCompanyIncome.appendChild(spanCompanyIcomeList);
 		
 		newDivCompany.appendChild(divCompanyIncome);
@@ -200,30 +234,29 @@ function addCompanyToHtml(company) {
 		newDivCompany.appendChild(divCompanyProcuct);
 	}
 	
-	console.log(newDivCompany);
-
 	//Add the html content
 	listResultsElement.appendChild(newDivCompany);
 }
 
 //Querry the databse to get more infotrmations about the company
-function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
-	console.log(companyDBR);
+function getCompanyMainInformationPromise(company, companyDBR) {
 	return new Promise((resolve)=>{
 
-		//The list of all predicates that interset us. A list represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before) 
+		//The list of all predicates that interset us. A list represents all the predicates for a same information orderd by decreasing relevence (i.e. if the first predicate does not return a value, then we will take the answer from the next one) 
+		var predicateListName = ["dbp:name", "dbo:name", "foaf:name", "rdfs:label"]
 		var predicateListAbstract = ["dbo:abstract"];
 		var predicateListLogo = ["dbp:logo"];
-		var predicatListIndusty = ["dbp:industry", "dbo:industry"];
-		var predicateListIncome = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"];
+		var predicatListIndusty = ["dbo:industry", "dbp:industry"];
+		var predicateListIncome = ["dbp:revenue", "dbp:netIncome", "dbo:revenue", "dbo:netIncome"];
 		var predicateListProduct = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"];
 				
 		const promises = [];
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListAbstract, "abstract", companyName, companyMap) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListLogo, "logo", companyName, companyMap) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicatListIndusty, "industry", companyName, companyMap, true) );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListIncome, "income", companyName, companyMap, false, "integer") );
-		promises.push( doSparqlRequestForPredicatePromise(companyDBR, predicateListProduct, "product", companyName, companyMap, true) );
+		promises.push( doSparqlRequestForPredicate(company, predicateListName, "name", false, "string") );
+		promises.push( doSparqlRequestForPredicate(company, predicateListAbstract, "abstract") );
+		promises.push( doSparqlRequestForPredicate(company, predicateListLogo, "logo") );
+		promises.push( doSparqlRequestForPredicate(company, predicatListIndusty, "industry", true) );
+		promises.push( doSparqlRequestForPredicate(company, predicateListIncome, "income", false, "integer") );
+		promises.push( doSparqlRequestForPredicate(company, predicateListProduct, "product", true) );
 		
 		//Waits for all promises to return
 		return Promise.all(promises).then((res)=>{
@@ -233,9 +266,9 @@ function getCompanyMainInformationPromise(companyDBR, companyName, companyMap) {
 }
 
 //Perform a sparql request for one predicate (and the list of alternative predicates in case there is no value) and add the result to the html element with idElement 
-//Note: predicateList represents all the predicates for a same information orderd by increasing relevence (i.e. if the last predicate does not return a value, then we wil take the answer from the one before)
+//Note: predicateList represents all the predicates for a same information orderd by decreasing relevence (i.e. if the first predicate does not return a value, then we will take the answer from the next one)
 //If get label is true, the request get the label of the returned value
-function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, companyName, companyMap, getLabel, convertResultType) {
+function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, convertResultType) {
 	
 	return new Promise((resolve)=>{
 
@@ -253,69 +286,86 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 		if(convertResultType === "integer") {
 			resultRequest = "<http://www.w3.org/2001/XMLSchema#integer>("+varName+")";
 		} 
-		else if (convertResultType === "integer") {
+		else if (convertResultType === "string") {
 			resultRequest = "STR("+varName+")";
 		}
 
 		
 		var requestContent = "SELECT DISTINCT " + resultRequest + labelVarName + " WHERE {";
 		predicateList.forEach( predicate => {
-			console.log(predicate);
-			requestContent += "\nOPTIONAL { " + companyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(predicate, varName) + "}"
+			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(varName) + "}"
 		} )
 		requestContent += "\n}"
 		
+		//Performs the request
+		doSparqlRequest(requestContent).then( results => {
+			//Get the list of result
+			resultList = results.results.bindings
+			var predicat = results.head.vars[0];
+			var label = results.head.vars[1];
+
+			//Add the result to the html
+			switch(varName){
+				case "?name":
+					//Update the name of the corresponding company
+					company.name = geLastResult(resultList, predicat);
+					resolve(true);
+					break;
+				case "?abstract":
+					//Update the abstract of the corresponding company
+					company.abstract = geLastResult(resultList, predicat);
+					resolve(true);
+					break;
+				case "?logo":
+					//Update the abstract of the corresponding company
+					getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
+						company.logo = imageFullURI;
+						resolve(true);
+					});
+					break;
+				case "?industry":
+					//Update the industry of the corresponding company
+					company.industryList = geAllResult(resultList, label);
+					company.industryListLink = geAllResult(resultList, predicat);
+					resolve(true);
+					break;
+				case "?income":
+					//Update the income of the corresponding company
+					company.income = geLastResult(resultList, predicat);;
+					resolve(true);
+					break;
+				case "?product":
+					//Update the product of the corresponding company
+					company.productList = geAllResult(resultList,label);
+					company.productListLink = geAllResult(resultList, predicat);
+					resolve(true);
+					break;
+				default:
+					resolve(false);
+					break;
+			}
+		});
+	});
+}
+
+//Perform the input sparql request
+//Precondition : the request must be well formed
+//Return the answer of this query 
+function doSparqlRequest(request) {
+	
+	return new Promise((answer)=>{
 		// Encodage de l'URL à transmettre à DBPedia
 		var url_base = "http://dbpedia.org/sparql";
-		var url = url_base + "?query=" + encodeURIComponent(requestContent) + "&format=json";
+		var url = url_base + "?query=" + encodeURIComponent(request) + "&format=json";
 
 		// Requête HTTP et affichage des résultats
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				//Get the response from the querry
 				var results = JSON.parse(this.responseText);
 				//Get the list of result
 				resultList = results.results.bindings
-				console.log("Request : \n"+requestContent);
-				console.log(results)
-				var predicat = results.head.vars[0];
-				var label = results.head.vars[1];
-				console.log(predicat)
-
-				//Add the result to the html
-				switch(varName){
-					case "?abstract":
-						//Update the abstract of the corresponding company
-						companyMap[companyName].abstract = geLastResult(resultList, predicat);
-						resolve(true);
-						break;
-					case "?logo":
-						//Update the abstract of the corresponding company
-						companyMap[companyName].logo = geLastResult(resultList, predicat);
-						resolve(true);
-						break;
-					case "?industry":
-						//Update the industry of the corresponding company
-						companyMap[companyName].industryList = geAllResult(resultList, label);
-						companyMap[companyName].industryListLink = geAllResult(resultList, predicat);
-						resolve(true);
-						break;
-					case "?income":
-						//Update the income of the corresponding company
-						companyMap[companyName].income = geLastResult(resultList, predicat);;
-						resolve(true);
-						break;
-					case "?product":
-						//Update the product of the corresponding company
-						companyMap[companyName].productList = geAllResult(resultList,label);
-						companyMap[companyName].productListLink = geAllResult(resultList, predicat);
-						resolve(true)
-						break;
-					default:
-						resolve(false);
-						break;
-				}
+				answer(results);
 			}
 		};
 		xmlhttp.open("GET", url, true);
@@ -326,11 +376,12 @@ function doSparqlRequestForPredicatePromise(companyDBR, predicateList, varName, 
 //Return the last result from the reustList after a querry
 function geLastResult(resultList, predicat) {
 	var value = "";
-	resultList.forEach( attributs => {
+	if(resultList.length > 0) {
+		var attributs = resultList[0] 
 		if (predicat in attributs) {
 			value =  attributs[predicat].value;
 		}
-	} );
+	}
 	return value;
 }
 
@@ -346,16 +397,18 @@ function geAllResult(resultList, predicat) {
 }
 
 //Create a filter for a request
-function createFilterForRequest(predicat, varName) {
-	predicateName = predicat.split(":")[1]
+function createFilterForRequest(varName) {
 	shouldApplyFilter = false
 	
-	switch(predicateName) {
-		case "revenue" || "netIncome":
+	switch(varName) {
+		case "?income":
 			filterContent = "datatype("+varName+") = <http://dbpedia.org/datatype/usDollar>"
 			shouldApplyFilter = true
 			break
-		case "abstract":
+		case "?name":
+			filterContent = "langMatches(lang("+varName+"), \"EN\")"
+			shouldApplyFilter = true
+		case "?abstract":
 			filterContent = "langMatches(lang("+varName+"), \"EN\")"
 			shouldApplyFilter = true
 	}
@@ -368,49 +421,29 @@ function createFilterForRequest(predicat, varName) {
 		return filter
 }
 
-//Get the dbr company name from a uri
-function getDbrCompanyName(companyURI){
-    var splitCompanyName = companyURI.split("/");
-	var comapanyName = splitCompanyName[splitCompanyName.length - 1];
-	const charToEscape = ["'", "\"", ".", "&","(",")","-","_","/",","] 
-	var comapanyNameWithEscape = "";
-	for (var i = 0; i < comapanyName.length; i++) {
-		var currChar = comapanyName.charAt(i);
-		if (charToEscape.includes(currChar)) {
-			currChar = "\\" + currChar;
-		}
-		comapanyNameWithEscape += currChar;
-	  }
-    var dbrCompanyName = "dbr:" + comapanyNameWithEscape;
-    return dbrCompanyName;
-}
-
 //Get the full image url with only the end of the url
-//Return the image url
-//TODO : check if the link exists otherwise return null
-function getImageProduct(url_wikipedia){
+//Return the image url if the image was found
+function getImageProduct(imageURIend){
 
-	console.log("url : "+url_wikipedia)
-	// Encodage de l'URL à transmettre à DBPedia
-    var newURL = "https://commons.wikimedia.org/wiki/Special:FilePath/" + url_wikipedia;
-	console.log("url : "+newURL)
-	var http = new XMLHttpRequest();
-	http.open('HEAD', newURL);
-	http.send();
-
-	console.log("url : "+newURL)	
-	console.log("http.statushttp.statushttp.statushttp.statushttp.statushttp.status")
-	console.log(http.status)
-
-	if (http.status === 404)
-		newURL = "";
-	
-    return newURL;
+	return new Promise((resultFullURI)=>{
+		if (imageURIend != "") {
+			var fullURI = "https://commons.wikimedia.org/wiki/Special:FilePath/" + imageURIend;
+			//Test if the image exists
+			imageExists(fullURI).then( exists => {
+				if(exists) {
+					resultFullURI(fullURI);
+				} else {
+					resultFullURI("");
+				}
+			});
+		} else {
+			resultFullURI("")
+		}
+	});
 }
 
 //Change to page name
 function changePage( pageName, companyURI ) {
-	console.log(companyURI);
 	sessionStorage.setItem('companyURI',companyURI);
 	window.location = "./"+pageName;
 }

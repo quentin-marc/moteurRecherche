@@ -1,14 +1,13 @@
 window.onload = actOnWindow;
 function actOnWindow(){
 
-    //companyRequest("http://dbpedia.org/resource/Microsoft")
+    //var undo = JSON.parse(sessionStorage.getItem('undo'))
+    var companyURI = sessionStorage.getItem('companyURI')
+    
 
-    var undo = JSON.parse(sessionStorage.getItem('undo'))
-    var company = sessionStorage.getItem('Company')
-
-    var uriUndo = {
-        type : "Company",
-        uri : company
+    /*var uriUndo = {
+        type : "companyURI",
+        uri : companyURI
     }
 
 
@@ -18,10 +17,9 @@ function actOnWindow(){
     }
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
-
-    var companyURI = sessionStorage.getItem('companyURI')
+    console.log(undo)*/
     companyRequest(companyURI)
-    companyRequest("https://dbpedia.org/resource/Microsoft")
+    //companyRequest("https://dbpedia.org/resource/Microsoft")
 
 }
 
@@ -38,8 +36,7 @@ function companyRequest(companyName){
     predicatListIndustrie = ["dbp:industry", "dbo:industry"]
     predicatListRevenue = ["dbp:revenue", "dbo:revenue", "dbp:netIncome", "dbo:netIncome"]
     predicatListProduits = ["dbo:product", "dbp:products", "dbo:service", "dbp:services"]
-    predicatListLogo = ["dbp:logo", "dbo:thumbnail"]
-    predicatListImgFondateur = ["dbo:thumbnail"]
+    predicatListLogo = ["dbp:logo"]
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
@@ -54,11 +51,9 @@ function companyRequest(companyName){
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
     doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
-
-    //doCompanySparqlImgFondateur(dbrCompanyName,predicatListImgFondateur)
 }
 
-
+//Transforme l'uri en dbr:NomEntreprise
 function getDbrCompanyName(companyURI){
     var splitCompanyName = companyURI.split("/");
     var comapanyName = splitCompanyName[splitCompanyName.length - 1];
@@ -78,8 +73,8 @@ function getDbrCompanyName(companyURI){
     return dbrCompanyName;
 }
 
+//Requete pour récuperer l'abstract
 function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
-    //TODO dbr:Company
     var contenu_requete = "SELECT ?abstract WHERE {";
 
     predicatListAbstract.forEach( predicat => {
@@ -115,8 +110,8 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
     xmlhttp.send();
 }
 
+//Requete pour récuperer le nom de l'entreprise
 function doCompanySparqlName(dbrCompanyName,predicatListName){
-    //TODO dbr:Company
     var contenu_requete = "SELECT ?name WHERE {";
 
     predicatListName.forEach( predicat => {
@@ -149,9 +144,8 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
     xmlhttp.send();
 }
 
+//Requete pour récuperer les fondateurs de l'entreprise
 function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
-    //TODO dbr:Company
-
     var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
 
     predicatListFondateur.forEach( predicat => {
@@ -190,32 +184,22 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    var imgFounder = document.createElement("img")
+                    var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
                     var nameFounder = document.createElement("div")
 
-                    //linkFounder.href = results.results.bindings[i][fondateur].value;
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
 
                     nameFounder.appendChild(newContentHref);
 
-                    nameFounder.className = "nameFounder"
-                    imgFounder.className = "imgFounder"
-                    imgFounder.src = results.results.bindings[i][fondateurImg].value
+                    nameFounder.className = "nameFounder"                    
                     founder.className = "founder"
-                nameFounder.className = "nameFounder"
-                imgFounder.className = "imgFounder"
-                imgFounder.style.background = "top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+")"
-                founder.className = "founder"
+                    founder.setAttribute("onclick", "changePage('founder.html', '" + results.results.bindings[i][fondateur].value + "')");
 
-                    //TODO idem image
-
-                    founder.appendChild(imgFounder)
+                    founder.innerHTML = imgFounder
                     founder.appendChild(nameFounder)
 
-                    /*var currentDiv = document.getElementsByClassName('listFounders')[0];*/
                     listFounders.appendChild(founder)
 
-                    changePage(founder, fondateur, results, i)
                 }
             }
         }
@@ -223,12 +207,9 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
-function changePage(founder, fondateur, results, i){
-    founder.onclick = function () {window.location.href = results.results.bindings[i][fondateur].value; }
-}
 
+//Requete pour récuperer la localisation géographique de l'entreprise
 function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
-    //TODO dbr:Company
     var contenu_requete = "SELECT ?localisationLabel WHERE {";
 
     predicatListLocalisation.forEach( predicat => {
@@ -272,8 +253,8 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
     xmlhttp.send();
 }
 
+//Requete pour récuperer l'année de création de l'entreprise
 function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
-    //TODO dbr:Company
     var contenu_requete = "SELECT YEAR(?anneeCreation) WHERE {";
 
     predicatListAnneeCreation.forEach( predicat => {
@@ -296,7 +277,6 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                //Creation - <span id="dateCreation"></span>
                 var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
 
                 var b = document.createElement("b")
@@ -309,10 +289,6 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
                 textAnneeCreation.appendChild(b)
                 textAnneeCreation.appendChild(span)
 
-                currentDiv.appendChild(textAnneeCreation)
-                /*var dateCreation = document.getElementById("dateCreation");
-                dateCreation.innerHTML = results.results.bindings[0][objet].value
-                dateCreation.classList.remove('no-data');*/
             }
         }
     };
@@ -320,8 +296,8 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
     xmlhttp.send();
 }
 
+//Requete pour récuperer le nombre d'employés de l'entreprise
 function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye){
-    //TODO dbr:Company
     var contenu_requete = "SELECT str(?nbEmployee) WHERE {";
 
     predicatListNombreEmploye.forEach( predicat => {
@@ -344,13 +320,6 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
             var objet = results.head.vars[0]
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-
-                /*<div className="nbEmployes">
-                    <b>Workforce:</b>
-                    <span id="nbEmployee"></span>
-                    employees
-                </div>*/
-
                 var nbEmployes = document.getElementsByClassName("nbEmployes")[0]
 
                 var b = document.createElement("b")
@@ -363,10 +332,6 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
                 nbEmployes.appendChild(b)
                 nbEmployes.appendChild(span)
                 nbEmployes.append(" employees")
-
-                /*var nbEmployee = document.getElementById("nbEmployee");
-                nbEmployee.innerHTML = results.results.bindings[0][objet].value
-                nbEmployee.classList.remove('no-data');*/
             }
         }
     };
@@ -374,8 +339,8 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     xmlhttp.send();
 }
 
+//Requete pour récuperer le lien du siteweb de l'entreprise
 function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
-    //TODO dbr:Company
     var contenu_requete = "SELECT str(?lienWebsite) WHERE {";
 
     predicatListLienWebsite.forEach( predicat => {
@@ -408,17 +373,13 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
                 var b = document.createElement("b")
                 b.innerHTML = "Website:"
 
-                var span = document.createElement("span")
-                span.id = "lienWebsite"
-                span.innerHTML = results.results.bindings[0][objet].value
+                var a = document.createElement("a")
+                a.id = "lienWebsite"
+                a.href = results.results.bindings[0][objet].value
+                a.innerHTML = results.results.bindings[0][objet].value
 
                 lienWebsite.appendChild(b)
-                lienWebsite.appendChild(span)
-
-                /*var lienWebsite = document.getElementById("lienWebsite");
-                lienWebsite.innerHTML = results.results.bindings[0][objet].value
-                lienWebsite.href = results.results.bindings[0][objet].value
-                lienWebsite.classList.remove('no-data');*/
+                lienWebsite.appendChild(a)
             }
         }
     };
@@ -426,8 +387,8 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     xmlhttp.send();
 }
 
+//Requete pour récuperer l'industrie de l'entreprise
 function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
-    //TODO dbr:Company
     var contenu_requete = "SELECT str(?industrieLabel) WHERE {";
 
     predicatListIndustrie.forEach( predicat => {
@@ -463,11 +424,6 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
 
                 industry.appendChild(b)
                 industry.appendChild(span)
-
-
-                /*var industry = document.getElementById("industry");
-                industry.innerHTML = results.results.bindings[0][objet].value
-                industry.classList.remove('no-data');*/
             }
         }
     };
@@ -475,8 +431,8 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     xmlhttp.send();
 }
 
+//Requete pour récuperer le Chiffre d'Affaire de l'entreprise
 function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
-    //TODO dbr:Company
     var contenu_requete = "SELECT str(?revenue) WHERE {";
 
     predicatListRevenue.forEach( predicat => {
@@ -499,27 +455,18 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
             console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
-                /*<h2>Net Income: <span id="netIncome"></span></h2>*/
-                /*<div className="netIncome">
-                    <b>Net income:</b>
-                    <span id="netIncome"></span>
-                </div>*/
-
                 var revenue = document.getElementsByClassName("netIncome")[0]
 
                 var b = document.createElement("b")
-                b.innerHTML = "Industry:"
+                b.innerHTML = "Income:"
 
                 var span = document.createElement("span")
+                let dollarUSLocale = Intl.NumberFormat('en-US');
                 span.id = "netIncome"
-                span.innerHTML = results.results.bindings[0][objet].value + "$"
+                span.innerHTML = dollarUSLocale.format(results.results.bindings[0][objet].value) + "$"
 
                 revenue.appendChild(b)
                 revenue.appendChild(span)
-
-                /*var revenue = document.getElementById("netIncome");
-                revenue.innerHTML = results.results.bindings[0][objet].value + "$"
-                revenue.classList.remove('no-data');*/
             }
         }
     };
@@ -527,9 +474,8 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     xmlhttp.send();
 }
 
+//Requete pour récuperer les produits créés par l'entreprise
 function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
-    //TODO dbr:Company
-
     var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
     predicatListProduits.forEach( predicat => {
@@ -569,30 +515,23 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    var imgProduct = document.createElement("img")
+                    var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
 
-                    //linkFounder.href = results.results.bindings[i][fondateur].value;
                     var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
 
                     nameProduct.appendChild(newContentHref);
 
                     nameProduct.className = "nameProduct"
-                    imgProduct.className = "imgProduct"
-                    imgProduct.src = results.results.bindings[i][produitImg].value
+                    
                     product.className = "product"
+                    product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
-                    //TODO idem image
-
-                    product.appendChild(imgProduct)
+                    product.innerHTML = imgProduct
                     product.appendChild(nameProduct)
-
-                    /*var currentDiv = document.getElementsByClassName('listProducts')[0];
-                    currentDiv.appendChild(product)*/
 
                     listProducts.appendChild(product)
 
-                    changePageProduit(product, produit, results, i)
                 }
             }
         }
@@ -600,12 +539,13 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
-function changePageProduit(product, produit, results, i){
-    product.onclick = function () {window.location.href = results.results.bindings[i][produit].value; }
+
+function chargerImage(image, source){
+    image.src = source;
 }
 
+//Requete pour récuperer le logo de l'entreprise
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
-    //TODO dbr:Company
     var contenu_requete = "SELECT ?logo WHERE {";
 
     predicatListLogo.forEach( predicat => {
@@ -624,15 +564,21 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
-            var objet = results.head.vars[0]
+            var logo = results.head.vars[0]
+            var thumbnail = results.head.vars[1]
+
+            var imageCompany = document.getElementById("imageCompany");
+
             console.log(results);
-            if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
-                var logo = document.getElementById("imageCompany");
-                var uriLogo = results.results.bindings[0][objet].value.replace(/\s+/g,"_");
-                var srcLogo = getImageProduct(uriLogo)
-                logo.src = srcLogo
-                //logo.innerHTML = results.results.bindings[0][objet].value
-                logo.classList.remove('no-data');
+            if(results.results.bindings.length > 0 && results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
+                    var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
+                    getImageProduct( uriLogo ).then((imageFullURI)=>{
+                        if(imageFullURI != ""){
+                            imageCompany.src = imageFullURI
+                        }else {
+                            imageCompany.src = '../img/DBpedia-Logo.png'
+                        }
+                    });
             }
         }
     };
@@ -640,18 +586,35 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     xmlhttp.send();
 }
 
-function getImageProduct(url_wikipedia){
+//Get the full image url with only the end of the url
+//Return the image url if the image was found
+function getImageProduct(imageURIend){
 
-    console.log("url : "+url_wikipedia)
-
-    // Encodage de l'URL à transmettre à DBPedia
-    var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
-    return url_base + url_wikipedia;
+    return new Promise((resultFullURI)=>{
+        if (imageURIend != "") {
+            var fullURI = "https://commons.wikimedia.org/wiki/Special:FilePath/" + imageURIend;
+            //Test if the image exists
+            imageExists(fullURI).then( exists => {
+                if(exists) {
+                    resultFullURI(fullURI);
+                } else {
+                    resultFullURI("");
+                }
+            });
+        } else {
+            resultFullURI("")
+        }
+    });
 }
 
 //Change to page name
-function changePage( pageName, companyURI ) {
-    console.log(companyURI);
-    sessionStorage.setItem('companyURI',companyURI);
+function changePage( pageName, URI ) {
+    console.log(URI);
+
+    if(pageName == "product.html"){
+        sessionStorage.setItem('Product',URI);
+    }else {
+        sessionStorage.setItem('Founder',URI);
+    }
     window.location = "./"+pageName;
 }

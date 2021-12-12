@@ -70,6 +70,7 @@ body{
 
 #startSearch{
     margin-right: auto;
+    margin-left: auto;
 }
 
 .newSearch:hover, #startSearch:hover, .return:hover{
@@ -86,7 +87,6 @@ body{
 
 .redirect{
     width: auto;
-    display: inline-block;
 }
 
 a, #seeMore, .redirect{

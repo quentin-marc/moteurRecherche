@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="../styles/company.css">
         <link rel="stylesheet" href="../styles/animatedBG.css">
         <script src="../scripts/scriptsIHM.js"></script>
+        <script src="../scripts/Util.js"></script>
+        <script src="../scripts/scriptCompany.js"></script>
         <meta charset="UTF-8">
     </head>
     <body>
@@ -25,11 +27,10 @@
             </ul>
         </div >
         <div class="navigation">
-            <button class="return" onclick="Undo();" >Return</button>
-            <button class="newSearch" onclick="location.href='index.html';">New search</button>
+            <button class="newSearch" onclick="location.href='index.html';sessionStorage.clear();">New search</button>
         </div>
         <div class="cardContent">
-            <img id="imageCompany" src=""></img>
+            <img id="imageCompany" onerror="this.onerror=null; this.src='../img/objetInconnu.png'"></img>
             <h1 id="companyName"></h1>
             <div class="textCreation"></div>
             <div id="description"></div>
@@ -46,10 +47,6 @@
                 <div class="adressHeadquarters">
                 </div>
             </div>
-            <h2 class="income"></h2>
-            <iframe id="mapHeadQuarters" src="" width="800" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            <div class="textHeadquarters">
-            </div>
             <h2 class="subTitle">No Founders Found</h2>
             <h2 class="subTitle">No Products Found</h2>
         </div>
@@ -59,5 +56,3 @@
         </footer>
     </body>
 </html>
-
-<script src="../scripts/scriptCompany.js"></script>

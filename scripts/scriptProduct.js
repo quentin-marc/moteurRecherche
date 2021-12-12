@@ -20,9 +20,8 @@ function actOnWindow(){
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
 
-    console.log(undo)
 	//On recupere et affiche les donnees
-    productRequest(product.split("/")[product.split("/").length-1])
+    productRequest(getDbrCompanyName(product))
 }
 
 
@@ -42,7 +41,7 @@ function productRequest(product){
 	doProductSparql(product,"dbp:successor",false)
 	doProductSparql(product,"dbp:license",false)
 	doProductSparql(product,"dbp:supportedPlatforms",false)
-	doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
+	//doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
 	doProductSparql(product,"dct:subject",false)
 	//doProductSparql(product,"rdfs:comment",true)
 	doProductSparql(product,"dbo:manufacturer",false)
@@ -52,16 +51,18 @@ function productRequest(product){
 	doProductSparql(product,"foaf:homepage",false)
 	doProductSparql(product,"dbo:cpu",false)
 	doProductSparql(product,"dbp:display",false)
-	doProductSparql(product,"dbp:memory",false)
+	//doProductSparql(product,"dbp:memory",false)
 	doProductSparql(product,"dbp:power",false)
 	doProductSparql(product,"dbp:service",false)
 	doProductSparql(product,"dbp:sound",false)
-	doProductSparql(product,"dbp:storage",false)
-	doProductSparql(product,"dbp:weight",false)
-	doProductSparql(product,"dbp:dimensions",false)
+	//doProductSparql(product,"dbp:storage",false)
+	//doProductSparql(product,"dbp:weight",false)
+	//doProductSparql(product,"dbp:dimensions",false)
 	doProductSparql(product,"dbp:fuelSource",false)
 	doProductSparql(product,"dbp:inventor",false)
 	doProductSparql(product,"dbo:product",false)
+
+	singleSelect("?is_product_of",["dbo:product"],product,false)
 
 }
 
@@ -74,7 +75,7 @@ function doProductSparql(product,predicat,filterOnLang){
 	var tabPredicat = []
 	var tabVarName = []
 	tabPredicat.push(predicat);
-	var varName = predicat.split(":")[1]
+	var varName = "?"+predicat.split(":")[1]
 	//tabVarName.push(predicat.split(":")[0].toUpperCase()+"_"+predicat.split(":")[1]);
 
 
@@ -143,12 +144,12 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	if(filterOnLang){
 		//contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
 		for(var i=0 ; i<predicat.length ; i++){
-			contenu_requete += "OPTIONAL {dbr:"+ressource+" "+predicat[i]+" ?"+varName+" . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}\n"
+			contenu_requete += "OPTIONAL {"+ressource+" "+predicat[i]+" "+varName+" . FILTER(langMatches(lang("+varName+"), \"EN\"))}\n"
 		}
 	} else {
 		//contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
 		for(var i=0 ; i<predicat.length ; i++){
-			contenu_requete += "OPTIONAL {dbr:"+ressource+" "+predicat[i]+" ?"+varName+"}\n"
+			contenu_requete += "OPTIONAL {"+ressource+" "+predicat[i]+" "+varName+"}\n"
 		}
 	}
 	contenu_requete += "}"
@@ -212,80 +213,83 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 
             } else { //s'il ne s'agit pas d'un attriobit "hardcode" dans le html
 
-
             	//gere listes !
 
-
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
-
-            		var value = results.results.bindings[0][predicat].value
-
+            		
             		//Div ayant tous les attributs "dynamiques"
             		//liste attribut
         			var listAttributs = document.getElementsByClassName('listAttributs')[0]
-
-        			//Attribut
-        			var divAttribut
-            		//Valeur de l'attribut
-            		var divValAttribut
+					listAttributs.style.height = "auto";
 
     				//Attribut
-        			divAttribut = document.createElement('div')
+        			var divAttribut = document.createElement('div')
         			divAttribut.setAttribute('class','attribut')
 
             		//Nom de l'attribut
             		var divAttributeName = document.createElement('div')
             		divAttributeName.setAttribute('class','attributName')
-            		var textnode = document.createTextNode(firstCharUpperCase(predicat))
+            		var textnode = document.createTextNode(firstCharUpperCase(formatString(predicat)))
             		divAttributeName.appendChild(textnode)
             		divAttribut.appendChild(divAttributeName)
 
             		//Valeur de l'attribut
-            		divValAttribut = document.createElement('div')
-            		divValAttribut.setAttribute('class','valAttribut')
+            		var divValAttribut = document.createElement('div')
+            		divValAttribut.setAttribute('class','valAttribut '+predicat)
             		divAttribut.appendChild(divValAttribut)
+            		listAttributs.appendChild(divAttribut)	
 
-            		if(results.results.bindings[0][predicat].type == "uri"){
+            		for(var i=0 ; i<results.results.bindings.length ; i++){
 
-            			if(value.includes("http://dbpedia.org")){
-            				//Si il s'agit d'une resource dbpedia, on redirige potentiellement vers une autre page html de l'application
-            				if(value.includes("http://dbpedia.org/resource")){
-            					getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
-            				} else {
-            					//dbpedia mais pas resource : on affiche le nom uniquement
-            					value = value.split("/")[value.split("/").length-1]
-			                	divValAttribut.setAttribute('class','valAttribut '+predicat)
+            			var value = results.results.bindings[i][predicat].value
+
+            			if(results.results.bindings[i][predicat].type == "uri"){
+
+	            			if(value.includes("http://dbpedia.org")){
+	            				//Si il s'agit d'une resource dbpedia, on redirige potentiellement vers une autre page html de l'application
+	            				if(value.includes("http://dbpedia.org/resource")){
+	            					getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value,divValAttribut)
+	            				} else {
+	            					//dbpedia mais pas resource : on affiche le nom uniquement
+	            					value = value.split("/")[value.split("/").length-1]
+	            					var divSingleValue = document.createElement('div')
+				                	divSingleValue.setAttribute('class','singleValue')
+									var valTextnode = document.createTextNode(formatString(value))
+									divSingleValue.appendChild(valTextnode)
+				                	divValAttribut.appendChild(divSingleValue)
+	            				}
+
+	            			} else {
+
+	            				//pas dbpedia : on met l'url dans une balise a
+			                	var divSingleValue = document.createElement('div')
+				                divSingleValue.setAttribute('class','singleValue')
+			                	var aVal = document.createElement('a')
+			                	aVal.setAttribute('href',value)
 								var valTextnode = document.createTextNode(value)
-								divValAttribut.appendChild(valTextnode)
-			                	listAttributs.appendChild(divAttribut)
-            				}
+								aVal.appendChild(valTextnode)
+								divSingleValue.appendChild(aVal)
+				                divValAttribut.appendChild(divSingleValue)
 
-            			} else {
+	            			}
+	            		} else {
 
-            				//pas dbpedia : on met l'url dans une balise a
-		                	divValAttribut.setAttribute('class','valAttribut '+predicat)
-		                	var aVal = document.createElement('a')
-		                	aVal.setAttribute('href',value)
-							var valTextnode = document.createTextNode(value)
-							aVal.appendChild(valTextnode)
-							divValAttribut.appendChild(aVal)
-		                	listAttributs.appendChild(divAttribut)
-
-            			}
-            		} else {
-
-            			//pas une uri : on ecrit le contenu
-			            divValAttribut.setAttribute('class','valAttribut '+predicat)
-						var valTextnode = document.createTextNode(value)
-						divValAttribut.appendChild(valTextnode)
-	                	listAttributs.appendChild(divAttribut)
-
+	            			//pas une uri : on ecrit le contenu
+				            var divSingleValue = document.createElement('div')
+				            divSingleValue.setAttribute('class','singleValue')
+							var valTextnode = document.createTextNode(formatString(value))
+							divValAttribut.appendChild(valTextnode)
+		                	divSingleValue.appendChild(valTextnode)
+				            divValAttribut.appendChild(divSingleValue)
+	            		}	
             		}
-	            		
 	            }
-            	
             }
         }
+
+		if(listAttributs.offsetHeight > 200){
+			listAttributs.style.height = (listAttributs.offsetHeight+100)+"px";
+		}
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
@@ -305,12 +309,14 @@ function setImageProduct(url_wikipedia){
     document.getElementById("productImage").src = url;
 }
 
-function getTypeSparql(resource,predicat,value){
+function getTypeSparql(resource,predicat,value,divValAttribut){
 
 	//On recupere le type de la resource
 	var contenu_requete = "SELECT * WHERE {\
-		dbr:"+resource+" rdf:type ?type\
+		"+getDbrCompanyName(resource)+" rdf:type ?type\
 	}"
+
+	console.log(contenu_requete)
 
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -337,54 +343,32 @@ function getTypeSparql(resource,predicat,value){
         				}
         			})
 
-        			//liste attribut
-        			var listAttributs = document.getElementsByClassName('listAttributs')[0]
-
-        			//Attribut
-        			var divAttribut
-            		//Valeur de l'attribut
-            		var divValAttribut
-
-    				//Attribut
-        			divAttribut = document.createElement('div')
-        			divAttribut.setAttribute('class','attribut')
-
-            		//Nom de l'attribut
-            		var divAttributeName = document.createElement('div')
-            		divAttributeName.setAttribute('class','attributName')
-            		var textnode = document.createTextNode(firstCharUpperCase(predicat))
-            		divAttributeName.appendChild(textnode)
-            		divAttribut.appendChild(divAttributeName)
-
-            		//Valeur de l'attribut
-            		divValAttribut = document.createElement('div')
-            		divValAttribut.setAttribute('class','valAttribut')
-            		divAttribut.appendChild(divValAttribut)
-
         			if(isCompany){
 
         				//Si company : href vers company.html
-	                	divValAttribut.setAttribute('class','valAttribut redirect '+predicat)
-	                	divValAttribut.setAttribute('onclick','sessionStorage.setItem("Company","'+value.split("/")[value.split("/").length-1]+'");window.location.href="company.html"')
-						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
-						divValAttribut.appendChild(valTextnode)
-	                	listAttributs.appendChild(divAttribut)
+						var divSingleValue = document.createElement('div')
+				        divSingleValue.setAttribute('class','singleValue redirect')
+				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("companyURI","'+encodeURI(value)+'");window.location.href="company.html"')
+						var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
+				       	divSingleValue.appendChild(valTextnode)
+				        divValAttribut.appendChild(divSingleValue)
 
         			} else if(isPerson){
 
 						//Si person : href vers founder.html
-	                	divValAttribut.setAttribute('class','valAttribut redirect '+(predicat))
-	                	divValAttribut.setAttribute('onclick','sessionStorage.setItem("Person","'+value.split("/")[value.split("/").length-1]+'");window.location.href="founder.html"')
-						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
-						divValAttribut.appendChild(valTextnode)
-	                	listAttributs.appendChild(divAttribut)
+						var divSingleValue = document.createElement('div')
+	                	divSingleValue.setAttribute('class','singleValue redirect')
+	                	divSingleValue.setAttribute('onclick','sessionStorage.setItem("Founder","'+encodeURI(value)+'");window.location.href="founder.html"')
+						var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
+						divSingleValue.appendChild(valTextnode)
+				        divValAttribut.appendChild(divSingleValue)
 
         			} else {        				
 
         				//On recupere les resources ayant notre produit dans l'attribut product
         				//On cherche a savoir si notre resource est un produit
 						contenu_requete = "SELECT * WHERE {\
-							?parent dbo:product dbr:"+resource+"\
+							?parent dbo:product "+getDbrCompanyName(resource)+"\
 						}"
 
 						// Encodage de l'URL à transmettre à DBPedia
@@ -401,19 +385,21 @@ function getTypeSparql(resource,predicat,value){
             						if(results.results.bindings.length > 0){
 
             							//length non nulle, la ressource actuelle a un parent, c'est un product
-					                	divValAttribut.setAttribute('class','valAttribut redirect '+(predicat))
-                						divValAttribut.setAttribute('onclick','sessionStorage.setItem("Product","'+value.split("/")[value.split("/").length-1]+'");window.location.href="product.html"')
-										var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
-										divValAttribut.appendChild(valTextnode)
-                						listAttributs.appendChild(divAttribut)
+					               		var divSingleValue = document.createElement('div')
+	                					divSingleValue.setAttribute('class','singleValue redirect')
+                						divSingleValue.setAttribute('onclick','sessionStorage.setItem("Product","'+encodeURI(value)+'");window.location.href="product.html"')
+										var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
+										divSingleValue.appendChild(valTextnode)
+				        				divValAttribut.appendChild(divSingleValue)
 
             						} else {
 
             							//pas de parent, type inconnu
-					                	divValAttribut.setAttribute('class','valAttribut '+(predicat))
-										var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
-										divValAttribut.appendChild(valTextnode)
-                						listAttributs.appendChild(divAttribut)
+            							var divSingleValue = document.createElement('div')
+	                					divSingleValue.setAttribute('class','singleValue')
+										var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
+										divSingleValue.appendChild(valTextnode)
+				        				divValAttribut.appendChild(divSingleValue)
 
             						}
             					}
@@ -432,9 +418,4 @@ function getTypeSparql(resource,predicat,value){
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-
-
-    
-
 }
-

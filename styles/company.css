@@ -1,17 +1,8 @@
 #imageCompany{
-    width: 75%;
-    height: 350px;
+    max-width: 600px;
+    max-height: 300px;
     display: block;
     margin: auto;
-    border-radius: var(--radius-grand);
-}
-
-#logo{
-    width: 70px;
-    height: 70px;
-    position: absolute;
-    right: 17%;
-    top: 310px;
 }
 
 #companyName{
@@ -72,6 +63,8 @@
 
 .product{
     min-height: 70px;
+    padding: var(--espace-petit);
+    width: 300px;
 }
 
 .founder::after, .product::after{
@@ -94,11 +87,12 @@
     height: 90px;
     width: 90px;
     border-radius: var(--radius-petit);
+    background: top / cover no-repeat url("../img/personneAnonyme.png");
 }
 
 .imgProduct{
-    width: 90px;
-    margin-left: var(--espace-min);
+    max-width: 90px;
+    max-height: 90px;
 }
 
 .nameFounder, .nameProduct{

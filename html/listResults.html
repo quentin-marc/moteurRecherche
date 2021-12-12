@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="../styles/style.css">
         <link rel="stylesheet" href="../styles/listResults.css">
         <link rel="stylesheet" href="../styles/animatedBG.css">
+        <script src="../scripts/Util.js"></script>
         <script src="../scripts/scriptSearchCompany.js"></script>
         <meta charset="UTF-8">
     </head>
@@ -25,10 +26,17 @@
             </ul>
         </div >
         <div class="navigation">
-            <button class="newSearch" onclick="location.href='index.html';">New search</button>
+            <button class="newSearch" onclick="location.href='index.html';sessionStorage.clear();">New search</button>
         </div>
         <div class="cardContent">
-            <h1 class="titrePrincipal">Results for: "<span id="textResearch"></span>"</h1> 
+            <h1 id="currentlySearching">Currently searching...</h1>
+            <div class="lds-ellipsis" id="waitingAnimation">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h1 id="titrePrincipal">Results for: "<span id="textResearch"></span>"</h1>
             <div class="results">
                 <div id="listResults">
                     

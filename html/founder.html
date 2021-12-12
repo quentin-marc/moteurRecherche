@@ -25,15 +25,13 @@
             </ul>
         </div >
         <div class="navigation">
-            <button class="return" onclick="Undo();" >Return</button>
-            <button class="newSearch" onclick="location.href='index.html';">New search</button>
+            <button class="newSearch" onclick="location.href='index.html';sessionStorage.clear();">New search</button>
 
         </div>
         <div class="cardContent">
             <div  id="imageFounder"></div>
             <h1 id="founderName" class="no-data"></h1>
             <div id="description" class="no-data">
-               
             </div>
             <div id="seeMore" onclick="seeMore()">See more</div>
             <h2 class="titleAbout">About</h2>
@@ -48,3 +46,4 @@
     </body>
 </html>
 <script src="../scripts/scriptFounder.js"></script>
+<script src="../scripts/Util.js"></script>
