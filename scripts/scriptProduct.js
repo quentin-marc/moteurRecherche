@@ -21,7 +21,7 @@ function actOnWindow(){
     sessionStorage.setItem('undo',JSON.stringify(undo))
 
 	//On recupere et affiche les donnees
-    productRequest("dbr:"+product.split("/")[product.split("/").length-1])
+    productRequest(getDbrCompanyName(product))
 }
 
 
@@ -228,7 +228,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		//Nom de l'attribut
             		var divAttributeName = document.createElement('div')
             		divAttributeName.setAttribute('class','attributName')
-            		var textnode = document.createTextNode(firstCharUpperCase(predicat))
+            		var textnode = document.createTextNode(firstCharUpperCase(formatString(predicat)))
             		divAttributeName.appendChild(textnode)
             		divAttribut.appendChild(divAttributeName)
 
@@ -252,8 +252,8 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	            					//dbpedia mais pas resource : on affiche le nom uniquement
 	            					value = value.split("/")[value.split("/").length-1]
 	            					var divSingleValue = document.createElement('div')
-				                	divSingleValue.setAttribute('class','singleValue redirect')
-									var valTextnode = document.createTextNode(value)
+				                	divSingleValue.setAttribute('class','singleValue')
+									var valTextnode = document.createTextNode(formatString(value))
 									divSingleValue.appendChild(valTextnode)
 				                	divValAttribut.appendChild(divSingleValue)
 	            				}
@@ -262,12 +262,12 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 
 	            				//pas dbpedia : on met l'url dans une balise a
 			                	var divSingleValue = document.createElement('div')
-				                divSingleValue.setAttribute('class','singleValue redirect')
+				                divSingleValue.setAttribute('class','singleValue')
 			                	var aVal = document.createElement('a')
 			                	aVal.setAttribute('href',value)
 								var valTextnode = document.createTextNode(value)
 								aVal.appendChild(valTextnode)
-								divSingleValue.appendChild(valTextnode)
+								divSingleValue.appendChild(aVal)
 				                divValAttribut.appendChild(divSingleValue)
 
 	            			}
@@ -276,7 +276,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	            			//pas une uri : on ecrit le contenu
 				            var divSingleValue = document.createElement('div')
 				            divSingleValue.setAttribute('class','singleValue')
-							var valTextnode = document.createTextNode(value)
+							var valTextnode = document.createTextNode(formatString(value))
 							divValAttribut.appendChild(valTextnode)
 		                	divSingleValue.appendChild(valTextnode)
 				            divValAttribut.appendChild(divSingleValue)
@@ -309,8 +309,10 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 
 	//On recupere le type de la resource
 	var contenu_requete = "SELECT * WHERE {\
-		dbr:"+resource+" rdf:type ?type\
+		"+getDbrCompanyName(resource)+" rdf:type ?type\
 	}"
+
+	console.log(contenu_requete)
 
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -343,7 +345,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 						var divSingleValue = document.createElement('div')
 				        divSingleValue.setAttribute('class','singleValue redirect')
 				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("companyURI","'+encodeURI(value)+'");window.location.href="company.html"')
-						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
+						var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
 				       	divSingleValue.appendChild(valTextnode)
 				        divValAttribut.appendChild(divSingleValue)
 
@@ -353,7 +355,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 						var divSingleValue = document.createElement('div')
 	                	divSingleValue.setAttribute('class','singleValue redirect')
 	                	divSingleValue.setAttribute('onclick','sessionStorage.setItem("Founder","'+encodeURI(value)+'");window.location.href="founder.html"')
-						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
+						var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
 						divSingleValue.appendChild(valTextnode)
 				        divValAttribut.appendChild(divSingleValue)
 
@@ -362,7 +364,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
         				//On recupere les resources ayant notre produit dans l'attribut product
         				//On cherche a savoir si notre resource est un produit
 						contenu_requete = "SELECT * WHERE {\
-							?parent dbo:product dbr:"+resource+"\
+							?parent dbo:product "+getDbrCompanyName(resource)+"\
 						}"
 
 						// Encodage de l'URL à transmettre à DBPedia
@@ -382,7 +384,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 					               		var divSingleValue = document.createElement('div')
 	                					divSingleValue.setAttribute('class','singleValue redirect')
                 						divSingleValue.setAttribute('onclick','sessionStorage.setItem("Product","'+encodeURI(value)+'");window.location.href="product.html"')
-										var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
+										var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
 										divSingleValue.appendChild(valTextnode)
 				        				divValAttribut.appendChild(divSingleValue)
 
@@ -391,7 +393,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
             							//pas de parent, type inconnu
             							var divSingleValue = document.createElement('div')
 	                					divSingleValue.setAttribute('class','singleValue')
-										var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
+										var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
 										divSingleValue.appendChild(valTextnode)
 				        				divValAttribut.appendChild(divSingleValue)
 
@@ -417,4 +419,3 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
     
 
 }
-
