@@ -400,17 +400,15 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
                 var b = document.createElement("b")
                 b.innerHTML = "Website:"
 
-                var span = document.createElement("span")
-                span.id = "lienWebsite"
-                span.innerHTML = results.results.bindings[0][objet].value
+                var a = document.createElement("a")
+                a.id = "lienWebsite"
+                a.href = results.results.bindings[0][objet].value
+                var splitCompanyName = results.results.bindings[0][objet].value.split("/");
+                var comapanyName = splitCompanyName[splitCompanyName.length - 1];
+                a.innerHTML = comapanyName
 
                 lienWebsite.appendChild(b)
-                lienWebsite.appendChild(span)
-
-                /*var lienWebsite = document.getElementById("lienWebsite");
-                lienWebsite.innerHTML = results.results.bindings[0][objet].value
-                lienWebsite.href = results.results.bindings[0][objet].value
-                lienWebsite.classList.remove('no-data');*/
+                lienWebsite.appendChild(a)
             }
         }
     };
