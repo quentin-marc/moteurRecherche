@@ -41,7 +41,7 @@ function productRequest(product){
 	doProductSparql(product,"dbp:successor",false)
 	doProductSparql(product,"dbp:license",false)
 	doProductSparql(product,"dbp:supportedPlatforms",false)
-	doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
+	//doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
 	doProductSparql(product,"dct:subject",false)
 	//doProductSparql(product,"rdfs:comment",true)
 	doProductSparql(product,"dbo:manufacturer",false)
@@ -342,7 +342,7 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
         				//Si company : href vers company.html
 						var divSingleValue = document.createElement('div')
 				        divSingleValue.setAttribute('class','singleValue redirect')
-				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("Company","'+encodeURI(value)+'");window.location.href="company.html"')
+				        divSingleValue.setAttribute('onclick','sessionStorage.setItem("companyURI","'+encodeURI(value)+'");window.location.href="company.html"')
 						var valTextnode = document.createTextNode(value.split("/")[value.split("/").length-1])
 				       	divSingleValue.appendChild(valTextnode)
 				        divValAttribut.appendChild(divSingleValue)
