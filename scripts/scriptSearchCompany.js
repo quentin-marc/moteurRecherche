@@ -106,9 +106,23 @@ function serchCompanyByFilter(filterValueList) {
 		//Waits for all promises to return to display the results
 		//This allows to display the answer in an orered way
 		Promise.all(promises).then(()=>{
-			companyResultOrderdList.forEach( companyURI => {
-				addCompanyToHtml(companyMap[companyURI]);
-			});
+
+			// supprime l'animation d'attente
+			document.getElementById('currentlySearching').style.display = "none";
+			document.getElementById('waitingAnimation').style.display = "none";
+
+			// affichage du titre principal
+			document.getElementById('titrePrincipal').style.display = "block";
+
+			if(companyResultOrderdList.length == 0){
+				document.getElementById("listResults").innerHTML = "<p class='noMatch'>No results match with your search...</p>"
+			}
+			else{
+				// ajoute les companies au HTML
+				companyResultOrderdList.forEach( companyURI => {
+					addCompanyToHtml(companyMap[companyURI]);
+				});
+			}
 		});
 		console.log("Search done!")
 	});

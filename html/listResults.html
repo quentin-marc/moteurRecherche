@@ -29,7 +29,14 @@
             <button class="newSearch" onclick="location.href='index.html';sessionStorage.clear();">New search</button>
         </div>
         <div class="cardContent">
-            <h1 class="titrePrincipal">Results for: "<span id="textResearch"></span>"</h1> 
+            <h1 id="currentlySearching">Currently searching...</h1>
+            <div class="lds-ellipsis" id="waitingAnimation">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h1 id="titrePrincipal">Results for: "<span id="textResearch"></span>"</h1>
             <div class="results">
                 <div id="listResults">
                     
