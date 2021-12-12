@@ -63,7 +63,7 @@ function createSearchCompanyQuerry(filterValueList) {
 			querryContent += "\n" + currVar + " " + filterAndValue[2] + " " + currVar + "Value.";
 			currVar += "Value";
 		}
-		querryContent += "\nFILTER(regex(str(" + currVar + "), \"" + filterAndValue[1] + "\"))";
+		querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + filterAndValue[1].toLowerCase() + "\"))";
 	} );
 	//Get more data to order the result by relevence
 	querryContent += "\nOPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }";
