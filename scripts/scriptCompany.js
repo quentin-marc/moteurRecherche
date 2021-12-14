@@ -150,10 +150,10 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
     predicatListFondateur.forEach( predicat => {
         console.log(predicat)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
-            "?fondateur rdfs:label ?fondateurLabel." +
-            "?fondateur dbo:thumbnail ?imgFondateur." +
-            "FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur rdfs:label ?fondateurLabel." +
+            " ?fondateur dbo:thumbnail ?imgFondateur." +
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
@@ -175,9 +175,10 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
                 && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
-                && results.results.bindings[0][fondateurImg] && results.results.bindings[0][fondateurImg].value != null
             ) {
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
+
+                console.log("ici avec " + results.results.bindings[0][fondateurLabel].value)
 
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
                 subtitleFounders.innerHTML = "Founders"
@@ -204,6 +205,8 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     listFounders.appendChild(founder)
 
                 }
+            }else {
+                console.log("on est dans le else")
             }
         }
     };
@@ -483,10 +486,10 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
     predicatListProduits.forEach( predicat => {
         console.log(predicat)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
-            "?produit rdfs:label ?labelProduit." +
-            "?produit dbo:thumbnail ?imgProduit." +
-            "FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            " ?produit rdfs:label ?labelProduit." +
+            " ?produit dbo:thumbnail ?imgProduit." +
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
@@ -508,7 +511,6 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
                 && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
-                && results.results.bindings[0][produitImg] && results.results.bindings[0][produitImg].value != null
             ) {
 
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
