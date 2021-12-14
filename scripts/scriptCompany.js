@@ -49,7 +49,8 @@ function companyRequest(companyName){
     doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
     doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
+    var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
 }
 
@@ -145,14 +146,14 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
 }
 
 //Requete pour récuperer les fondateurs de l'entreprise
-function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
-    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
+function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur){
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";//?imgFondateur
 
     predicatListFondateur.forEach( predicat => {
         console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
             " ?fondateur rdfs:label ?fondateurLabel." +
-            " ?fondateur dbo:thumbnail ?imgFondateur." +
+            //" ?fondateur dbo:thumbnail ?imgFondateur." +
             " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
     } )
 
@@ -170,7 +171,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var results = JSON.parse(this.responseText);
             var fondateur = results.head.vars[0]
             var fondateurLabel = results.head.vars[1]
-            var fondateurImg = results.head.vars[2]
+            //var fondateurImg = results.head.vars[2]
             console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
@@ -186,7 +187,14 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
+                    if(mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null){
+                        var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
+                    }else {
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/objetInconnu.png"+");'></img>"
+                    }
+                    //var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
+
                     var nameFounder = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
@@ -208,6 +216,51 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+//Requete pour récuperer les fondateurs de l'entreprise
+function doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur){
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
+
+    predicatListFondateur.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur dbo:thumbnail ?imgFondateur." +
+            " ?fondateur rdfs:label ?fondateurLabel." +
+            //" ?fondateur dbo:thumbnail ?imgFondateur." +
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    var fondateurMap = new Map();
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var fondateur = results.head.vars[0]
+            var fondateurLabel = results.head.vars[1]
+            var fondateurImg = results.head.vars[2]
+            console.log(results);
+
+            if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
+                && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
+                && results.results.bindings[0][fondateurImg] && results.results.bindings[0][fondateurImg].value != null
+            ) {
+                fondateurMap.set(results.results.bindings[0][fondateurLabel].value, results.results.bindings[0][fondateurImg].value)
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    return fondateurMap
 }
 
 //Requete pour récuperer la localisation géographique de l'entreprise
