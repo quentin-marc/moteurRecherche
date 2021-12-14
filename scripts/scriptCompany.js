@@ -173,7 +173,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var fondateurImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 1) {
+            if (results.results.bindings.length > 0) {
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
@@ -503,7 +503,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var produitImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 1) {
+            if (results.results.bindings.length > 0) {
 
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 

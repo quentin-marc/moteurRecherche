@@ -31,7 +31,7 @@ function productRequest(product){
 	//doProductSparql(product,"dbo:thumbnail",false)
 	doProductSparql(product,"rdfs:label",true)
 	doProductSparql(product,"dbp:name",true)
-	doProductSparql(product,"dbp:logo",false)
+	doProductSparql(product,"dbp:thumbnail",false)
 	doProductSparql(product,"dbo:type",false)
 	doProductSparql(product,"dbo:developer",false)
 	doProductSparql(product,"dbo:releaseDate",false)
@@ -62,6 +62,7 @@ function productRequest(product){
 	doProductSparql(product,"dbp:fuelSource",false)
 	doProductSparql(product,"dbp:inventor",false)
 	doProductSparql(product,"dbo:product",false)
+	doProductSparql(product,"dbp:logo",false)
 
 
 	singleSelect("?is_product_of",["dbo:product"],product,false)
@@ -208,9 +209,18 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 						}
             		}
             	}
-            } else if(predicat.includes("logo" || predicat.includes("image") || predicat.includes("thumbnail"))){
+            } else if((predicat.includes("logo") || predicat.includes("image") || predicat.includes("thumbnail"))){
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
-            		setImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
+            		var urlImage = results.results.bindings[0][predicat].value.replaceAll(" ","_")
+            		urlImage = urlImage.replaceAll("__.",".");
+            		urlImage = urlImage.replaceAll("_.",".");
+     				if(predicat.includes("thumbnail")){
+     					var reg = /FilePath\/(.+)/i
+     					urlImage = reg.exec(urlImage)[1]
+     				}
+            		if((urlImage.includes(".png") || urlImage.includes(".svg") || urlImage.includes(".jpg") || urlImage.includes(".jpeg") || urlImage.includes(".PNG") || urlImage.includes(".SVG") || urlImage.includes(".JPG") || urlImage.includes(".JPEG"))){
+            			setImageProduct(urlImage)
+            		}
             	}
 
             } else { //s'il ne s'agit pas d'un attribut "hardcodé" dans le html
@@ -324,23 +334,15 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 
 	var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
-    	if (this.readyState == 4){
-    		console.log("response ; "+value)
-    		console.log(this.readyState +" & "+ this.status)
-    	}
+
     	
     	if (this.readyState == 4 && this.status == 200) {
-
-    		console.log("response ; "+value)
-
 
     		var results = JSON.parse(this.responseText);
             var responsePredicat = results.head.vars[0]
 
 			if (responsePredicat.includes("type")){
-				console.log("inside")
             	if(results.results.bindings.length > 0){
-            		console.log("inside bis")
 
             		var isCompany = false
             		var isPerson = false
