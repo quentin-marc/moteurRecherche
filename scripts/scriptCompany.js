@@ -191,7 +191,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFonda
                         var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
                         var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
                     }else {
-                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/objetInconnu.png"+");'></img>"
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/personneAnonyme.png"+");'></img>"
                     }
                     //var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
 
