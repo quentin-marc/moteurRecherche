@@ -178,8 +178,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             ) {
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
-                console.log("ici avec " + results.results.bindings[0][fondateurLabel].value)
-
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
                 subtitleFounders.innerHTML = "Founders"
 
@@ -205,8 +203,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     listFounders.appendChild(founder)
 
                 }
-            }else {
-                console.log("on est dans le else")
             }
         }
     };
