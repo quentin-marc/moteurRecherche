@@ -40,16 +40,24 @@ function getDbrCompanyName(companyURI){
 function formatString(stringToSplit){
     var character='';
     var stringResult = "";
+    var prevCharUpper = true;
 
     for(var i=0 ; i < stringToSplit.length ; i++){
         character = stringToSplit.charAt(i);
-		if(i>0 && character.match(/[a-z]/i) && character == character.toUpperCase()){
-        	stringResult += " " + character;
+		if(character.match(/[a-z]/i) && character == character.toUpperCase()){
+			if(!prevCharUpper){
+        		stringResult += " " + character;
+        	} else {
+        		stringResult += character;
+        	}
+        	prevCharUpper = true;
         } else if( i==0 && character == "_"  ) {
         } else if(i>0 && character == "_"){
         	stringResult += " ";
+        	prevCharUpper = true;
         } else {
         	stringResult +=character;
+        	prevCharUpper = false;
         }
     }
 

@@ -28,6 +28,7 @@ function actOnWindow(){
 function productRequest(product){
 
 	//Une requete par attribut. La gestion des dbp dbo & des majuscules est faite automatiquement
+	//doProductSparql(product,"dbo:thumbnail",false)
 	doProductSparql(product,"rdfs:label",true)
 	doProductSparql(product,"dbp:name",true)
 	doProductSparql(product,"dbp:logo",false)
@@ -42,7 +43,7 @@ function productRequest(product){
 	doProductSparql(product,"dbp:license",false)
 	doProductSparql(product,"dbp:supportedPlatforms",false)
 	//doProductSparql(product,"dbp:caption",false)//texte de remplacement pour l'image
-	doProductSparql(product,"dct:subject",false)
+	//doProductSparql(product,"dct:subject",false)
 	//doProductSparql(product,"rdfs:comment",true)
 	doProductSparql(product,"dbo:manufacturer",false)
 	doProductSparql(product,"dbp:connectivity",false)
@@ -51,16 +52,17 @@ function productRequest(product){
 	doProductSparql(product,"foaf:homepage",false)
 	doProductSparql(product,"dbo:cpu",false)
 	doProductSparql(product,"dbp:display",false)
-	//doProductSparql(product,"dbp:memory",false)
+	doProductSparql(product,"dbp:memory",false)
 	doProductSparql(product,"dbp:power",false)
 	doProductSparql(product,"dbp:service",false)
 	doProductSparql(product,"dbp:sound",false)
-	//doProductSparql(product,"dbp:storage",false)
-	//doProductSparql(product,"dbp:weight",false)
-	//doProductSparql(product,"dbp:dimensions",false)
+	doProductSparql(product,"dbp:storage",false)
+	doProductSparql(product,"dbp:weight",false)
+	doProductSparql(product,"dbp:dimensions",false)
 	doProductSparql(product,"dbp:fuelSource",false)
 	doProductSparql(product,"dbp:inventor",false)
 	doProductSparql(product,"dbo:product",false)
+
 
 	singleSelect("?is_product_of",["dbo:product"],product,false)
 
@@ -206,20 +208,19 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 						}
             		}
             	}
-            } else if(predicat.includes("logo" || predicat.includes("image"))){
+            } else if(predicat.includes("logo" || predicat.includes("image") || predicat.includes("thumbnail"))){
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
             		setImageProduct(results.results.bindings[0][predicat].value.replaceAll(" ","_"))
             	}
 
-            } else { //s'il ne s'agit pas d'un attriobit "hardcode" dans le html
-
-            	//gere listes !
+            } else { //s'il ne s'agit pas d'un attribut "hardcodé" dans le html
 
             	if(results.results.bindings.length > 0 && results.results.bindings[0][predicat] && results.results.bindings[0][predicat].value != null){
             		
             		//Div ayant tous les attributs "dynamiques"
             		//liste attribut
         			var listAttributs = document.getElementsByClassName('listAttributs')[0]
+					listAttributs.style.height = "auto";
 
     				//Attribut
         			var divAttribut = document.createElement('div')
@@ -245,6 +246,7 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             			if(results.results.bindings[i][predicat].type == "uri"){
 
 	            			if(value.includes("http://dbpedia.org")){
+
 	            				//Si il s'agit d'une resource dbpedia, on redirige potentiellement vers une autre page html de l'application
 	            				if(value.includes("http://dbpedia.org/resource")){
 	            					getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value,divValAttribut)
@@ -286,6 +288,10 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	            }
             }
         }
+
+        if(listAttributs && listAttributs.offsetHeight && listAttributs.offsetHeight > 200){
+        	listAttributs.style.height = (listAttributs.offsetHeight+100)+"px";
+		}
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
@@ -312,20 +318,29 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 		"+getDbrCompanyName(resource)+" rdf:type ?type\
 	}"
 
-	console.log(contenu_requete)
-
 	// Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
 
 	var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
+    	if (this.readyState == 4){
+    		console.log("response ; "+value)
+    		console.log(this.readyState +" & "+ this.status)
+    	}
+    	
     	if (this.readyState == 4 && this.status == 200) {
+
+    		console.log("response ; "+value)
+
+
     		var results = JSON.parse(this.responseText);
             var responsePredicat = results.head.vars[0]
 
 			if (responsePredicat.includes("type")){
+				console.log("inside")
             	if(results.results.bindings.length > 0){
+            		console.log("inside bis")
 
             		var isCompany = false
             		var isPerson = false
@@ -405,8 +420,13 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 					    xmlhttp.open("GET", url, true);
 					    xmlhttp.send();
         			}
-
-
+            	} else {
+            		//type inconnu
+					var divSingleValue = document.createElement('div')
+					divSingleValue.setAttribute('class','singleValue')
+					var valTextnode = document.createTextNode(formatString(value.split("/")[value.split("/").length-1]))
+					divSingleValue.appendChild(valTextnode)
+    				divValAttribut.appendChild(divSingleValue)
             	}
             }
     	}
@@ -414,8 +434,4 @@ function getTypeSparql(resource,predicat,value,divValAttribut){
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-
-
-    
-
 }
