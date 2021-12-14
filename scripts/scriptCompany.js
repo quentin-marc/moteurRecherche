@@ -173,7 +173,10 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var fondateurImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 0) {
+            if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
+                && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
+                && results.results.bindings[0][fondateurImg] && results.results.bindings[0][fondateurImg].value != null
+            ) {
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
@@ -503,7 +506,10 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var produitImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 0) {
+            if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
+                && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
+                && results.results.bindings[0][produitImg] && results.results.bindings[0][produitImg].value != null
+            ) {
 
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
