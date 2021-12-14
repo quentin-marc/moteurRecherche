@@ -4,11 +4,14 @@ function actOnWindow(){
 	var undo = JSON.parse(sessionStorage.getItem('undo'))
 
 	//This stores a list of filters and wanted value. If the value is not accessible directly through the filter, the predicate to access the value is added in third position
-	var filterValueList = JSON.parse(sessionStorage.getItem('searchCompany'));
+	var filtersValueList = JSON.parse(sessionStorage.getItem('searchCompany'));
+	console.log(filtersValueList)
 
+	//filtersValueList = [  [ "founder", "Mark z", [["dbp:founders", "dbp:name"], ["dbp:founder", "dbp:name"]] ]  ]
+	//["name", companyName,["dbp:name"]], 
 	var uriUndo = {
         type : "searchCompany",
-        uri : filterValueList
+        uri : filtersValueList
     } 
 
     if(!undo ){
@@ -18,18 +21,19 @@ function actOnWindow(){
     sessionStorage.setItem('undo',JSON.stringify(undo))
 	
 	//Perform the search
-	if(filterValueList.length > 0) {
-    	serchCompanyByFilter(filterValueList);
+	if(filtersValueList.length > 0) {
+    	serchCompanyByFilter(filtersValueList);
 	}
 
 	//Display the value of the filters 
 	var textFilter = "No search filter. Please enter a new search.";
-	for (i=0; i<filterValueList.length; i++){
+	
+	for (i=0; i<filtersValueList.length; i++){
 		if (i==0){
 			textFilter = "";
 		}
-		textFilter += filterValueList[i][1] ;
-		if (i < filterValueList.length-1) {
+		textFilter += filtersValueList[i][1] ;
+		if (i < filtersValueList.length-1) {
 			textFilter += ", ";
 		}
 	};
@@ -53,17 +57,25 @@ class Company {
 }
 
 //Create the rquest to search for company
-function createSearchCompanyQuerry(filterValueList) {
+function createSearchCompanyQuerry(filtersValueList) {
 	var querryContent = "SELECT DISTINCT ?company WHERE {\n?company a dbo:Company.";
-	filterValueList.forEach( filterAndValue => {
-		var currVar = "?"+filterAndValue[0].split(":")[0].toUpperCase()+"_"+filterAndValue[0].split(":")[1];
-		querryContent += "\n?company " + filterAndValue[0] + " " + currVar + ".";
-		//If the value is not accessible directly through the filter, the predicate to access the value is added in third position
-		if (filterAndValue[2]) {
-			querryContent += "\n" + currVar + " " + filterAndValue[2] + " " + currVar + "Value.";
-			currVar += "Value";
-		}
-		querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + filterAndValue[1].toLowerCase() + "\"))";
+	filtersValueList.forEach( filterAndValue => {
+		var value = filterAndValue[1];
+		var filterList = filterAndValue[2];
+		for (i=0; i<filterList.length; i++){
+			var filter = filterList[i]
+			if(i>0) {
+				querryContent += "\nUNION"
+			}
+			var currVar = "?"+filter[0].split(":")[0].toUpperCase()+"_"+filter[0].split(":")[1];
+			querryContent += "\n{\n?company " + filter[0] + " " + currVar + ".";
+			//If the value is not accessible directly through the filter, the predicate to access the value is added in third position
+			if (filter[1]) {
+				querryContent += "\n" + currVar + " " + filter[1] + " " + currVar + "Value.";
+				currVar += "Value";
+			}
+			querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + value.toLowerCase() + "\"))\n}";
+		};
 	} );
 	//Get more data to order the result by relevence
 	querryContent += "\nOPTIONAL { ?company dbp:revenue ?income. FILTER(datatype(?income) = <http://dbpedia.org/datatype/usDollar>) }";
@@ -78,9 +90,9 @@ function createSearchCompanyQuerry(filterValueList) {
 
 //Search a company by its name. 
 //Display all companies containing that name with some informations about them
-function serchCompanyByFilter(filterValueList) {
+function serchCompanyByFilter(filtersValueList) {
 
-	doSparqlRequest( createSearchCompanyQuerry(filterValueList) ).then( results => {
+	doSparqlRequest( createSearchCompanyQuerry(filtersValueList) ).then( results => {
 		console.log(results);
 		//Get the list of result
 		var resultList = results.results.bindings
@@ -296,6 +308,8 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 			requestContent += "\nOPTIONAL { " + company.comapanyDBR + " " + predicate + " " + varName + ". " + querryLabel + createFilterForRequest(varName) + "}"
 		} )
 		requestContent += "\n}"
+
+		console.log(requestContent)
 		
 		//Performs the request
 		doSparqlRequest(requestContent).then( results => {

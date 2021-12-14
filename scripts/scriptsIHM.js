@@ -27,13 +27,13 @@ function protectionSearchFields(){
         //alert("lancer recherche dbpedia");
         var filterValueList = [];
         if (companyName.length > 0) {
-            filterValueList.push(["dbp:name", companyName]);
+            filterValueList.push([ "name", companyName, [["dbp:name"]] ]);
         }
         if (founder.length > 0) {
-            filterValueList.push(["dbp:founders", founder, "dbp:name"]);
+            filterValueList.push([ "founder", founder, [["dbp:founders", "dbp:name"], ["dbp:founder", "dbp:name"]] ]);
         }
         if (industry.length > 0) {
-            filterValueList.push(["dbo:industry", industry, "rdfs:label"]);
+            filterValueList.push([ "industry", industry, [["dbo:industry", "rdfs:label"]] ]);
         }
         sessionStorage.setItem('searchCompany', JSON.stringify(filterValueList));
         window.location = "./listResults.html";
