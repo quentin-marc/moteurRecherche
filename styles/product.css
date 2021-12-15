@@ -24,6 +24,10 @@
     display: flex;
 }
 
+.attribut{
+    margin: var(--espace-moyen) 0;
+}
+
 #listAttributsColonne1, #listAttributsColonne2{
     flex: 1;
     padding-right: var(--espace-moyen);
