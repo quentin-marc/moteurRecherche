@@ -188,6 +188,9 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     if(results.results.bindings[i][fondateurImg]) {
                         var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
                     }
+                    else {
+                        var imgFounder = "<img class='imgFounder' src='../img/personneAnonyme.png'></img>"
+                    }
                     var nameFounder = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
@@ -198,9 +201,9 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                     founder.className = "founder"
                     founder.setAttribute("onclick", "changePage('founder.html', '" + results.results.bindings[i][fondateur].value + "')");
 
-                    if(results.results.bindings[i][fondateurImg]) {
+                    
                     founder.innerHTML = imgFounder
-                    }
+                    
                     founder.appendChild(nameFounder)
 
                     listFounders.appendChild(founder)
@@ -524,6 +527,8 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     var product = document.createElement("div")
                     if(results.results.bindings[i][produitImg]){
                         var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    } else {
+                        var imgProduct = "<img class='imgProduct' src='../img/objetInconnu.png'></img>"
                     }
                     var nameProduct = document.createElement("div")
 
@@ -536,9 +541,8 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     product.className = "product"
                     product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
-                    if(results.results.bindings[i][produitImg]){
-                        product.innerHTML = imgProduct
-                    }
+                    product.innerHTML = imgProduct
+
                     product.appendChild(nameProduct)
 
                     listProducts.appendChild(product)
