@@ -22,13 +22,12 @@
 
 .listAttributs{
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
 }
 
-.attribut{
-    width: 45%;
-    margin: var(--espace-min) 5% var(--espace-min) 0;
+#listAttributsColonne1, #listAttributsColonne2{
+    flex: 1;
+    padding-right: var(--espace-moyen);
+    height: auto;
 }
 
 .attributName{

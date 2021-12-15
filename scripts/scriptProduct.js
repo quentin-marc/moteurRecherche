@@ -1,3 +1,6 @@
+heightColumn1 = 0;
+heightColumn2 = 0;
+
 window.onload = actOnWindow;
 function actOnWindow(){
 
@@ -230,7 +233,6 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		//Div ayant tous les attributs "dynamiques"
             		//liste attribut
         			var listAttributs = document.getElementsByClassName('listAttributs')[0]
-					listAttributs.style.height = "auto";
 
     				//Attribut
         			var divAttribut = document.createElement('div')
@@ -247,7 +249,15 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
             		var divValAttribut = document.createElement('div')
             		divValAttribut.setAttribute('class','valAttribut '+predicat)
             		divAttribut.appendChild(divValAttribut)
-            		listAttributs.appendChild(divAttribut)	
+
+					if(heightColumn2 >= heightColumn1){
+						document.getElementById('contentColumn1').appendChild(divAttribut);
+						heightColumn1 += 25;
+					}
+					else{
+						document.getElementById('contentColumn2').appendChild(divAttribut);
+						heightColumn2 += 24;
+					}
 
             		for(var i=0 ; i<results.results.bindings.length ; i++){
 
@@ -298,10 +308,6 @@ function singleSelect(ressource,predicat,varName,filterOnLang){
 	            }
             }
         }
-
-        if(listAttributs && listAttributs.offsetHeight && listAttributs.offsetHeight > 200){
-        	listAttributs.style.height = (listAttributs.offsetHeight+100)+"px";
-		}
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
