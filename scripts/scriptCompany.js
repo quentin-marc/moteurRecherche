@@ -189,7 +189,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFonda
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    if(mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null){
+                    if(mapFondateur != null && mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null){
                         var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
                         var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
                     }else {
@@ -575,7 +575,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    if(mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
+                    if(mapProduit != null && mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
                         var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
                         console.log("ici")
                         var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
@@ -685,7 +685,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var logo = results.head.vars[0]
-            var thumbnail = results.head.vars[1]
 
             var imageCompany = document.getElementById("imageCompany");
 
