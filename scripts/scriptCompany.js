@@ -580,7 +580,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
                         console.log("ici")
                         var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     }else {
-                        var imgProduct = "<img class='imgProduct' src='\"../img/objetInconnu.png\"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                        var imgProduct = "<img class='imgProduct' src='../img/objetInconnu.png' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     }
                     //var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
