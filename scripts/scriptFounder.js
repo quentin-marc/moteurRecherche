@@ -22,9 +22,9 @@ function actOnWindow(){
 
     console.log(undo)
 
-    
+    //ATTENTION il y a dbr dedans si je copie getDbrCompanyName
     founderRequest(founder)
-    //document.getElementById("founderName").innerHTML = "TOTO";
+    
 }
 var tabPredicat = []
 function founderRequest(founder){
@@ -81,12 +81,13 @@ function dofounderSparql(founder,predicat,filterOnLang){
 function singleSelect(ressourceURI,predicat,varName,filterOnLang){
 
 
-    var ressource = ressourceURI.split("/")[ressourceURI.split("/").length-1]
+    //var ressource = ressourceURI.split("/")[ressourceURI.split("/").length-1]
+    var ressource = getDbrCompanyName(ressourceURI);
     var contenu_requete;
     if(filterOnLang){
-        contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
+        contenu_requete = "SELECT * WHERE {OPTIONAL {"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
     } else {
-        contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
+        contenu_requete = "SELECT * WHERE {OPTIONAL {"+ressource+" "+predicat+" ?"+varName + "}}\n"
     }
     console.log(contenu_requete)
     //console.log(contenu_requete)
@@ -147,25 +148,24 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                     var elementPredicat = document.getElementsByClassName(predicat)
                     if(elementPredicat.length == 0){
                         var value = results.results.bindings[0][predicat].value
-                        
+                        if(value.length>0){
                         
                         
                             
                             if(results.results.bindings[0][predicat].type == "uri"){
                                 if(value.includes("http://dbpedia.org")){
-                                
-                                    if(value.includes("http://dbpedia.org/resource")){
-                                        getTypeSparql(value.split("/")[value.split("/").length-1],predicat,value)
-                                        tabPredicat.push(removePrefix(predicat))
-                                        
-                                    } else {
-                                        value = value.split("/")[value.split("/").length-1]
+                                   
+                                    value = value.split("/")[value.split("/").length-1]
+                                    console.log(value)
+                                    
                                         tabPredicat.push(removePrefix(predicat))
                                         document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
                                         <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
                                         <div class=\"valAttribut\">"+formatString(value)+"</div>\
                                         </div>"
-                                    }
+                                    
+                                    
+                                    
                                 } else {
                                     tabPredicat.push(removePrefix(predicat))
                                     document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
@@ -180,6 +180,7 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
                                     <div class=\"valAttribut\">"+formatString(value)+"</div>\
                                     </div>"
                             }
+                        }
                         
                         
                         
@@ -218,114 +219,4 @@ function getImageFounder(url_wikipedia){
     document.getElementById("imageFounder").src = url;
 }
 
-function getTypeSparql(resource,predicat,value){
 
-    //GET TYPE
-    var contenu_requete = "SELECT * WHERE {\
-        dbr:"+resource+" rdf:type ?type\
-    }"
-
-    // Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
-
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-            var responsePredicat = results.head.vars[0]
-            if (responsePredicat.includes("type")){
-                if(results.results.bindings.length > 0){
-
-                    var isCompany = false
-                    var isPerson = false
-
-                    results.results.bindings.forEach((type) => {
-                        if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Company")){
-                            isCompany = true
-                        } else if(type[responsePredicat].value.includes("http://dbpedia.org/ontology/Person")){
-                            isPerson = true
-                        }
-                    })
-
-                    if(isCompany){
-                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
-                        <div class =\"valAttribut redirect\" class=\"valAttribut\" onclick = sessionStorage.setItem('companyURI','"+encodeURI(value)+"');window.location.href='company.html' >"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
-                        </div>"
-
-                    } else if(isPerson){
-                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
-                        <div class =\"valAttribut redirect\"  class=\"valAttribut\"onclick = sessionStorage.setItem('Founder','"+encodeURI(value)+"');window.location.href='founder.html' >"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
-                        </div>"
-                    } else {
-                        //GET IS founder OF
-                        contenu_requete = "SELECT * WHERE {\
-                            ?parent dbo:founder dbr:"+resource+"\
-                        }"
-
-                        // Encodage de l'URL à transmettre à DBPedia
-                        url_base = "http://dbpedia.org/sparql";
-                        url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
-
-                        xmlhttp = new XMLHttpRequest();
-                        xmlhttp.onreadystatechange = function() {
-                            if (this.readyState == 4 && this.status == 200) {
-                                var results = JSON.parse(this.responseText);
-                                var responsePredicat = results.head.vars[0]
-
-                                if (responsePredicat.includes("parent")){
-                                    if(results.results.bindings.length > 0){
-                                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\"  ><a href=\"founder.html\">"+formatString(value.split("/")[value.split("/").length-1])+"</a></div>\
-                                        </div>"
-                                    } else {
-                                        document.getElementsByClassName("listAttributs")[0].innerHTML+="<div class=\"attribut\">\
-                                        <div class=\"attributName\">"+formatString(removePrefix(predicat))+"</div>\
-                                        <div class=\"valAttribut\">"+formatString(value.split("/")[value.split("/").length-1])+"</div>\
-                                        </div>"
-                                    }
-                                }
-
-                                //console.log(results)
-                            }
-                        }
-
-                        xmlhttp.open("GET", url, true);
-                        xmlhttp.send();
-                    }
-                }
-            }
-        }
-    }
-
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-
-
-    
-
-}
-
-function splitString(stingToSplit){
-    var character='';
-    var stringResult = "";
-    var i=0;
-    while (i <= stingToSplit.length){
-        character = stingToSplit.charAt(i);
-            if(!isNaN(character)){
-
-            }
-            else if( i>0 && (character == character.toUpperCase() || character == "_"  )) {
-                stringResult += " ";
-            }
-            
-            stringResult +=character;
-        
-        i++;
-    }
-
-    return stringResult;
-}

@@ -49,8 +49,11 @@ function companyRequest(companyName){
     doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
     doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
+    var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+    var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits,mapProduit)
 }
 
 //Transforme l'uri en dbr:NomEntreprise
@@ -145,15 +148,15 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
 }
 
 //Requete pour récuperer les fondateurs de l'entreprise
-function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
-    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
+function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur){
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";//?imgFondateur
 
     predicatListFondateur.forEach( predicat => {
         console.log(predicat)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
-            "?fondateur rdfs:label ?fondateurLabel." +
-            "?fondateur dbo:thumbnail ?imgFondateur." +
-            "FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur rdfs:label ?fondateurLabel." +
+            //" ?fondateur dbo:thumbnail ?imgFondateur." +
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
@@ -170,10 +173,12 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var results = JSON.parse(this.responseText);
             var fondateur = results.head.vars[0]
             var fondateurLabel = results.head.vars[1]
-            var fondateurImg = results.head.vars[2]
+            //var fondateurImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 1) {
+            if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
+                && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
+            ) {
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
@@ -184,7 +189,14 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
+                    if(mapFondateur != null && mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null){
+                        var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
+                    }else {
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/personneAnonyme.png"+");'></img>"
+                    }
+                    //var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
+
                     var nameFounder = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
@@ -206,6 +218,52 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+//Requete pour récuperer les fondateurs de l'entreprise
+function doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur){
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
+
+    predicatListFondateur.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur dbo:thumbnail ?imgFondateur." +
+            " ?fondateur rdfs:label ?fondateurLabel." +
+            //" ?fondateur dbo:thumbnail ?imgFondateur." +
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    var fondateurMap = new Map();
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var fondateur = results.head.vars[0]
+            var fondateurLabel = results.head.vars[1]
+            var fondateurImg = results.head.vars[2]
+            console.log(results);
+
+            if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
+                && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
+            ) {
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    fondateurMap.set(results.results.bindings[i][fondateurLabel].value, results.results.bindings[i][fondateurImg].value)
+                }
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    return fondateurMap
 }
 
 //Requete pour récuperer la localisation géographique de l'entreprise
@@ -475,15 +533,15 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 }
 
 //Requete pour récuperer les produits créés par l'entreprise
-function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
-    var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
+function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit){
+    var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";//?imgProduit
 
     predicatListProduits.forEach( predicat => {
         console.log(predicat)
-        contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
-            "?produit rdfs:label ?labelProduit." +
-            "?produit dbo:thumbnail ?imgProduit." +
-            "FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            " ?produit rdfs:label ?labelProduit." +
+            //" ?produit dbo:thumbnail ?imgProduit." +
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
@@ -500,10 +558,12 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var results = JSON.parse(this.responseText);
             var produit = results.head.vars[0]
             var produitLabel = results.head.vars[1]
-            var produitImg = results.head.vars[2]
+            //var produitImg = results.head.vars[2]
             console.log(results);
 
-            if (results.results.bindings.length > 1) {
+            if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
+                && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
+            ) {
 
                 var currentDiv = document.getElementsByClassName('cardContent')[0];
 
@@ -515,7 +575,14 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    if(mapProduit != null && mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
+                        var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
+                        console.log("ici")
+                        var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    }else {
+                        var imgProduct = "<img class='imgProduct' src='../img/objetInconnu.png' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    }
+                    //var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
@@ -538,6 +605,59 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+function doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits){
+    var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
+
+    predicatListProduits.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            " ?produit rdfs:label ?labelProduit." +
+            " ?produit dbo:thumbnail ?imgProduit." +
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    var produitMap = new Map()
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var produit = results.head.vars[0]
+            var produitLabel = results.head.vars[1]
+            var produitImg = results.head.vars[2]
+            console.log(results);
+
+            if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
+                && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
+            ) {
+
+                var currentDiv = document.getElementsByClassName('cardContent')[0];
+
+                var subtitleProducts = document.getElementsByClassName("subTitle")[1]
+                subtitleProducts.innerHTML = "Products"
+                var listProducts = document.createElement("div")
+                listProducts.className = "listProducts"
+                subtitleProducts.appendChild(listProducts)
+
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    produitMap.set(results.results.bindings[i][produitLabel].value, results.results.bindings[i][produitImg].value)
+                }
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    return produitMap
 }
 
 function chargerImage(image, source){
@@ -565,7 +685,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var logo = results.head.vars[0]
-            var thumbnail = results.head.vars[1]
 
             var imageCompany = document.getElementById("imageCompany");
 
