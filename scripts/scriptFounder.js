@@ -81,13 +81,13 @@ function dofounderSparql(founder,predicat,filterOnLang){
 function singleSelect(ressourceURI,predicat,varName,filterOnLang){
 
 
-    var ressource = ressourceURI.split("/")[ressourceURI.split("/").length-1]
-
+    //var ressource = ressourceURI.split("/")[ressourceURI.split("/").length-1]
+    var ressource = getDbrCompanyName(ressourceURI);
     var contenu_requete;
     if(filterOnLang){
-        contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
+        contenu_requete = "SELECT * WHERE {OPTIONAL {"+ressource+" "+predicat+" ?"+varName + " . FILTER(langMatches(lang(?"+varName+"), \"EN\"))}}\n"
     } else {
-        contenu_requete = "SELECT * WHERE {OPTIONAL {dbr:"+ressource+" "+predicat+" ?"+varName + "}}\n"
+        contenu_requete = "SELECT * WHERE {OPTIONAL {"+ressource+" "+predicat+" ?"+varName + "}}\n"
     }
     console.log(contenu_requete)
     //console.log(contenu_requete)
