@@ -31,7 +31,7 @@ function productRequest(product){
 	//doProductSparql(product,"dbo:thumbnail",false)
 	doProductSparql(product,"rdfs:label",true)
 	doProductSparql(product,"dbp:name",true)
-	doProductSparql(product,"dbp:thumbnail",false)
+	doProductSparql(product,"dbp:logo",false)
 	doProductSparql(product,"dbo:type",false)
 	doProductSparql(product,"dbo:developer",false)
 	doProductSparql(product,"dbo:releaseDate",false)
@@ -62,9 +62,8 @@ function productRequest(product){
 	doProductSparql(product,"dbp:fuelSource",false)
 	doProductSparql(product,"dbp:inventor",false)
 	doProductSparql(product,"dbo:product",false)
-	doProductSparql(product,"dbp:logo",false)
-
-
+	doProductSparql(product,"dbp:thumbnail",false)
+	
 	singleSelect("?is_product_of",["dbo:product"],product,false)
 
 }
@@ -321,7 +320,10 @@ function setImageProduct(url_wikipedia){
     imageExists(url).then((imageDoesExist)=>{
     	//on met l'url sur le html
     	if(imageDoesExist){
-			document.getElementById("productImage").src = url;
+    		productImage = document.getElementById("productImage")
+    		if(productImage && productImage.src.includes('/img/objetInconnu.png')){
+    			productImage.src = url;
+    		}
 		}
 	})
 }
