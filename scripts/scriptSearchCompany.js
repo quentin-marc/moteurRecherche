@@ -5,10 +5,7 @@ function actOnWindow(){
 
 	//This stores a list of filters and wanted value. If the value is not accessible directly through the filter, the predicate to access the value is added in third position
 	var filtersValueList = JSON.parse(sessionStorage.getItem('searchCompany'));
-	//console.log(filtersValueList)
-
-	//filtersValueList = [  [ "founder", "Mark z", [["dbp:founders", "dbp:name"], ["dbp:founder", "dbp:name"]] ]  ]
-	//["name", companyName,["dbp:name"]], 
+	
 	var uriUndo = {
         type : "searchCompany",
         uri : filtersValueList
@@ -134,6 +131,7 @@ function serchCompanyByFilter(filtersValueList) {
 					addCompanyToHtml(companyMap[companyURI]);
 				});
 			}
+			console.log("Request done!");
 		});
 	});
 }
@@ -269,8 +267,6 @@ function getCompanyMainInformationPromise(company, companyDBR) {
 		return Promise.all(promises).then((res)=>{
 			resolve(true);
 		})
-
-		console.log("Request done!")
 	});
 }
 
