@@ -6,7 +6,7 @@ function actOnWindow(){
 	//On recupere les donnees de sessionsStorage. Si inexistant, on prend Windows pour les tests
 	var product = sessionStorage.getItem('Product')
 	if(!product){
-		product = "https://dbpedia.org/page/Microsoft_Windows"
+		window.location.href="index.html"
 	}
 
 	var uriUndo = {
@@ -317,8 +317,13 @@ function setImageProduct(url_wikipedia){
     var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
     var url = url_base + url_wikipedia;
 
-    //on met l'url sur le html
-    document.getElementById("productImage").src = url;
+
+    imageExists(url).then((imageDoesExist)=>{
+    	//on met l'url sur le html
+    	if(imageDoesExist){
+			document.getElementById("productImage").src = url;
+		}
+	})
 }
 
 function getTypeSparql(resource,predicat,value,divValAttribut){

@@ -5,7 +5,7 @@ function actOnWindow(){
 
 	var founder = sessionStorage.getItem('Founder')
     if(!founder){
-        founder = "https://dbpedia.org/page/Bill_Gates"
+        window.location.href="index.html"
     }
     var uriUndo = {
         type : "Founder",

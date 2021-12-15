@@ -3,7 +3,9 @@ function actOnWindow(){
 
     //var undo = JSON.parse(sessionStorage.getItem('undo'))
     var companyURI = sessionStorage.getItem('companyURI')
-    
+    if(!companyURI){
+        window.location.href="index.html"
+    }
 
     /*var uriUndo = {
         type : "companyURI",
@@ -14,7 +16,7 @@ function actOnWindow(){
     }
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
-    console.log(undo)*/
+    //console.log(undo)*/
     companyRequest(companyURI)
     //companyRequest("https://dbpedia.org/resource/Microsoft")
 
@@ -75,9 +77,9 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
     var contenu_requete = "SELECT ?abstract WHERE {";
 
     predicatListAbstract.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?abstract. FILTER(langMatches(lang(?abstract), \"EN\"))}}"
-        console.log(contenu_requete)
+        //console.log(contenu_requete)
     } )
 
     // Encodage de l'URL à transmettre à DBPedia
@@ -90,7 +92,7 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var description = document.getElementById("description");
                 description.innerHTML = results.results.bindings[0][objet].value
@@ -112,12 +114,12 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
     var contenu_requete = "SELECT ?name WHERE {";
 
     predicatListName.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?name.}"
     } )
 
     contenu_requete += "FILTER(langMatches(lang(?name), \"EN\"))}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -129,7 +131,7 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var companyName = document.getElementById("companyName");
                 companyName.innerHTML = results.results.bindings[0][objet].value
@@ -146,7 +148,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
 
     predicatListFondateur.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
             " ?fondateur rdfs:label ?fondateurLabel." +
             " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n" +
@@ -154,7 +156,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -170,7 +172,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
             var fondateurImg = results.head.vars[2]
                 
             
-            console.log(results);
+            //console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
                 && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
@@ -221,14 +223,14 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
     var contenu_requete = "SELECT ?localisationLabel WHERE {";
 
     predicatListLocalisation.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?localisation. " +
             "?localisation rdfs:label ?localisationLabel.\n" +
             "FILTER(langMatches(lang(?localisationLabel), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -240,7 +242,7 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 var adressHeadquarters = document.getElementsByClassName("adressHeadquarters")[0]
@@ -266,12 +268,12 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
     var contenu_requete = "SELECT YEAR(?anneeCreation) WHERE {";
 
     predicatListAnneeCreation.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?anneeCreation. }"
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -283,7 +285,7 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
 
@@ -309,12 +311,12 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
     var contenu_requete = "SELECT str(?nbEmployee) WHERE {";
 
     predicatListNombreEmploye.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?nbEmployee. }"
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -326,7 +328,7 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
                 var nbEmployes = document.getElementsByClassName("nbEmployes")[0]
 
@@ -361,7 +363,7 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -373,7 +375,7 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 var lienWebsite = document.getElementsByClassName("lienWebsite")[0]
@@ -406,7 +408,7 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -418,7 +420,7 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 var industry = document.getElementsByClassName("industry")[0]
@@ -448,7 +450,7 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -460,7 +462,7 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 var revenue = document.getElementsByClassName("netIncome")[0]
@@ -487,7 +489,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
     predicatListProduits.forEach( predicat => {
-        console.log(predicat)
+        //console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
             " ?produit rdfs:label ?labelProduit." +
             " FILTER(langMatches(lang(?labelProduit), \"EN\"))" +
@@ -495,7 +497,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -509,7 +511,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
             var produit = results.head.vars[0]
             var produitLabel = results.head.vars[1]
             var produitImg = results.head.vars[2]
-            console.log(results);
+            //console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
                 && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
@@ -568,7 +570,7 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     } )
 
     contenu_requete += "}"
-    console.log(contenu_requete)
+    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -584,7 +586,7 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
 
             var imageCompany = document.getElementById("imageCompany");
 
-            console.log(results);
+            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
                     var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
                     getImageProduct( uriLogo ).then((imageFullURI)=>{
@@ -624,7 +626,7 @@ function getImageProduct(imageURIend){
 
 //Change to page name
 function changePage( pageName, URI ) {
-    console.log(URI);
+    //console.log(URI);
 
     if(pageName == "product.html"){
         sessionStorage.setItem('Product',URI);

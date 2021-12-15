@@ -5,7 +5,7 @@ function actOnWindow(){
 
 	//This stores a list of filters and wanted value. If the value is not accessible directly through the filter, the predicate to access the value is added in third position
 	var filtersValueList = JSON.parse(sessionStorage.getItem('searchCompany'));
-	console.log(filtersValueList)
+	//console.log(filtersValueList)
 
 	//filtersValueList = [  [ "founder", "Mark z", [["dbp:founders", "dbp:name"], ["dbp:founder", "dbp:name"]] ]  ]
 	//["name", companyName,["dbp:name"]], 
@@ -93,7 +93,6 @@ function createSearchCompanyQuerry(filtersValueList) {
 function serchCompanyByFilter(filtersValueList) {
 
 	doSparqlRequest( createSearchCompanyQuerry(filtersValueList) ).then( results => {
-		console.log(results);
 		//Get the list of result
 		var resultList = results.results.bindings
 		
@@ -136,7 +135,6 @@ function serchCompanyByFilter(filtersValueList) {
 				});
 			}
 		});
-		console.log("Search done!")
 	});
 }
 
@@ -150,7 +148,6 @@ function addCompanyToHtml(company) {
 	newDivCompany.setAttribute("class", "result");
 	newDivCompany.setAttribute("onclick", "changePage('company.html', \"" + company.companyURI + "\")");
 		
-	
 	//Company logo
 	if(company.logo != "") {
 		var divCompanyLogo = document.createElement("img");
@@ -165,7 +162,6 @@ function addCompanyToHtml(company) {
 	divCompanyName.setAttribute("id", "name");
 	divCompanyName.innerHTML = company.name;
 	newDivCompany.appendChild(divCompanyName);
-	
 	//Company abstract
 	if (company.abstract !== "") {
 		var divCompanyAbstract = document.createElement("div");
@@ -193,7 +189,6 @@ function addCompanyToHtml(company) {
 		newDivCompany.appendChild(divCompanyIncome);
 
 	}
-
 	//Company industries
 	if (company.industryList.length > 0) {
 		var allIndustries = "";
@@ -274,6 +269,8 @@ function getCompanyMainInformationPromise(company, companyDBR) {
 		return Promise.all(promises).then((res)=>{
 			resolve(true);
 		})
+
+		console.log("Request done!")
 	});
 }
 
@@ -314,49 +311,54 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 		//Performs the request
 		doSparqlRequest(requestContent).then( results => {
 			//Get the list of result
-			resultList = results.results.bindings
-			var predicat = results.head.vars[0];
-			var label = results.head.vars[1];
+			if(results){
+				resultList = results.results.bindings
+				var predicat = results.head.vars[0];
+				var label = results.head.vars[1];
 
-			//Add the result to the html
-			switch(varName){
-				case "?name":
-					//Update the name of the corresponding company
-					company.name = geLastResult(resultList, predicat);
-					resolve(true);
-					break;
-				case "?abstract":
-					//Update the abstract of the corresponding company
-					company.abstract = geLastResult(resultList, predicat);
-					resolve(true);
-					break;
-				case "?logo":
-					//Update the abstract of the corresponding company
-					getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
-						company.logo = imageFullURI;
+				//Add the result to the html
+				switch(varName){
+					case "?name":
+						//Update the name of the corresponding company
+						company.name = geLastResult(resultList, predicat);
 						resolve(true);
-					});
-					break;
-				case "?industry":
-					//Update the industry of the corresponding company
-					company.industryList = geAllResult(resultList, label);
-					company.industryListLink = geAllResult(resultList, predicat);
-					resolve(true);
-					break;
-				case "?income":
-					//Update the income of the corresponding company
-					company.income = geLastResult(resultList, predicat);;
-					resolve(true);
-					break;
-				case "?product":
-					//Update the product of the corresponding company
-					company.productList = geAllResult(resultList,label);
-					company.productListLink = geAllResult(resultList, predicat);
-					resolve(true);
-					break;
-				default:
-					resolve(false);
-					break;
+						break;
+					case "?abstract":
+						//Update the abstract of the corresponding company
+						company.abstract = geLastResult(resultList, predicat);
+						resolve(true);
+						break;
+					case "?logo":
+						//Update the abstract of the corresponding company
+						getImageProduct( geLastResult(resultList, predicat) ).then((imageFullURI)=>{
+							company.logo = imageFullURI;
+							resolve(true);
+						});
+						break;
+					case "?industry":
+						//Update the industry of the corresponding company
+						company.industryList = geAllResult(resultList, label);
+						company.industryListLink = geAllResult(resultList, predicat);
+						resolve(true);
+						break;
+					case "?income":
+						//Update the income of the corresponding company
+						company.income = geLastResult(resultList, predicat);
+						resolve(true);
+						break;
+					case "?product":
+						//Update the product of the corresponding company
+						company.productList = geAllResult(resultList,label);
+						company.productListLink = geAllResult(resultList, predicat);
+						resolve(true);
+						break;
+					default:
+						resolve(false);
+						break;
+				}
+
+			} else {
+				resolve(false);
 			}
 		});
 	});
@@ -366,6 +368,7 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 //Precondition : the request must be well formed
 //Return the answer of this query 
 function doSparqlRequest(request) {
+
 	
 	return new Promise((answer)=>{
 		// Encodage de l'URL à transmettre à DBPedia
@@ -382,6 +385,10 @@ function doSparqlRequest(request) {
 				answer(results);
 			}
 		};
+		xmlhttp.timeout = 2000
+		xmlhttp.ontimeout = function(){
+			answer(null);
+		}
 		xmlhttp.open("GET", url, true);
 		xmlhttp.send();
 	});
@@ -389,6 +396,9 @@ function doSparqlRequest(request) {
 
 //Return the last result from the reustList after a querry
 function geLastResult(resultList, predicat) {
+	if(predicat == "income"){
+		coms
+	}
 	var value = "";
 	if(resultList.length > 0) {
 		var attributs = resultList[0] 
