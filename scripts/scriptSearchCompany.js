@@ -80,7 +80,7 @@ function createSearchCompanyQuerry(filtersValueList) {
 	querryContent += "\nOPTIONAL { ?company dbp:numEmployees ?numEmployees. }"
 	querryContent += "\n}"
 	querryContent += "ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)\n";
-	querryContent += "LIMIT 20";
+	querryContent += "LIMIT 10";
 	console.log(querryContent)
 	return querryContent;
 }
@@ -90,30 +90,54 @@ function createSearchCompanyQuerry(filtersValueList) {
 function serchCompanyByFilter(filtersValueList) {
 
 	doSparqlRequest( createSearchCompanyQuerry(filtersValueList) ).then( results => {
-		//Get the list of result
-		var resultList = results.results.bindings
 		
-		var companyMap = {};
-		const promises = [];
-		var companyResultOrderdList = [];
+		//If the request did not time out 
+		if(results){
+			//Get the list of result
+			var resultList = results.results.bindings
+			
+			var companyMap = {};
+			const promises = [];
+			var companyResultOrderdList = [];
 
-		//Loop on every result company to get more details about the company and to display the results
-		resultList.forEach( resultObject => {
-			//Get the uri of the ressource company
-			var companyURI = resultObject["company"].value;
-			var companyDBR = getDbrCompanyName(companyURI);
+			//Loop on every result company to get more details about the company and to display the results
+			resultList.forEach( resultObject => {
+				//Get the uri of the ressource company
+				var companyURI = resultObject["company"].value;
+				var companyDBR = getDbrCompanyName(companyURI);
 
-			//Create a company object that will store the company's information
-			companyMap[companyURI] = new Company(companyURI);
-			companyMap[companyURI].comapanyDBR = companyDBR;
-			companyResultOrderdList.push(companyURI);
+				//Create a company object that will store the company's information
+				companyMap[companyURI] = new Company(companyURI);
+				companyMap[companyURI].comapanyDBR = companyDBR;
+				companyResultOrderdList.push(companyURI);
 
-			promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
-		} )
+				promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
+			} )
 
-		//Waits for all promises to return to display the results
-		//This allows to display the answer in an orered way
-		Promise.all(promises).then(()=>{
+			//Waits for all promises to return to display the results
+			//This allows to display the answer in an orered way
+			Promise.all(promises).then(()=>{
+
+				// supprime l'animation d'attente
+				document.getElementById('currentlySearching').style.display = "none";
+				document.getElementById('waitingAnimation').style.display = "none";
+
+				// affichage du titre principal
+				document.getElementById('titrePrincipal').style.display = "block";
+
+				if(companyResultOrderdList.length == 0){
+					document.getElementById("listResults").innerHTML = "<p class='noMatch'>No results match with your search...</p>"
+				}
+				else{
+					// ajoute les companies au HTML
+					companyResultOrderdList.forEach( companyURI => {
+						addCompanyToHtml(companyMap[companyURI]);
+					});
+				}
+				console.log("Request done!");
+			});
+		}else{
+			//Display this when the request times out
 
 			// supprime l'animation d'attente
 			document.getElementById('currentlySearching').style.display = "none";
@@ -121,18 +145,8 @@ function serchCompanyByFilter(filtersValueList) {
 
 			// affichage du titre principal
 			document.getElementById('titrePrincipal').style.display = "block";
-
-			if(companyResultOrderdList.length == 0){
-				document.getElementById("listResults").innerHTML = "<p class='noMatch'>No results match with your search...</p>"
-			}
-			else{
-				// ajoute les companies au HTML
-				companyResultOrderdList.forEach( companyURI => {
-					addCompanyToHtml(companyMap[companyURI]);
-				});
-			}
-			console.log("Request done!");
-		});
+			document.getElementById("listResults").innerHTML = "<p class='noMatch'>Request timed out, please check your internet connection.</p>"
+		}
 	});
 }
 
@@ -381,7 +395,7 @@ function doSparqlRequest(request) {
 				answer(results);
 			}
 		};
-		xmlhttp.timeout = 2000
+		xmlhttp.timeout = 20000;
 		xmlhttp.ontimeout = function(){
 			answer(null);
 		}
