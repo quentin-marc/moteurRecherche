@@ -22,7 +22,7 @@ function actOnWindow(){
 
     console.log(undo)
 
-    
+    //ATTENTION il y a dbr dedans si je copie getDbrCompanyName
     founderRequest(founder)
     
 }
