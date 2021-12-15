@@ -154,8 +154,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     } )
 
     contenu_requete += "}"
-    console.log("####################")
-                console.log("####################")
     console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
@@ -489,8 +487,8 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
         console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
             " ?produit rdfs:label ?labelProduit." +
-            " ?produit dbo:thumbnail ?imgProduit." +
-            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))" +
+            " \nOPTIONAL{?produit dbo:thumbnail ?imgProduit.} \n}"
     } )
 
     contenu_requete += "}"
@@ -524,7 +522,9 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    if(results.results.bindings[i][produitImg]){
+                        var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    }
                     var nameProduct = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
@@ -536,7 +536,9 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                     product.className = "product"
                     product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
-                    product.innerHTML = imgProduct
+                    if(results.results.bindings[i][produitImg]){
+                        product.innerHTML = imgProduct
+                    }
                     product.appendChild(nameProduct)
 
                     listProducts.appendChild(product)
