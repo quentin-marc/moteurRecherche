@@ -49,11 +49,11 @@ function companyRequest(companyName){
     doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
     doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur)
+    //var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFondateur*/)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
-    var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
-    doCompanySparqlProduits(dbrCompanyName,predicatListProduits,mapProduit)
+    //var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*,mapProduit*/)
 }
 
 //Transforme l'uri en dbr:NomEntreprise
@@ -148,12 +148,23 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
 }
 
 //Requete pour récuperer les fondateurs de l'entreprise
-function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur){
-    var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";//?imgFondateur
+function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFondateur*/){
+    /*var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";//?imgFondateur
 
     predicatListFondateur.forEach( predicat => {
         console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur rdfs:label ?fondateurLabel." +
+            //" ?fondateur dbo:thumbnail ?imgFondateur." +
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+    } )*/
+
+    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
+
+    predicatListFondateur.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
+            " ?fondateur dbo:thumbnail ?imgFondateur." +
             " ?fondateur rdfs:label ?fondateurLabel." +
             //" ?fondateur dbo:thumbnail ?imgFondateur." +
             " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
@@ -173,7 +184,7 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFonda
             var results = JSON.parse(this.responseText);
             var fondateur = results.head.vars[0]
             var fondateurLabel = results.head.vars[1]
-            //var fondateurImg = results.head.vars[2]
+            var fondateurImg = results.head.vars[2]
             console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
@@ -189,8 +200,9 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFonda
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    if(mapFondateur != null && mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null){
-                        var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
+                    if(/*mapFondateur != null &&*/ results.results.bindings[i][fondateurImg].value != null /*mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null*/ ){
+                        //var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
+                        var link = results.results.bindings[i][fondateurImg].value
                         var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
                     }else {
                         var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/personneAnonyme.png"+");'></img>"
@@ -257,6 +269,7 @@ function doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
             ) {
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     fondateurMap.set(results.results.bindings[i][fondateurLabel].value, results.results.bindings[i][fondateurImg].value)
+
                 }
             }
         }
@@ -533,14 +546,24 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 }
 
 //Requete pour récuperer les produits créés par l'entreprise
-function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit){
-    var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";//?imgProduit
+function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProduit*/){
+    /*var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";//?imgProduit
 
     predicatListProduits.forEach( predicat => {
         console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
             " ?produit rdfs:label ?labelProduit." +
             //" ?produit dbo:thumbnail ?imgProduit." +
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+    } )*/
+
+    var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
+
+    predicatListProduits.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            " ?produit rdfs:label ?labelProduit." +
+            " ?produit dbo:thumbnail ?imgProduit." +
             " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
     } )
 
@@ -558,7 +581,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
             var results = JSON.parse(this.responseText);
             var produit = results.head.vars[0]
             var produitLabel = results.head.vars[1]
-            //var produitImg = results.head.vars[2]
+            var produitImg = results.head.vars[2]
             console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
@@ -575,8 +598,9 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    if(mapProduit != null && mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
-                        var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
+                    if(/*mapProduit != null && mapProduit.get(results.results.bindings[i][produitLabel].value) != null*/ results.results.bindings[i][produitImg].value != null){
+                        //var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
+                        var link = results.results.bindings[i][produitImg].value
                         console.log("ici")
                         var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     }else {
