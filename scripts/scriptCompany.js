@@ -254,9 +254,10 @@ function doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
                 && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
-                && results.results.bindings[0][fondateurImg] && results.results.bindings[0][fondateurImg].value != null
             ) {
-                fondateurMap.set(results.results.bindings[0][fondateurLabel].value, results.results.bindings[0][fondateurImg].value)
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    fondateurMap.set(results.results.bindings[i][fondateurLabel].value, results.results.bindings[i][fondateurImg].value)
+                }
             }
         }
     };
@@ -576,6 +577,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
                     var product = document.createElement("div")
                     if(mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
                         var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
+                        console.log("ici")
                         var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     }else {
                         var imgProduct = "<img class='imgProduct' src='\"../img/objetInconnu.png\"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
@@ -648,7 +650,7 @@ function doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits){
                 subtitleProducts.appendChild(listProducts)
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
-                    produitMap.set(results.results.bindings[0][produitLabel].value, results.results.bindings[0][produitImg].value)
+                    produitMap.set(results.results.bindings[i][produitLabel].value, results.results.bindings[i][produitImg].value)
                 }
             }
         }
