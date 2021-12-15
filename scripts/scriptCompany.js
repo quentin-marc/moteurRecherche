@@ -52,6 +52,8 @@ function companyRequest(companyName){
     var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
     doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+    var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
+    doCompanySparqlProduits(dbrCompanyName,predicatListProduits,mapProduit)
 }
 
 //Transforme l'uri en dbr:NomEntreprise
@@ -530,7 +532,80 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 }
 
 //Requete pour récuperer les produits créés par l'entreprise
-function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
+function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit){
+    var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";//?imgProduit
+
+    predicatListProduits.forEach( predicat => {
+        console.log(predicat)
+        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
+            " ?produit rdfs:label ?labelProduit." +
+            //" ?produit dbo:thumbnail ?imgProduit." +
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+    } )
+
+    contenu_requete += "}"
+    console.log(contenu_requete)
+
+    // Encodage de l'URL à transmettre à DBPedia
+    var url_base = "http://dbpedia.org/sparql";
+    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    // Requête HTTP et affichage des résultats
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            var produit = results.head.vars[0]
+            var produitLabel = results.head.vars[1]
+            //var produitImg = results.head.vars[2]
+            console.log(results);
+
+            if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
+                && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
+            ) {
+
+                var currentDiv = document.getElementsByClassName('cardContent')[0];
+
+                var subtitleProducts = document.getElementsByClassName("subTitle")[1]
+                subtitleProducts.innerHTML = "Products"
+                var listProducts = document.createElement("div")
+                listProducts.className = "listProducts"
+                subtitleProducts.appendChild(listProducts)
+
+                for (var i = 0; i < results.results.bindings.length; i++) {
+                    var product = document.createElement("div")
+                    if(mapProduit.get(results.results.bindings[i][produitLabel].value) != null){
+                        var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
+                        var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    }else {
+                        var imgProduct = "<img class='imgProduct' src='\"../img/objetInconnu.png\"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    }
+                    //var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    var nameProduct = document.createElement("div")
+
+                    var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
+
+                    nameProduct.appendChild(newContentHref);
+
+                    nameProduct.className = "nameProduct"
+                    
+                    product.className = "product"
+                    product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
+
+                    product.innerHTML = imgProduct
+                    product.appendChild(nameProduct)
+
+                    listProducts.appendChild(product)
+
+                }
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits){
     var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
     predicatListProduits.forEach( predicat => {
@@ -547,6 +622,8 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
+
+    var produitMap = new Map()
 
     // Requête HTTP et affichage des résultats
     var xmlhttp = new XMLHttpRequest();
@@ -571,30 +648,14 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
                 subtitleProducts.appendChild(listProducts)
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
-                    var product = document.createElement("div")
-                    var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
-                    var nameProduct = document.createElement("div")
-
-                    var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
-
-                    nameProduct.appendChild(newContentHref);
-
-                    nameProduct.className = "nameProduct"
-                    
-                    product.className = "product"
-                    product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
-
-                    product.innerHTML = imgProduct
-                    product.appendChild(nameProduct)
-
-                    listProducts.appendChild(product)
-
+                    produitMap.set(results.results.bindings[0][produitLabel].value, results.results.bindings[0][produitImg].value)
                 }
             }
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+    return produitMap
 }
 
 function chargerImage(image, source){
