@@ -52,7 +52,7 @@ function companyRequest(companyName){
     var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
     doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur, mapFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
-    var mapProduit = doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
+    var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits,mapProduit)
 }
 
@@ -605,7 +605,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits, mapProduit
     xmlhttp.send();
 }
 
-function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
+function doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits){
     var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
     predicatListProduits.forEach( predicat => {
