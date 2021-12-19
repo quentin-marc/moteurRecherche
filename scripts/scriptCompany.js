@@ -6,27 +6,25 @@ function actOnWindow(){
     if(!companyURI){
         window.location.href="index.html"
     }
-    
 
     /*var uriUndo = {
         type : "companyURI",
         uri : companyURI
     }
-
-
-
     if(!undo ){
         undo = new Array()
     }
     undo.push(uriUndo)
     sessionStorage.setItem('undo',JSON.stringify(undo))
-    console.log(undo)*/
+    //console.log(undo)*/
     companyRequest(companyURI)
     //companyRequest("https://dbpedia.org/resource/Microsoft")
 
 }
 
 function companyRequest(companyName){
+
+    //Listes des prédicats par type de recherche
     predicatListAbstract = [" dbo:abstract"]
     predicatListName = ["dbo:name", "dbp:name", "foaf:name", "rdfs:label"]
     predicatListFondateur = ["dbo:foundedBy", "dbp:founders", "dbp:founder"]
@@ -43,6 +41,7 @@ function companyRequest(companyName){
 
     var dbrCompanyName = getDbrCompanyName(companyName)
 
+    //Appel des fonctions requêtes
     doCompanySparqlLogo(dbrCompanyName,predicatListLogo)
     doCompanySparqlName(dbrCompanyName,predicatListName)
     doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation)
@@ -52,14 +51,11 @@ function companyRequest(companyName){
     doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite)
     doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue)
     doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation)
-    //var mapFondateur = doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur)
-    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFondateur*/)
+    doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur)
     doCompanySparqlProduits(dbrCompanyName,predicatListProduits)
-    //var mapProduit = doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits)
-    doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*,mapProduit*/)
 }
 
-//Transforme l'uri en dbr:NomEntreprise
+//Transforme l'uri de l'entreprise en dbr:NomEntreprise
 function getDbrCompanyName(companyURI){
     var splitCompanyName = companyURI.split("/");
     var comapanyName = splitCompanyName[splitCompanyName.length - 1];
@@ -81,12 +77,12 @@ function getDbrCompanyName(companyURI){
 
 //Requete pour récuperer l'abstract
 function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
+
+    //Construction de la requête
     var contenu_requete = "SELECT ?abstract WHERE {";
 
     predicatListAbstract.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?abstract. FILTER(langMatches(lang(?abstract), \"EN\"))}}"
-        //console.log(contenu_requete)
     } )
 
     // Encodage de l'URL à transmettre à DBPedia
@@ -101,6 +97,8 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
             var objet = results.head.vars[0]
             //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+
+                //Ajout du texte dans la balise
                 var description = document.getElementById("description");
                 description.innerHTML = results.results.bindings[0][objet].value
                 description.classList.remove('no-data');
@@ -118,15 +116,15 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
 
 //Requete pour récuperer le nom de l'entreprise
 function doCompanySparqlName(dbrCompanyName,predicatListName){
+
+    //Construction de la requête
     var contenu_requete = "SELECT ?name WHERE {";
 
     predicatListName.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?name.}"
     } )
 
     contenu_requete += "FILTER(langMatches(lang(?name), \"EN\"))}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -138,8 +136,9 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+
+                //Ajout du texte dans la balise
                 var companyName = document.getElementById("companyName");
                 companyName.innerHTML = results.results.bindings[0][objet].value
                 companyName.classList.remove('no-data');
@@ -151,30 +150,20 @@ function doCompanySparqlName(dbrCompanyName,predicatListName){
 }
 
 //Requete pour récuperer les fondateurs de l'entreprise
-function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFondateur*/){
-    /*var contenu_requete = "SELECT ?fondateur ?fondateurLabel WHERE {";//?imgFondateur
+function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
 
-    predicatListFondateur.forEach( predicat => {
-        console.log(predicat)
-        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
-            " ?fondateur rdfs:label ?fondateurLabel." +
-            //" ?fondateur dbo:thumbnail ?imgFondateur." +
-            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
-    } )*/
-
+    //Construction de la requête
     var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
 
     predicatListFondateur.forEach( predicat => {
         //console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
-            " ?fondateur dbo:thumbnail ?imgFondateur." +
             " ?fondateur rdfs:label ?fondateurLabel." +
-            //" ?fondateur dbo:thumbnail ?imgFondateur." +
-            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
+            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n" +
+            " OPTIONAL{?fondateur dbo:thumbnail ?imgFondateur.\n} \n }"
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -188,13 +177,11 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFon
             var fondateur = results.head.vars[0]
             var fondateurLabel = results.head.vars[1]
             var fondateurImg = results.head.vars[2]
-            ////console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
                 && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
             ) {
-                var currentDiv = document.getElementsByClassName('cardContent')[0];
-
+                //Création des elements founder
                 var subtitleFounders = document.getElementsByClassName("subTitle")[0]
                 subtitleFounders.innerHTML = "Founders"
 
@@ -203,15 +190,12 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFon
                 subtitleFounders.appendChild(listFounders)
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var founder = document.createElement("div")
-                    if(/*mapFondateur != null &&*/ results.results.bindings[i][fondateurImg].value != null /*mapFondateur.get(results.results.bindings[i][fondateurLabel].value) != null*/ ){
-                        //var link = mapFondateur.get(results.results.bindings[i][fondateurLabel].value)
-                        var link = results.results.bindings[i][fondateurImg].value
-                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+link+");'></img>"
-                    }else {
-                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+"../img/personneAnonyme.png"+");'></img>"
+                    if(results.results.bindings[i][fondateurImg]) {
+                        var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
                     }
-                    //var imgFounder = "<img class='imgFounder' style='background: top / cover no-repeat url("+results.results.bindings[i][fondateurImg].value+");'></img>"
-
+                    else {
+                        var imgFounder = "<img class='imgFounder' src='../img/personneAnonyme.png'></img>"
+                    }
                     var nameFounder = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][fondateurLabel].value);
@@ -222,7 +206,9 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFon
                     founder.className = "founder"
                     founder.setAttribute("onclick", "changePage('founder.html', '" + results.results.bindings[i][fondateur].value + "')");
 
+                    
                     founder.innerHTML = imgFounder
+                    
                     founder.appendChild(nameFounder)
 
                     listFounders.appendChild(founder)
@@ -235,66 +221,19 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur/*, mapFon
     xmlhttp.send();
 }
 
-//Requete pour récuperer les fondateurs de l'entreprise
-function doCompanySparqlFondateurThumbnail(dbrCompanyName,predicatListFondateur){
-    var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
-
-    predicatListFondateur.forEach( predicat => {
-        //console.log(predicat)
-        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
-            " ?fondateur dbo:thumbnail ?imgFondateur." +
-            " ?fondateur rdfs:label ?fondateurLabel." +
-            //" ?fondateur dbo:thumbnail ?imgFondateur." +
-            " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n }"
-    } )
-
-    contenu_requete += "}"
-    //console.log(contenu_requete)
-
-    // Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
-
-    var fondateurMap = new Map();
-
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-            var fondateur = results.head.vars[0]
-            var fondateurLabel = results.head.vars[1]
-            var fondateurImg = results.head.vars[2]
-            //console.log(results);
-
-            if (results.results.bindings.length > 0 && results.results.bindings[0][fondateur] && results.results.bindings[0][fondateur].value != null
-                && results.results.bindings[0][fondateurLabel] && results.results.bindings[0][fondateurLabel].value != null
-            ) {
-                for (var i = 0; i < results.results.bindings.length; i++) {
-                    fondateurMap.set(results.results.bindings[i][fondateurLabel].value, results.results.bindings[i][fondateurImg].value)
-
-                }
-            }
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-    return fondateurMap
-}
-
 //Requete pour récuperer la localisation géographique de l'entreprise
 function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
+
+    //Construction de la requête
     var contenu_requete = "SELECT ?localisationLabel WHERE {";
 
     predicatListLocalisation.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?localisation. " +
             "?localisation rdfs:label ?localisationLabel.\n" +
             "FILTER(langMatches(lang(?localisationLabel), \"EN\"))\n }"
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -306,9 +245,9 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
+                //Ajout de l'adresse du siège social dans la balise html
                 var adressHeadquarters = document.getElementsByClassName("adressHeadquarters")[0]
 
                 var b = document.createElement("b")
@@ -329,15 +268,15 @@ function doCompanySparqlLocalisation(dbrCompanyName,predicatListLocalisation){
 
 //Requete pour récuperer l'année de création de l'entreprise
 function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
+
+    //Construction de la requête
     var contenu_requete = "SELECT YEAR(?anneeCreation) WHERE {";
 
     predicatListAnneeCreation.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?anneeCreation. }"
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -349,8 +288,9 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+
+                //Ajout de l'année de création dans la balise html
                 var textAnneeCreation = document.getElementsByClassName("textCreation")[0]
 
                 var b = document.createElement("b")
@@ -372,15 +312,15 @@ function doCompanySparqlAnneeCreation(dbrCompanyName,predicatListAnneeCreation){
 
 //Requete pour récuperer le nombre d'employés de l'entreprise
 function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye){
+
+    //Construction de la requête
     var contenu_requete = "SELECT str(?nbEmployee) WHERE {";
 
     predicatListNombreEmploye.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += "OPTIONAL { " + dbrCompanyName + " " + predicat + " ?nbEmployee. }"
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -392,8 +332,9 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
+
+                //Ajout du nombre d'employés dans la balise html
                 var nbEmployes = document.getElementsByClassName("nbEmployes")[0]
 
                 var b = document.createElement("b")
@@ -415,6 +356,8 @@ function doCompanySparqlNombreEmployee(dbrCompanyName,predicatListNombreEmploye)
 
 //Requete pour récuperer le lien du siteweb de l'entreprise
 function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
+
+    //Construction de la requête
     var contenu_requete = "SELECT str(?lienWebsite) WHERE {";
 
     predicatListLienWebsite.forEach( predicat => {
@@ -427,7 +370,6 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -439,9 +381,9 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
+                //Ajout du lien du site web dans la balise html
                 var lienWebsite = document.getElementsByClassName("lienWebsite")[0]
 
                 var b = document.createElement("b")
@@ -463,6 +405,8 @@ function doCompanySparqlLienWbesite(dbrCompanyName,predicatListLienWebsite){
 
 //Requete pour récuperer l'industrie de l'entreprise
 function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
+
+    //Construction de la requête
     var contenu_requete = "SELECT str(?industrieLabel) WHERE {";
 
     predicatListIndustrie.forEach( predicat => {
@@ -472,7 +416,6 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -484,9 +427,9 @@ function doCompanySparqlIndustrie(dbrCompanyName,predicatListIndustrie){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
+                //Ajout du type d'industrie dans la balise html
                 var industry = document.getElementsByClassName("industry")[0]
 
                 var b = document.createElement("b")
@@ -514,7 +457,6 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -526,9 +468,9 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
+                //Ajout du chiffre d'affaire de l'entreprise dans la balise html
                 var revenue = document.getElementsByClassName("netIncome")[0]
 
                 var b = document.createElement("b")
@@ -549,29 +491,19 @@ function doCompanySparqlRevenue(dbrCompanyName,predicatListRevenue){
 }
 
 //Requete pour récuperer les produits créés par l'entreprise
-function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProduit*/){
-    /*var contenu_requete = "SELECT ?produit ?labelProduit WHERE {";//?imgProduit
+function doCompanySparqlProduits(dbrCompanyName,predicatListProduits){
 
-    predicatListProduits.forEach( predicat => {
-        //console.log(predicat)
-        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
-            " ?produit rdfs:label ?labelProduit." +
-            //" ?produit dbo:thumbnail ?imgProduit." +
-            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
-    } )*/
-
+    //Construction de la requête
     var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
 
     predicatListProduits.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
             " ?produit rdfs:label ?labelProduit." +
-            " ?produit dbo:thumbnail ?imgProduit." +
-            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
+            " FILTER(langMatches(lang(?labelProduit), \"EN\"))" +
+            " \nOPTIONAL{?produit dbo:thumbnail ?imgProduit.} \n}"
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -585,14 +517,12 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProdu
             var produit = results.head.vars[0]
             var produitLabel = results.head.vars[1]
             var produitImg = results.head.vars[2]
-            //console.log(results);
 
             if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
                 && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
             ) {
 
-                var currentDiv = document.getElementsByClassName('cardContent')[0];
-
+                //Création et ajout des produits
                 var subtitleProducts = document.getElementsByClassName("subTitle")[1]
                 subtitleProducts.innerHTML = "Products"
                 var listProducts = document.createElement("div")
@@ -601,15 +531,11 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProdu
 
                 for (var i = 0; i < results.results.bindings.length; i++) {
                     var product = document.createElement("div")
-                    if(/*mapProduit != null && mapProduit.get(results.results.bindings[i][produitLabel].value) != null*/ results.results.bindings[i][produitImg].value != null){
-                        //var link = mapProduit.get(results.results.bindings[i][produitLabel].value)
-                        var link = results.results.bindings[i][produitImg].value
-                        //console.log("ici")
-                        var imgProduct = "<img class='imgProduct' src='"+link+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
-                    }else {
-                        var imgProduct = "<img class='imgProduct' src='../img/objetInconnu.png' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    if(results.results.bindings[i][produitImg]){
+                        var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
+                    } else {
+                        var imgProduct = "<img class='imgProduct' src='../img/objetInconnu.png'></img>"
                     }
-                    //var imgProduct = "<img class='imgProduct' src='"+results.results.bindings[i][produitImg].value+"' onerror='this.onerror=null; this.src=\"../img/objetInconnu.png\"'></img>"
                     var nameProduct = document.createElement("div")
 
                     var newContentHref = document.createTextNode(results.results.bindings[i][produitLabel].value);
@@ -622,6 +548,7 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProdu
                     product.setAttribute("onclick", "changePage('product.html', '" + results.results.bindings[i][produit].value + "')");
 
                     product.innerHTML = imgProduct
+
                     product.appendChild(nameProduct)
 
                     listProducts.appendChild(product)
@@ -634,65 +561,14 @@ function doCompanySparqlProduits(dbrCompanyName,predicatListProduits/*, mapProdu
     xmlhttp.send();
 }
 
-function doCompanySparqlProduitsThumbnail(dbrCompanyName,predicatListProduits){
-    var contenu_requete = "SELECT ?produit ?labelProduit ?imgProduit WHERE {";
-
-    predicatListProduits.forEach( predicat => {
-        //console.log(predicat)
-        contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?produit." +
-            " ?produit rdfs:label ?labelProduit." +
-            " ?produit dbo:thumbnail ?imgProduit." +
-            " FILTER(langMatches(lang(?labelProduit), \"EN\"))\n }"
-    } )
-
-    contenu_requete += "}"
-    //console.log(contenu_requete)
-
-    // Encodage de l'URL à transmettre à DBPedia
-    var url_base = "http://dbpedia.org/sparql";
-    var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
-
-    var produitMap = new Map()
-
-    // Requête HTTP et affichage des résultats
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-            var produit = results.head.vars[0]
-            var produitLabel = results.head.vars[1]
-            var produitImg = results.head.vars[2]
-            //console.log(results);
-
-            if (results.results.bindings.length > 0 && results.results.bindings[0][produit] && results.results.bindings[0][produit].value != null
-                && results.results.bindings[0][produitLabel] && results.results.bindings[0][produitLabel].value != null
-            ) {
-
-                var currentDiv = document.getElementsByClassName('cardContent')[0];
-
-                var subtitleProducts = document.getElementsByClassName("subTitle")[1]
-                subtitleProducts.innerHTML = "Products"
-                var listProducts = document.createElement("div")
-                listProducts.className = "listProducts"
-                subtitleProducts.appendChild(listProducts)
-
-                for (var i = 0; i < results.results.bindings.length; i++) {
-                    produitMap.set(results.results.bindings[i][produitLabel].value, results.results.bindings[i][produitImg].value)
-                }
-            }
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-    return produitMap
-}
-
 function chargerImage(image, source){
     image.src = source;
 }
 
 //Requete pour récuperer le logo de l'entreprise
 function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
+
+    //Construction de la requête
     var contenu_requete = "SELECT ?logo WHERE {";
 
     predicatListLogo.forEach( predicat => {
@@ -700,7 +576,6 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
     } )
 
     contenu_requete += "}"
-    //console.log(contenu_requete)
 
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
@@ -715,9 +590,10 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
 
             var imageCompany = document.getElementById("imageCompany");
 
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][logo] && results.results.bindings[0][logo].value != null) {
-                    var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
+
+                //Test si le logo existe sur le web sinon affiche une image par défaut
+                var uriLogo = results.results.bindings[0][logo].value.replace(/\s+/g, "_");
                     getImageProduct( uriLogo ).then((imageFullURI)=>{
                         if(imageFullURI != ""){
                             imageCompany.src = imageFullURI
@@ -755,7 +631,6 @@ function getImageProduct(imageURIend){
 
 //Change to page name
 function changePage( pageName, URI ) {
-    //console.log(URI);
 
     if(pageName == "product.html"){
         sessionStorage.setItem('Product',URI);
