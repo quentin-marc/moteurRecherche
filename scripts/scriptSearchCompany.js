@@ -395,7 +395,7 @@ function doSparqlRequest(request) {
 				answer(results);
 			}
 		};
-		xmlhttp.timeout = 20000;
+		xmlhttp.timeout = 15000;
 		xmlhttp.ontimeout = function(){
 			answer(null);
 		}
