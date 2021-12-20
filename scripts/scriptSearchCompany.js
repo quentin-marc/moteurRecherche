@@ -71,7 +71,7 @@ function createSearchCompanyQuerry(filtersValueList) {
 				querryContent += "\n" + currVar + " " + filter[1] + " " + currVar + "Value.";
 				currVar += "Value";
 			}
-			querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + value.toLowerCase() + "\"))\n}";
+			querryContent += "\nFILTER(contains(lcase(STR(" + currVar + ")), \"" + value.toLowerCase() + "\")) FILTER(langMatches(lang(" + currVar + "), \"EN\")) \n}";
 		};
 	} );
 	//Get more data to order the result by relevence
@@ -111,7 +111,7 @@ function serchCompanyByFilter(filtersValueList) {
 				companyMap[companyURI].comapanyDBR = companyDBR;
 				companyResultOrderdList.push(companyURI);
 
-				promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR).catch(error => console.log(error)) );
+				promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
 			} )
 
 			//Waits for all promises to return to display the results
@@ -379,11 +379,11 @@ function doSparqlRequestForPredicate(company, predicateList, varName, getLabel, 
 //Return the answer of this query 
 function doSparqlRequest(request) {
 
-	
 	return new Promise((answer)=>{
 		// Encodage de l'URL à transmettre à DBPedia
 		var url_base = "http://dbpedia.org/sparql";
 		var url = url_base + "?query=" + encodeURIComponent(request) + "&format=json";
+		var resultFound = false;
 
 		// Requête HTTP et affichage des résultats
 		var xmlhttp = new XMLHttpRequest();
@@ -392,15 +392,21 @@ function doSparqlRequest(request) {
 				var results = JSON.parse(this.responseText);
 				//Get the list of result
 				resultList = results.results.bindings
+				resultFound = true;
 				answer(results);
 			}
 		};
-		xmlhttp.timeout = 15000;
-		xmlhttp.ontimeout = function(){
-			answer(null);
-		}
+		//xmlhttp.timeout = 15000;
+		// xmlhttp.ontimeout = function(){
+		// 	answer(null);
+		// }
 		xmlhttp.open("GET", url, true);
 		xmlhttp.send();
+
+		setTimeout(() => {
+			if(!resultFound)
+				answer(null);
+		  }, 15000);
 	});
 }
 

@@ -22,7 +22,7 @@ function protectionSearchFields(){
         companyName = majFirstLetterOnly(companyName);      // TODO Uber eats ne marche pas
         founder = majFirstLetters(founder);
         industry = majFirstLetters(industry);
-
+        
         //TODO lancer recherche dbpedia
         //alert("lancer recherche dbpedia");
         var filterValueList = [];
