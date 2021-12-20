@@ -90,7 +90,6 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
         contenu_requete = "SELECT * WHERE {OPTIONAL {"+ressource+" "+predicat+" ?"+varName + "}}\n"
     }
     console.log(contenu_requete)
-    //console.log(contenu_requete)
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "http://dbpedia.org/sparql";
     var url = url_base + "?query=" + encodeURIComponent(contenu_requete) + "&format=json";
@@ -101,7 +100,6 @@ function singleSelect(ressourceURI,predicat,varName,filterOnLang){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var predicat = results.head.vars[0]
-             //console.log(results)
                 
             if(predicat == "RDFS_label" || predicat == "DBO_name" || predicat == "DBP_name"){
                 
@@ -209,9 +207,6 @@ function removePrefix(str){
 }
 
 function getImageFounder(url_wikipedia){
-
-    //console.log("url : "+url_wikipedia)
-
     // Encodage de l'URL à transmettre à DBPedia
     var url_base = "https://commons.wikimedia.org/wiki/Special:FilePath/";
     var url = url_base + url_wikipedia;

@@ -80,7 +80,7 @@ function createSearchCompanyQuerry(filtersValueList) {
 	querryContent += "\nOPTIONAL { ?company dbp:numEmployees ?numEmployees. }"
 	querryContent += "\n}"
 	querryContent += "ORDER BY DESC(<http://www.w3.org/2001/XMLSchema#integer>(?income)) DESC(?numEmployees)\n";
-	querryContent += "LIMIT 10";
+	querryContent += "LIMIT 15";
 	console.log(querryContent)
 	return querryContent;
 }
@@ -111,7 +111,7 @@ function serchCompanyByFilter(filtersValueList) {
 				companyMap[companyURI].comapanyDBR = companyDBR;
 				companyResultOrderdList.push(companyURI);
 
-				promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR) );
+				promises.push( getCompanyMainInformationPromise( companyMap[companyURI], companyDBR).catch(error => console.log(error)) );
 			} )
 
 			//Waits for all promises to return to display the results

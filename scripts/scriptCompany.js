@@ -82,7 +82,6 @@ function doCompanySparqlAbstract(dbrCompanyName,predicatListAbstract){
         if (this.readyState == 4 && this.status == 200) {
             var results = JSON.parse(this.responseText);
             var objet = results.head.vars[0]
-            //console.log(results);
             if(results.results.bindings.length > 0 && results.results.bindings[0][objet] && results.results.bindings[0][objet].value != null){
 
                 //Ajout du texte dans la balise
@@ -143,7 +142,6 @@ function doCompanySparqlFondateur(dbrCompanyName,predicatListFondateur){
     var contenu_requete = "SELECT ?fondateur ?fondateurLabel ?imgFondateur WHERE {";
 
     predicatListFondateur.forEach( predicat => {
-        //console.log(predicat)
         contenu_requete += " OPTIONAL { " + dbrCompanyName + " " + predicat + " ?fondateur." +
             " ?fondateur rdfs:label ?fondateurLabel." +
             " FILTER(langMatches(lang(?fondateurLabel), \"EN\"))\n" +
@@ -585,7 +583,7 @@ function doCompanySparqlLogo(dbrCompanyName,predicatListLogo){
                         if(imageFullURI != ""){
                             imageCompany.src = imageFullURI
                         }else {
-                            imageCompany.src = '../img/DBpedia-Logo.png'
+                            imageCompany.src = '../img/objetInconnu.png'
                         }
                     });
             }
