@@ -1,5 +1,16 @@
-# moteurRecherche
+# Compan'IF
 
-Aller sur Fichier index.html dans un navigateur (index.html se trouve dans le dossier htlml )
+## About
 
-L'application n'est pas compatible avec le navigateur Internet Explorer
+Compan'IF is a search engined specialized in companies. It allows to search companies by name, fouder and industty type.
+
+## How to run
+
+1. Open the index.html file in a browser
+2. Follow the instructions on the web page
+
+Note: This application does not run on Internet Explorer
+
+## Authors
+
+INSA group H4113 - December 2021
